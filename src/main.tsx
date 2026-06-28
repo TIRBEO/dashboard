@@ -5,16 +5,26 @@ import "./styles.css";
 import DashboardLayout from "./App";
 import AuthCallback from "./pages/AuthCallback";
 import DashboardPage from "./pages/Dashboard";
+import SettingsPage from "./pages/SettingsPage";
+import MembersPage from "./pages/MembersPage";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
+        <Route path="auth/callback" element={<AuthCallback />} />
         <Route element={<DashboardLayout />}>
           <Route index element={<DashboardPage />} />
-          <Route path="auth/callback" element={<AuthCallback />} />
+          <Route path="chat" element={<NavigateTo url="https://chat.tirbeo.com" />} />
+          <Route path="members" element={<MembersPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
   </StrictMode>,
 );
+
+function NavigateTo({ url }: { url: string }) {
+  window.location.href = url;
+  return null;
+}
