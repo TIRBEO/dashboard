@@ -61,3 +61,15 @@ export function exchangeCode(code: string): Promise<Session> {
 export function isLoggedIn(): boolean {
   return getSession() !== null;
 }
+
+export function encodeSession(session: Session): string {
+  return btoa(JSON.stringify(session));
+}
+
+export function decodeSession(encoded: string): Session | null {
+  try {
+    return JSON.parse(atob(encoded)) as Session;
+  } catch {
+    return null;
+  }
+}

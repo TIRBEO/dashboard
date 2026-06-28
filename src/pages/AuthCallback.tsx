@@ -1,28 +1,9 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { exchangeCode, setSession } from "@/lib/session";
+import { exchangeCode, setSession, decodeSession } from "@/lib/session";
+import { ACCOUNTS_URL } from "@/lib/config";
 
 type Status = "exchanging" | "success" | "error";
-
-interface AppSession {
-  user: {
-    id: string;
-    email: string;
-    username: string;
-    displayName: string;
-    avatarUrl?: string;
-  };
-  token: string;
-  expiresAt: number;
-}
-
-function decodeSession(encoded: string): AppSession | null {
-  try {
-    return JSON.parse(atob(encoded)) as AppSession;
-  } catch {
-    return null;
-  }
-}
 
 export default function AuthCallback() {
   const [searchParams] = useSearchParams();
@@ -99,7 +80,7 @@ export default function AuthCallback() {
           <p className="mt-1 text-xs text-destructive">{error}</p>
           <div className="mt-4 flex gap-3 justify-center">
             <a
-              href={`${window.location.hostname === "localhost" ? "http://localhost:5174" : "https://accounts-three-self.vercel.app"}/login?redirect_to=${encodeURIComponent(window.location.origin + "/auth/callback")}`}
+              href={`${window.location.hostname === "localhost" ? "http://localhost:5174" : ACCOUNTS_URL}/login?redirect_to=${encodeURIComponent(window.location.origin + "/auth/callback")}`}
               className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-foreground/90"
             >
               Try again
