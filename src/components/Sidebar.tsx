@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, MessageSquare, Settings, Users, LogOut, ChevronLeft } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Settings, Users, LogOut, ChevronLeft, Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const links = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -62,6 +63,20 @@ export function Sidebar({ collapsed, onToggle, onLogout, displayName }: SidebarP
           <LogOut className="h-4 w-4 shrink-0" />
           {!collapsed && <span>Sign Out</span>}
         </button>
+        {!collapsed && (
+          <div className="px-3 py-2 mt-2 border-t border-border/50">
+            <div className="flex items-center gap-2 justify-center">
+              <Palette className="h-3 w-3 text-ink-soft" />
+              <span className="text-xs text-ink-soft">Theme</span>
+            </div>
+            <ThemeToggle className="mt-1" />
+          </div>
+        )}
+        {collapsed && (
+          <div className="px-3 py-1">
+            <ThemeToggle className="mx-auto" />
+          </div>
+        )}
       </div>
     </div>
   );
