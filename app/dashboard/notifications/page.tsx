@@ -62,9 +62,9 @@ export default function NotificationsPage() {
         ) : notifications.map(n => (
           <div key={n.id} className="table-row" style={{ padding: "12px 18px", opacity: n.read ? 0.5 : 1 }}>
             <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div style={{ width: 7, height: 7, borderRadius: "50%", background: n.read ? "transparent" : "var(--accent)", flexShrink: 0 }} />
+              <div style={{ width: 7, height: 7, borderRadius: "50%", background: n.read ? "transparent" : "#ffffff", flexShrink: 0 }} />
               <div className="min-w-0">
-                <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>{n.title}</p>
+                <p style={{ fontSize: 13, fontWeight: 500, color: "#ffffff" }}>{n.title}</p>
                 {n.body && <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }} className="truncate">{n.body}</p>}
               </div>
             </div>

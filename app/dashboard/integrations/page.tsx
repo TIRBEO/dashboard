@@ -8,15 +8,15 @@ const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 type Integration = { id: string; provider: string; connected: boolean; createdAt: string };
 
 const PROVIDERS = [
-  { id: "google", name: "Google", color: "#4285F4" },
-  { id: "github", name: "GitHub", color: "#fff" },
-  { id: "slack", name: "Slack", color: "#E01E5A" },
-  { id: "discord", name: "Discord", color: "#5865F2" },
-  { id: "zapier", name: "Zapier", color: "#FF4A00" },
-  { id: "notion", name: "Notion", color: "#fff" },
-  { id: "linear", name: "Linear", color: "#5E6AD2" },
-  { id: "figma", name: "Figma", color: "#A259FF" },
-  { id: "openai", name: "OpenAI", color: "#10A37F" },
+  { id: "google", name: "Google" },
+  { id: "github", name: "GitHub" },
+  { id: "slack", name: "Slack" },
+  { id: "discord", name: "Discord" },
+  { id: "zapier", name: "Zapier" },
+  { id: "notion", name: "Notion" },
+  { id: "linear", name: "Linear" },
+  { id: "figma", name: "Figma" },
+  { id: "openai", name: "OpenAI" },
 ];
 
 export default function IntegrationsPage() {
@@ -71,11 +71,11 @@ export default function IntegrationsPage() {
             <div key={p.id} className="glass" style={{ padding: "16px 18px" }}>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: "var(--accent-muted)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: p.color }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>
                     {p.name[0]}
                   </div>
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>{p.name}</p>
+                    <p style={{ fontSize: 13, fontWeight: 500, color: "#ffffff" }}>{p.name}</p>
                     <p style={{ fontSize: 11, color: "var(--text-muted)" }}>{connected ? "Connected" : "Not connected"}</p>
                   </div>
                 </div>

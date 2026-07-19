@@ -85,7 +85,7 @@ export default function SiteConfigPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-32">
-        <div style={{ width: 32, height: 32, border: "2px solid rgba(255,255,255,0.08)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "spin 0.6s linear infinite" }} />
+        <div style={{ width: 32, height: 32, border: "2px solid rgba(255,255,255,0.08)", borderTopColor: "rgba(255,255,255,0.4)", borderRadius: "50%", animation: "spin 0.6s linear infinite" }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </div>
     );
@@ -100,7 +100,7 @@ export default function SiteConfigPage() {
         </div>
         <div className="flex items-center gap-2">
           {msg && (
-            <span style={{ fontSize: 13, fontWeight: 500, color: msg.type === "success" ? "var(--success)" : "var(--danger)" }}>
+            <span style={{ fontSize: 13, fontWeight: 500, color: msg.type === "success" ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.5)" }}>
               {msg.text}
             </span>
           )}
@@ -284,7 +284,7 @@ function NavbarEditor({ data, config, update }: { data: any; config: any; update
             <div key={i} className="glass-subtle" style={{ padding: 16, borderRadius: 14 }}>
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>Link #{i + 1}</span>
-                <button onClick={() => removeLink(i)} className="btn btn-ghost" style={{ height: 28, padding: "0 8px", fontSize: 11, color: "var(--danger)" }}>
+                <button onClick={() => removeLink(i)} className="btn btn-ghost" style={{ height: 28, padding: "0 8px", fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
                   <Trash2 size={12} />
                 </button>
               </div>
@@ -371,7 +371,7 @@ function ProductsEditor({ data, config, update }: { data: any; config: any; upda
         <div key={i} className="glass-subtle" style={{ padding: 16, borderRadius: 14 }}>
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>Product #{i + 1} — {item.n}</span>
-            <button onClick={() => removeItem(i)} className="btn btn-ghost" style={{ height: 28, padding: "0 8px", fontSize: 11, color: "var(--danger)" }}>
+            <button onClick={() => removeItem(i)} className="btn btn-ghost" style={{ height: 28, padding: "0 8px", fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
               <Trash2 size={12} /> Remove
             </button>
           </div>
@@ -465,7 +465,7 @@ function AboutEditor({ data, config, update, updateBilingual }: { data: any; con
                 <span className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>#{i + 1}</span>
                 <button
                   onClick={() => update("about", "paragraphs", paragraphs.filter((_: any, idx: number) => idx !== i))}
-                  style={{ color: "var(--danger)", fontSize: 11, background: "none", border: "none", cursor: "pointer" }}
+                  style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, background: "none", border: "none", cursor: "pointer" }}
                 >
                   <Trash2 size={12} />
                 </button>
@@ -525,7 +525,7 @@ function FaqEditor({ data, config, update, updateBilingual }: { data: any; confi
                 <span className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>Q#{i + 1}</span>
                 <button
                   onClick={() => update("faq", "items", items.filter((_: any, idx: number) => idx !== i))}
-                  style={{ color: "var(--danger)", fontSize: 11, background: "none", border: "none", cursor: "pointer" }}
+                  style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, background: "none", border: "none", cursor: "pointer" }}
                 >
                   <Trash2 size={12} />
                 </button>
@@ -640,7 +640,7 @@ function TestimonialsEditor({ data, config, update, updateBilingual }: { data: a
                 </div>
                 <button
                   onClick={() => update("testimonials", "items", items.filter((_: any, idx: number) => idx !== i))}
-                  style={{ color: "var(--danger)", fontSize: 11, background: "none", border: "none", cursor: "pointer" }}
+                  style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, background: "none", border: "none", cursor: "pointer" }}
                 >
                   <Trash2 size={12} />
                 </button>

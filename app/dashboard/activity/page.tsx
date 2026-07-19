@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Activity } from "lucide-react";
+import { FileText } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
@@ -62,7 +62,7 @@ export default function ActivityPage() {
       <div className="glass" style={{ padding: "6px 0" }}>
         {Object.entries(groups).length === 0 ? (
           <div className="card-section text-center">
-            <Activity size={28} style={{ color: "var(--text-muted)", margin: "0 auto 10px" }} />
+            <FileText size={28} style={{ color: "var(--text-muted)", margin: "0 auto 10px" }} />
             <p style={{ fontSize: 13, color: "var(--text-muted)" }}>No activity found</p>
           </div>
         ) : Object.entries(groups).map(([date, items]) => (
@@ -71,9 +71,9 @@ export default function ActivityPage() {
             {items.map(log => (
               <div key={log.id} className="table-row" style={{ padding: "10px 18px" }}>
                 <div className="flex items-center gap-3">
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: log.severity === "error" ? "var(--danger)" : log.severity === "warning" ? "var(--warning)" : "var(--text-muted)", flexShrink: 0 }} />
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: log.severity === "error" ? "rgba(255,255,255,0.5)" : log.severity === "warning" ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.15)", flexShrink: 0 }} />
                   <div>
-                    <p style={{ fontSize: 13, color: "var(--text)" }}>{log.action}</p>
+                    <p style={{ fontSize: 13, color: "#ffffff" }}>{log.action}</p>
                     {log.targetType && <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>{log.targetType}{log.targetId ? ` · ${log.targetId.slice(0, 8)}` : ""}</p>}
                   </div>
                 </div>

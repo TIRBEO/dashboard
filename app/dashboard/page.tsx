@@ -50,7 +50,7 @@ export default function DashboardHome() {
           {user.photoUrl ? <img src={user.photoUrl} alt="" /> : initials}
         </div>
         <div className="flex-1 min-w-0">
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: "var(--text)", letterSpacing: "-0.03em" }}>{user.name || "Welcome"}</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: "#ffffff", letterSpacing: "-0.03em" }}>{user.name || "Welcome"}</h1>
           <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}>{user.occupation || "Member"}</p>
         </div>
         <Link href="/dashboard/profile" className="btn btn-ghost" style={{ fontSize: 12 }}>
@@ -60,15 +60,15 @@ export default function DashboardHome() {
 
       <div className="grid grid-cols-2 gap-3">
         {[
-          { label: "Completion", value: `${pct}%`, icon: Zap, color: "var(--text)" },
-          { label: "2FA", value: user.is2FAEnabled ? "Active" : "Off", icon: Shield, color: user.is2FAEnabled ? "var(--success)" : "var(--danger)" },
+          { label: "Completion", value: `${pct}%`, icon: Zap },
+          { label: "2FA", value: user.is2FAEnabled ? "Active" : "Off", icon: Shield },
         ].map((s) => (
           <div key={s.label} className="glass" style={{ padding: "14px 16px" }}>
             <div className="flex items-center gap-2 mb-2">
               <s.icon size={13} style={{ color: "var(--text-muted)" }} />
               <span style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)" }}>{s.label}</span>
             </div>
-            <p style={{ fontSize: 22, fontWeight: 700, color: s.color, letterSpacing: "-0.03em" }}>{s.value}</p>
+            <p style={{ fontSize: 22, fontWeight: 700, color: "#ffffff", letterSpacing: "-0.03em" }}>{s.value}</p>
           </div>
         ))}
       </div>
@@ -76,7 +76,7 @@ export default function DashboardHome() {
       <div className="glass" style={{ padding: "18px 20px" }}>
         <div className="flex items-center gap-2 mb-4">
           <Activity size={14} style={{ color: "var(--text-muted)" }} />
-          <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Quick Actions</h3>
+          <h3 style={{ fontSize: 13, fontWeight: 600, color: "#ffffff" }}>Quick Actions</h3>
         </div>
         <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
           {[
@@ -90,7 +90,7 @@ export default function DashboardHome() {
                 <q.icon size={16} style={{ color: "var(--text-secondary)" }} />
                 <ArrowUpRight size={11} style={{ color: "var(--text-muted)" }} className="opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
-              <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>{q.label}</p>
+              <p style={{ fontSize: 13, fontWeight: 500, color: "#ffffff" }}>{q.label}</p>
               <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{q.desc}</p>
             </Link>
           ))}
@@ -101,14 +101,14 @@ export default function DashboardHome() {
         <div className="glass" style={{ padding: "18px 20px" }}>
           <div className="flex items-center gap-2 mb-3">
             <CheckCircle2 size={14} style={{ color: "var(--text-muted)" }} />
-            <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Account Status</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 600, color: "#ffffff" }}>Account Status</h3>
           </div>
           <div>
             {checks.map(c => (
               <div key={c.label} className="table-row" style={{ padding: "8px 0" }}>
                 <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{c.label}</span>
                 {c.ok ? (
-                  <CheckCircle2 size={14} style={{ color: "var(--success)" }} />
+                  <CheckCircle2 size={14} style={{ color: "rgba(255,255,255,0.7)" }} />
                 ) : (
                   <XCircle size={14} style={{ color: "var(--text-muted)" }} />
                 )}
@@ -116,7 +116,7 @@ export default function DashboardHome() {
             ))}
           </div>
           {pct < 100 && (
-            <Link href="/dashboard/profile" style={{ fontSize: 12, color: "var(--accent)", textDecoration: "none", marginTop: 8, display: "inline-block" }}>
+            <Link href="/dashboard/profile" style={{ fontSize: 12, color: "#ffffff", textDecoration: "none", marginTop: 8, display: "inline-block" }}>
               Complete your profile →
             </Link>
           )}
@@ -125,7 +125,7 @@ export default function DashboardHome() {
         <div className="glass" style={{ padding: "18px 20px" }}>
           <div className="flex items-center gap-2 mb-3">
             <Clock size={14} style={{ color: "var(--text-muted)" }} />
-            <h3 style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Recent Activity</h3>
+            <h3 style={{ fontSize: 13, fontWeight: 600, color: "#ffffff" }}>Recent Activity</h3>
           </div>
           {activity.length === 0 ? (
             <p style={{ fontSize: 13, color: "var(--text-muted)" }}>No recent activity</p>
@@ -143,7 +143,7 @@ export default function DashboardHome() {
       </div>
 
       <div className="glass-subtle" style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: 10, borderRadius: 10 }}>
-        <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--success)", flexShrink: 0 }} />
+        <div style={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.4)", flexShrink: 0 }} />
         <p style={{ fontSize: 11, color: "var(--text-muted)" }}>
           Member since {new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
           {user.country ? ` · ${user.country}` : ""}

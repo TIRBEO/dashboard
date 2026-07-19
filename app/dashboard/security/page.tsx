@@ -115,7 +115,7 @@ export default function SecurityPage() {
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>
+            <p style={{ fontSize: 13, fontWeight: 500, color: "#ffffff" }}>
               {info.is2FAEnabled ? "2FA is enabled" : "2FA is not enabled"}
             </p>
             <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
@@ -149,7 +149,7 @@ export default function SecurityPage() {
         )}
       </div>
 
-      {toast && <div className={`toast ${toast.includes("success") || toast.includes("changed") ? "toast-success" : "toast-error"}`}>{toast}</div>}
+      {toast && <div className={`toast ${toast.includes("changed") ? "toast-success" : "toast-error"}`}>{toast}</div>}
     </div>
   );
 }

@@ -155,11 +155,11 @@ export default function ProfilePage() {
       </div>
 
       {isOAuth && !p.hasPassword && (
-        <div className="glass card-section" style={{ borderLeft: "3px solid var(--warning)" }}>
+        <div className="glass card-section" style={{ borderLeft: "3px solid rgba(255,255,255,0.2)" }}>
           <div className="flex items-start gap-3">
-            <Shield size={18} style={{ color: "var(--warning)", marginTop: 2, flexShrink: 0 }} />
+            <Shield size={18} style={{ color: "rgba(255,255,255,0.6)", marginTop: 2, flexShrink: 0 }} />
             <div className="flex-1">
-              <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>
+              <p style={{ fontSize: 13, fontWeight: 500, color: "#ffffff" }}>
                 Signed in with {p.hasGoogle ? "Google" : "GitHub"}
               </p>
               <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
@@ -209,7 +209,7 @@ export default function ProfilePage() {
             </div>
             <div style={{
               position: "absolute", bottom: -2, right: -2, width: 22, height: 22,
-              borderRadius: 7, background: "var(--bg-elevated)", border: "1.5px solid var(--border)",
+              borderRadius: 7, background: "rgba(255,255,255,0.06)", border: "1.5px solid rgba(255,255,255,0.1)",
               display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
             }} onClick={() => document.getElementById('avatar-input')?.click()}>
               <Camera size={10} style={{ color: "var(--text-muted)" }} />
@@ -232,7 +232,7 @@ export default function ProfilePage() {
             />
           </div>
           <div>
-            <p style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>{p.name || "No name set"}</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color: "#ffffff" }}>{p.name || "No name set"}</p>
             <p style={{ fontSize: 12, color: "var(--text-muted)" }}>{p.email}</p>
             <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
               {isOAuth ? `Connected via ${p.hasGoogle ? "Google" : "GitHub"}` : "Email + Password"}

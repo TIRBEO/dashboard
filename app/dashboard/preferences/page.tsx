@@ -15,7 +15,7 @@ function Toggle({ label, desc, value, onChange }: { label: string; desc: string;
   return (
     <div className="table-row">
       <div>
-        <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>{label}</p>
+        <p style={{ fontSize: 13, fontWeight: 500, color: "#ffffff" }}>{label}</p>
         <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>{desc}</p>
       </div>
       <div className={`toggle ${value ? "active" : ""}`} onClick={() => onChange(!value)} />

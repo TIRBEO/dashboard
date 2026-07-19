@@ -26,7 +26,7 @@ export default function HelpPage() {
               <l.icon size={18} style={{ color: "var(--text-secondary)", marginTop: 1, flexShrink: 0 }} />
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <p style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>{l.title}</p>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: "#ffffff" }}>{l.title}</p>
                   <ExternalLink size={11} style={{ color: "var(--text-muted)" }} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 3 }}>{l.desc}</p>
@@ -38,7 +38,7 @@ export default function HelpPage() {
 
       <div className="glass-subtle" style={{ padding: "12px 16px", borderRadius: 10 }}>
         <p style={{ fontSize: 11, textAlign: "center", color: "var(--text-muted)" }}>
-          Tirbeo v1.0.0 · <a href="https://tirbeo.app/changelog" target="_blank" rel="noopener noreferrer" style={{ color: "var(--text-secondary)", textDecoration: "underline" }}>Release Notes</a>
+          Tirbeo v1.0.0 · <a href="https://tirbeo.app/changelog" target="_blank" rel="noopener noreferrer" style={{ color: "rgba(255,255,255,0.5)", textDecoration: "underline" }}>Release Notes</a>
         </p>
       </div>
     </div>

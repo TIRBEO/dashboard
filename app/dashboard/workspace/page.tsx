@@ -70,7 +70,7 @@ export default function WorkspacePage() {
 
       {showCreate && (
         <div className="glass card-section space-y-3 animate-in">
-          <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text)", margin: 0 }}>Create Workspace</h3>
+          <h3 style={{ fontSize: 14, fontWeight: 600, color: "#ffffff", margin: 0 }}>Create Workspace</h3>
           <input placeholder="Workspace name" value={name}
             onChange={e => { setName(e.target.value); setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")); }}
             className="input-field" />
@@ -97,7 +97,7 @@ export default function WorkspacePage() {
                   {ws.name[0]?.toUpperCase() || "W"}
                 </div>
                 <div>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>{ws.name}</p>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: "#ffffff" }}>{ws.name}</p>
                   <p style={{ fontSize: 11, color: "var(--text-muted)" }}>
                     /{ws.slug} · {ws._count?.memberships ?? 0} member{(ws._count?.memberships ?? 0) !== 1 ? "s" : ""}
                   </p>
