@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
-  Home, User, Shield, Building2, Bell, Plug, Settings, Activity,
+  Home, User, Shield, Bell, Plug, Settings, Activity,
   HelpCircle, LogOut, Search, Menu, X, ChevronRight,
 } from "lucide-react";
 import DotField from "../components/DotField";
@@ -20,7 +20,6 @@ const NAV = [
   { href: "/dashboard", label: "Home", icon: Home },
   { href: "/dashboard/profile", label: "Profile", icon: User },
   { href: "/dashboard/security", label: "Security", icon: Shield },
-  { href: "/dashboard/workspace", label: "Workspace", icon: Building2 },
   { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
   { href: "/dashboard/integrations", label: "Integrations", icon: Plug },
   { href: "/dashboard/preferences", label: "Preferences", icon: Settings },
@@ -146,7 +145,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       <div className="flex-1 flex flex-col min-h-screen" style={{ marginLeft: "var(--sidebar-w)" }}>
         <header
-          className="sticky top-0 z-30 h-12 flex items-center justify-between px-4 md:px-5"
+          className="sticky top-0 z-30 h-14 flex items-center justify-between px-4 md:px-6"
           style={{
             background: "rgba(0,0,0,0.6)",
             backdropFilter: "blur(40px)",
@@ -158,28 +157,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <button onClick={() => setSidebarOpen(true)} className="md:hidden" style={{ color: "var(--text-secondary)" }}>
               <Menu size={18} />
             </button>
+          </div>
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-2.5 px-4 h-9 rounded-xl"
+              className="flex items-center gap-2.5 px-5 h-10 rounded-xl"
               style={{
-                background: "rgba(255,255,255,0.04)",
+                background: "rgba(255,255,255,0.05)",
                 border: "1px solid rgba(255,255,255,0.08)",
                 color: "var(--text-muted)",
                 fontSize: 13,
                 transition: "all 0.2s ease",
+                minWidth: 240,
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.background = "rgba(255,255,255,0.07)";
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
+                e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.14)";
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                e.currentTarget.style.background = "rgba(255,255,255,0.05)";
                 e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
               }}
             >
-              <Search size={14} />
-              <span className="hidden sm:inline">Search</span>
-              <kbd className="hidden sm:inline px-1.5 py-0.5 rounded-md text-[10px] font-medium" style={{ background: "rgba(255,255,255,0.06)", color: "var(--text-muted)", border: "1px solid rgba(255,255,255,0.06)" }}>⌘K</kbd>
+              <Search size={15} />
+              <span className="hidden sm:inline">Search settings...</span>
+              <kbd className="hidden sm:inline px-2 py-0.5 rounded-lg text-[11px] font-medium ml-4" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.06)" }}>⌘K</kbd>
             </button>
           </div>
         </header>

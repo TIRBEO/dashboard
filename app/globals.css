@@ -403,13 +403,13 @@ select.input-field {
 
 .search-modal {
   width: 100%;
-  max-width: 540px;
+  max-width: 620px;
   margin: 0 16px;
   background: rgba(14, 14, 14, 0.92);
   backdrop-filter: blur(80px);
   -webkit-backdrop-filter: blur(80px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 18px;
+  border-radius: 20px;
   overflow: hidden;
   box-shadow:
     0 0 0 0.5px rgba(255, 255, 255, 0.04),
