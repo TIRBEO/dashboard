@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   Home, User, Shield, Building2, Bell, Plug, Settings, Activity,
@@ -30,7 +30,6 @@ const NAV = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [user, setUser] = useState<Me | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -57,7 +56,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => { setSidebarOpen(false); }, [pathname]);
 
   const handleLogout = useCallback(async () => {
-    await fetch(`${API}/api/auth/logout`, { method: "POST", credentials: "include" });
+    try { await fetch(`${API}/api/auth/logout`, { method: "POST", credentials: "include" }); } catch {}
     window.location.href = "https://accounts.tirbeo.app/login";
   }, []);
 
@@ -66,8 +65,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center" style={{ background: "#000" }}>
-        <div style={{ width: 28, height: 28, border: "2px solid rgba(255,255,255,0.06)", borderTopColor: "rgba(255,255,255,0.4)", borderRadius: "50%", animation: "spin 0.6s linear infinite" }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+        <div style={{ width: 28, height: 28, border: "2px solid rgba(255,255,255,0.06)", borderTopColor: "rgba(255,255,255,0.3)", borderRadius: "50%", animation: "spin 0.6s linear infinite" }} />
       </div>
     );
   }
@@ -114,7 +112,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {user?.photoUrl ? <img src={user.photoUrl} alt="" /> : initials}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold truncate" style={{ color: "var(--text)", fontSize: 13 }}>{user?.name || "User"}</p>
+              <p className="text-sm font-semibold truncate" style={{ color: "#ffffff", fontSize: 13 }}>{user?.name || "User"}</p>
               <p className="truncate" style={{ color: "var(--text-muted)", fontSize: 11 }}>{user?.email}</p>
             </div>
           </div>
@@ -185,7 +183,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex items-center gap-3 px-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", height: 44 }}>
               <Search size={15} style={{ color: "var(--text-muted)" }} />
               <input autoFocus value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search settings..."
-                className="flex-1 bg-transparent border-none outline-none text-sm" style={{ color: "var(--text)" }} />
+                className="flex-1 bg-transparent border-none outline-none text-sm" style={{ color: "#ffffff" }} />
               <kbd className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "var(--text-muted)" }}>ESC</kbd>
             </div>
             <div className="max-h-72 overflow-y-auto px-2 py-1.5">
