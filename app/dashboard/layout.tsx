@@ -164,12 +164,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </button>
             <button
               onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-2 px-3 h-7 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", color: "var(--text-muted)", fontSize: 12 }}
+              className="flex items-center gap-2.5 px-4 h-9 rounded-xl"
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                color: "var(--text-muted)",
+                fontSize: 13,
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = "rgba(255,255,255,0.07)";
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+              }}
             >
-              <Search size={13} />
+              <Search size={14} />
               <span className="hidden sm:inline">Search</span>
-              <kbd className="hidden sm:inline px-1 py-0.5 rounded text-[10px]" style={{ background: "rgba(255,255,255,0.06)", color: "var(--text-muted)" }}>⌘K</kbd>
+              <kbd className="hidden sm:inline px-1.5 py-0.5 rounded-md text-[10px] font-medium" style={{ background: "rgba(255,255,255,0.06)", color: "var(--text-muted)", border: "1px solid rgba(255,255,255,0.06)" }}>⌘K</kbd>
             </button>
           </div>
           <div className="flex items-center gap-3">
@@ -189,27 +203,33 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {searchOpen && (
         <div className="search-overlay" onClick={() => setSearchOpen(false)}>
           <div className="search-modal" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center gap-3 px-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", height: 44 }}>
-              <Search size={15} style={{ color: "var(--text-muted)" }} />
+            <div className="flex items-center gap-3 px-5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", height: 52 }}>
+              <Search size={16} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
               <input autoFocus value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search settings..."
-                className="flex-1 bg-transparent border-none outline-none text-sm" style={{ color: "#ffffff" }} />
-              <kbd className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.06)", color: "var(--text-muted)" }}>ESC</kbd>
+                className="flex-1 bg-transparent border-none outline-none" style={{ color: "#ffffff", fontSize: 14 }} />
+              <kbd className="text-[11px] px-2 py-1 rounded-md font-medium" style={{ background: "rgba(255,255,255,0.05)", color: "var(--text-muted)", border: "1px solid rgba(255,255,255,0.06)" }}>ESC</kbd>
             </div>
-            <div className="max-h-72 overflow-y-auto px-2 py-1.5">
+            <div className="max-h-80 overflow-y-auto px-2 py-2">
               {filteredNav.map(n => {
                 const Icon = n.icon;
                 return (
                   <Link key={n.href} href={n.href} onClick={() => setSearchOpen(false)}
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm" style={{ color: "var(--text-secondary)" }}
-                    onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.06)")}
-                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm" style={{ color: "var(--text-secondary)", transition: "all 0.15s ease" }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+                      e.currentTarget.style.color = "#ffffff";
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = "transparent";
+                      e.currentTarget.style.color = "var(--text-secondary)";
+                    }}>
                     <Icon size={15} />
                     <span className="flex-1">{n.label}</span>
-                    <ChevronRight size={13} style={{ color: "var(--text-muted)" }} />
+                    <ChevronRight size={13} style={{ color: "var(--text-muted)", opacity: 0.5 }} />
                   </Link>
                 );
               })}
-              {filteredNav.length === 0 && <p className="text-xs px-3 py-3" style={{ color: "var(--text-muted)" }}>No results</p>}
+              {filteredNav.length === 0 && <p className="text-xs px-4 py-4 text-center" style={{ color: "var(--text-muted)" }}>No results found</p>}
             </div>
           </div>
         </div>
