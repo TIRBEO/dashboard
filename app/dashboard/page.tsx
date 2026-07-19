@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
-  User, Shield, Bell, ArrowRight, Clock, Zap,
+  User, Shield, Bell, Clock, Zap,
   Settings, Activity, ArrowUpRight, CheckCircle2, XCircle,
 } from "lucide-react";
 

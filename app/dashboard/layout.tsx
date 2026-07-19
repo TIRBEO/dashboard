@@ -101,7 +101,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           borderRight: "1px solid rgba(255,255,255,0.06)",
         }}
       >
-        <div className="flex items-center justify-end px-5 h-14" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <div className="flex items-center justify-between px-5 h-14" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <p style={{ fontSize: 15, fontWeight: 700, color: "#ffffff", letterSpacing: "-0.03em" }}>Tirbeo</p>
           <button onClick={() => setSidebarOpen(false)} className="md:hidden" style={{ color: "var(--text-muted)" }}>
             <X size={16} />
           </button>
