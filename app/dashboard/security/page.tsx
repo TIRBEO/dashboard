@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Shield, KeyRound, Smartphone, Eye, EyeOff } from "lucide-react";
+import { SecuritySkeleton } from "../../components/Skeleton";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
@@ -54,7 +55,7 @@ export default function SecurityPage() {
     setChangingPw(false);
   };
 
-  if (!info) return null;
+  if (!info) return <SecuritySkeleton />;
 
   return (
     <div className="space-y-8">

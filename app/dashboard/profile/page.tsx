@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Save, Shield, KeyRound, Camera } from "lucide-react";
+import { ProfileSkeleton } from "../../components/Skeleton";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
@@ -137,7 +138,7 @@ export default function ProfilePage() {
     setSettingPassword(false);
   };
 
-  if (!p) return null;
+  if (!p) return <ProfileSkeleton />;
 
   const isOAuth = !p.hasPassword && (p.hasGoogle || p.hasGithub);
   const initials = p.name ? p.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() : p.email[0].toUpperCase();

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { FileText } from "lucide-react";
+import { ActivitySkeleton } from "../../components/Skeleton";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
@@ -13,12 +14,17 @@ type Log = {
 export default function ActivityPage() {
   const [logs, setLogs] = useState<Log[]>([]);
   const [filter, setFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
   const fetched = useRef(false);
 
   useEffect(() => {
     if (fetched.current) return;
     fetched.current = true;
-    fetch(`${API}/api/user/activity?limit=50`, { credentials: "include" }).then(r => r.ok ? r.json() : []).then(setLogs).catch(() => {});
+    fetch(`${API}/api/user/activity?limit=50`, { credentials: "include" })
+      .then(r => r.ok ? r.json() : [])
+      .then(setLogs)
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const filtered = logs.filter(l => {
@@ -41,6 +47,8 @@ export default function ActivityPage() {
     (acc[key] = acc[key] || []).push(log);
     return acc;
   }, {});
+
+  if (loading) return <ActivitySkeleton />;
 
   return (
     <div className="space-y-8">

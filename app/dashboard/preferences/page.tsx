@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Moon, Sun, Monitor, Type } from "lucide-react";
+import { PreferencesSkeleton } from "../../components/Skeleton";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
@@ -65,7 +66,7 @@ export default function PreferencesPage() {
     setTimeout(() => setToast(null), 3000);
   }, [prefs]);
 
-  if (!prefs) return null;
+  if (!prefs) return <PreferencesSkeleton />;
 
   return (
     <div className="space-y-8">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Link2, Unlink, ExternalLink } from "lucide-react";
+import { IntegrationsSkeleton } from "../../components/Skeleton";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
@@ -42,15 +43,31 @@ const OAUTH_PROVIDERS = [
 export default function IntegrationsPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [connecting, setConnecting] = useState<string | null>(null);
   const fetched = useRef(false);
 
   useEffect(() => {
     if (fetched.current) return;
     fetched.current = true;
+
+    const params = new URLSearchParams(window.location.search);
+    const connectedProvider = params.get("connected");
+    const error = params.get("error");
+    if (connectedProvider) {
+      setToast(`${connectedProvider} connected successfully`);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+    if (error) {
+      setToast(`Failed to connect: ${error}`);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+
     fetch(`${API}/api/profile`, { credentials: "include" })
       .then(r => r.ok ? r.json() : null)
       .then(setProfile)
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const isConnected = (id: string) => {
@@ -61,7 +78,8 @@ export default function IntegrationsPage() {
   };
 
   const handleConnect = (provider: string) => {
-    window.location.href = `${API}/api/auth/${provider}`;
+    setConnecting(provider);
+    window.location.href = `${API}/api/auth/${provider}?redirect=${encodeURIComponent(window.location.origin + "/dashboard/integrations?connected=" + provider)}`;
   };
 
   const handleDisconnect = async (provider: string) => {
@@ -83,6 +101,8 @@ export default function IntegrationsPage() {
     }
     setTimeout(() => setToast(null), 3000);
   };
+
+  if (loading) return <IntegrationsSkeleton />;
 
   return (
     <div className="space-y-8">
@@ -144,8 +164,11 @@ export default function IntegrationsPage() {
                       <Unlink size={12} />Disconnect
                     </button>
                   ) : (
-                    <button onClick={() => handleConnect(p.id)} className="btn btn-primary" style={{ height: 34, fontSize: 12, padding: "0 14px" }}>
-                      <ExternalLink size={12} />Connect
+                    <button onClick={() => handleConnect(p.id)} className="btn btn-primary" style={{ height: 34, fontSize: 12, padding: "0 14px" }} disabled={connecting !== null}>
+                      {connecting === p.id ? (
+                        <div style={{ width: 12, height: 12, border: "2px solid rgba(0,0,0,0.2)", borderTopColor: "#000", borderRadius: "50%", animation: "spin 0.6s linear infinite" }} />
+                      ) : <ExternalLink size={12} />}
+                      {connecting === p.id ? "Connecting..." : "Connect"}
                     </button>
                   )}
                 </div>

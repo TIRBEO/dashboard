@@ -6,6 +6,7 @@ import {
   User, Shield, Bell, Clock, Zap,
   Settings, Activity, ArrowUpRight, CheckCircle2, XCircle,
 } from "lucide-react";
+import { HomeSkeleton } from "../components/Skeleton";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
@@ -22,16 +23,17 @@ type ActivityLog = { id: string; action: string; createdAt: string };
 export default function DashboardHome() {
   const [user, setUser] = useState<Me | null>(null);
   const [activity, setActivity] = useState<ActivityLog[]>([]);
+  const [loading, setLoading] = useState(true);
   const fetched = useRef(false);
 
   useEffect(() => {
     if (fetched.current) return;
     fetched.current = true;
     fetch(`${API}/api/profile`, { credentials: "include" }).then(r => r.ok ? r.json() : null).then(setUser).catch(() => {});
-    fetch(`${API}/api/user/activity?limit=5`, { credentials: "include" }).then(r => r.ok ? r.json() : []).then(setActivity).catch(() => {});
+    fetch(`${API}/api/user/activity?limit=5`, { credentials: "include" }).then(r => r.ok ? r.json() : []).then(setActivity).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
-  if (!user) return null;
+  if (loading || !user) return <HomeSkeleton />;
 
   const initials = user.name ? user.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() : user.email[0].toUpperCase();
   const checks = [

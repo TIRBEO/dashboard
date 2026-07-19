@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Bell, CheckCheck } from "lucide-react";
+import { NotificationsSkeleton } from "../../components/Skeleton";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
@@ -14,6 +15,7 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unread, setUnread] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const fetched = useRef(false);
 
   useEffect(() => {
@@ -22,7 +24,8 @@ export default function NotificationsPage() {
     fetch(`${API}/api/notifications?limit=50`, { credentials: "include" })
       .then(r => r.ok ? r.json() : { notifications: [], unread: 0 })
       .then(d => { setNotifications(d.notifications || []); setUnread(d.unread || 0); })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const markAllRead = useCallback(async () => {
@@ -38,6 +41,8 @@ export default function NotificationsPage() {
     } catch { setToast("Failed"); }
     setTimeout(() => setToast(null), 3000);
   }, []);
+
+  if (loading) return <NotificationsSkeleton />;
 
   return (
     <div className="space-y-8">
