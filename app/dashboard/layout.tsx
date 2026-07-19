@@ -182,7 +182,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <kbd className="hidden sm:inline px-1.5 py-0.5 rounded-md text-[10px] font-medium" style={{ background: "rgba(255,255,255,0.06)", color: "var(--text-muted)", border: "1px solid rgba(255,255,255,0.06)" }}>⌘K</kbd>
             </button>
           </div>
-          </div>
         </header>
 
         <main className="flex-1 animate-in" style={{ padding: "20px 16px 48px" }}>
