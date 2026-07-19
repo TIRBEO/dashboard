@@ -43,7 +43,7 @@ export default function ActivityPage() {
   }, {});
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       <div className="section-header flex items-center justify-between flex-wrap gap-3" style={{ marginBottom: 0 }}>
         <div>
           <h1>Activity</h1>

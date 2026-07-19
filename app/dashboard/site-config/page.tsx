@@ -92,7 +92,7 @@ export default function SiteConfigPage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       <div className="section-header flex items-center justify-between flex-wrap gap-4" style={{ marginBottom: 0 }}>
         <div>
           <h1>Site Config</h1>

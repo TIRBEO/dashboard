@@ -58,7 +58,7 @@ export default function IntegrationsPage() {
   }, []);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       <div className="section-header">
         <h1>Integrations</h1>
         <p>Connected apps and services</p>

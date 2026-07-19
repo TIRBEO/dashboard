@@ -57,7 +57,7 @@ export default function SecurityPage() {
   if (!info) return null;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       <div className="section-header">
         <h1>Security</h1>
         <p>Manage your password, 2FA, and sessions</p>

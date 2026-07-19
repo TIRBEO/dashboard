@@ -12,7 +12,7 @@ const LINKS = [
 
 export default function HelpPage() {
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       <div className="section-header">
         <h1>Help & Support</h1>
         <p>Get help with Tirbeo</p>

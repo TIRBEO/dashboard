@@ -57,7 +57,7 @@ export default function WorkspacePage() {
   }, []);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       <div className="section-header flex items-center justify-between" style={{ marginBottom: 0 }}>
         <div>
           <h1>Workspaces</h1>

@@ -44,7 +44,7 @@ export default function DashboardHome() {
   const pct = Math.round((checks.filter(c => c.ok).length / checks.length) * 100);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       <div className="flex items-center gap-4">
         <div className="avatar" style={{ width: 52, height: 52, fontSize: 18, borderRadius: 14 }}>
           {user.photoUrl ? <img src={user.photoUrl} alt="" /> : initials}
