@@ -1,93 +1,158 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Link2, Unlink } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Link2, Unlink, ExternalLink } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
-type Integration = { id: string; provider: string; connected: boolean; createdAt: string };
+type Profile = {
+  hasPassword: boolean;
+  hasGoogle: boolean;
+  hasGithub: boolean;
+};
 
-const PROVIDERS = [
-  { id: "google", name: "Google" },
-  { id: "github", name: "GitHub" },
-  { id: "slack", name: "Slack" },
-  { id: "discord", name: "Discord" },
-  { id: "zapier", name: "Zapier" },
-  { id: "notion", name: "Notion" },
-  { id: "linear", name: "Linear" },
-  { id: "figma", name: "Figma" },
-  { id: "openai", name: "OpenAI" },
+const OAUTH_PROVIDERS = [
+  {
+    id: "google",
+    name: "Google",
+    description: "Sign in with your Google account",
+    color: "rgba(255, 255, 255, 0.08)",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="rgba(255,255,255,0.9)"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="rgba(255,255,255,0.7)"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="rgba(255,255,255,0.6)"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="rgba(255,255,255,0.5)"/>
+      </svg>
+    ),
+  },
+  {
+    id: "github",
+    name: "GitHub",
+    description: "Sign in with your GitHub account",
+    color: "rgba(255, 255, 255, 0.08)",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="rgba(255,255,255,0.9)">
+        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+      </svg>
+    ),
+  },
 ];
 
 export default function IntegrationsPage() {
-  const [integrations, setIntegrations] = useState<Integration[]>([]);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const [loading, setLoading] = useState<string | null>(null);
   const fetched = useRef(false);
 
   useEffect(() => {
     if (fetched.current) return;
     fetched.current = true;
-    fetch(`${API}/api/integrations`, { credentials: "include" }).then(r => r.ok ? r.json() : []).then(setIntegrations).catch(() => {});
+    fetch(`${API}/api/profile`, { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then(setProfile)
+      .catch(() => {});
   }, []);
 
-  const isConnected = (id: string) => integrations.some(i => i.provider === id && i.connected);
+  const isConnected = (id: string) => {
+    if (!profile) return false;
+    if (id === "google") return profile.hasGoogle;
+    if (id === "github") return profile.hasGithub;
+    return false;
+  };
 
-  const toggle = useCallback(async (provider: string, connected: boolean) => {
-    setLoading(provider);
+  const handleConnect = (provider: string) => {
+    window.location.href = `${API}/api/auth/${provider}`;
+  };
+
+  const handleDisconnect = async (provider: string) => {
     try {
-      if (connected) {
-        await fetch(`${API}/api/integrations`, {
-          method: "DELETE", credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ provider }),
-        });
-        setIntegrations(prev => prev.filter(i => i.provider !== provider));
-      } else {
-        const res = await fetch(`${API}/api/integrations`, {
-          method: "POST", credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ provider, connected: true }),
-        });
-        if (res.ok) { const data = await res.json(); setIntegrations(prev => [...prev, data]); }
-      }
-      setToast(connected ? `${provider} disconnected` : `${provider} connected`);
-    } catch { setToast("Failed"); }
-    setLoading(null);
+      await fetch(`${API}/api/integrations`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider }),
+      });
+      setProfile(prev => prev ? {
+        ...prev,
+        hasGoogle: provider === "google" ? false : prev.hasGoogle,
+        hasGithub: provider === "github" ? false : prev.hasGithub,
+      } : prev);
+      setToast(`${provider} disconnected`);
+    } catch {
+      setToast("Failed to disconnect");
+    }
     setTimeout(() => setToast(null), 3000);
-  }, []);
+  };
 
   return (
     <div className="space-y-8">
       <div className="section-header">
         <h1>Integrations</h1>
-        <p>Connected apps and services</p>
+        <p>Manage your connected accounts and OAuth providers</p>
       </div>
 
-      <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-        {PROVIDERS.map(p => {
-          const connected = isConnected(p.id);
-          return (
-            <div key={p.id} className="glass" style={{ padding: "16px 18px" }}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.5)" }}>
-                    {p.name[0]}
+      <div className="glass card-section">
+        <div className="flex items-center gap-2.5" style={{ marginBottom: 20 }}>
+          <Link2 size={16} style={{ color: "rgba(255,255,255,0.5)" }} />
+          <h3>OAuth Providers</h3>
+        </div>
+        <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 24 }}>
+          Connect your accounts to sign in seamlessly across Tirbeo services.
+        </p>
+
+        <div className="space-y-3">
+          {OAUTH_PROVIDERS.map(p => {
+            const connected = isConnected(p.id);
+            return (
+              <div key={p.id} className="flex items-center justify-between" style={{
+                padding: "16px 20px",
+                borderRadius: 12,
+                background: connected ? "rgba(255,255,255,0.04)" : "transparent",
+                border: `1px solid ${connected ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.04)"}`,
+                transition: "all 0.2s ease",
+              }}>
+                <div className="flex items-center gap-4">
+                  <div style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 12,
+                    background: p.color,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}>
+                    {p.icon}
                   </div>
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 500, color: "#ffffff" }}>{p.name}</p>
-                    <p style={{ fontSize: 11, color: "var(--text-muted)" }}>{connected ? "Connected" : "Not connected"}</p>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: "#ffffff" }}>{p.name}</p>
+                    <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{p.description}</p>
                   </div>
                 </div>
-                <span className={`badge ${connected ? "badge-success" : "badge-default"}`}>{connected ? "Active" : "Off"}</span>
+                <div className="flex items-center gap-3">
+                  {connected && (
+                    <span style={{
+                      fontSize: 11,
+                      fontWeight: 500,
+                      color: "rgba(255,255,255,0.5)",
+                      padding: "4px 10px",
+                      borderRadius: 6,
+                      background: "rgba(255,255,255,0.04)",
+                    }}>Connected</span>
+                  )}
+                  {connected ? (
+                    <button onClick={() => handleDisconnect(p.id)} className="btn btn-ghost" style={{ height: 34, fontSize: 12, padding: "0 14px" }}>
+                      <Unlink size={12} />Disconnect
+                    </button>
+                  ) : (
+                    <button onClick={() => handleConnect(p.id)} className="btn btn-primary" style={{ height: 34, fontSize: 12, padding: "0 14px" }}>
+                      <ExternalLink size={12} />Connect
+                    </button>
+                  )}
+                </div>
               </div>
-              <button onClick={() => toggle(p.id, connected)} disabled={loading === p.id}
-                className={`btn ${connected ? "btn-danger" : "btn-primary"} w-full`} style={{ height: 32, fontSize: 12 }}>
-                {loading === p.id ? "..." : connected ? <><Unlink size={11} />Disconnect</> : <><Link2 size={11} />Connect</>}
-              </button>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {toast && <div className="toast toast-success">{toast}</div>}
