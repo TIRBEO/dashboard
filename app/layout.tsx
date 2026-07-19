@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
-import { AuthProvider } from "@tirbeo/auth";
 import "./globals.css";
+import { ThemeProvider } from "./components";
 
 export const metadata: Metadata = {
-  title: "My Account — Tirbeo",
+  title: "Dashboard — Tirbeo",
   description: "Manage your Tirbeo account",
 };
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardRootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>
-        <AuthProvider>{children}</AuthProvider>
+    <html lang="en" data-theme="dark">
+      <body style={{ background: "#000" }}>
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

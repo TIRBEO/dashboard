@@ -92,29 +92,27 @@ export default function SiteConfigPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <div className="space-y-5">
+      <div className="section-header flex items-center justify-between flex-wrap gap-4" style={{ marginBottom: 0 }}>
         <div>
-          <h1 className="text-xl font-bold" style={{ color: "var(--text)" }}>Site Config</h1>
-          <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
-            Edit landing page content. Changes go live after saving.
-          </p>
+          <h1>Site Config</h1>
+          <p>Edit landing page content. Changes go live after saving.</p>
         </div>
         <div className="flex items-center gap-2">
           {msg && (
-            <span className={`text-sm font-medium ${msg.type === "success" ? "text-green-400" : "text-red-400"}`}>
+            <span style={{ fontSize: 13, fontWeight: 500, color: msg.type === "success" ? "var(--success)" : "var(--danger)" }}>
               {msg.text}
             </span>
           )}
-          <button onClick={load} className="btn btn-ghost" style={{ height: 36, padding: "0 14px", fontSize: 13 }}>
-            <RotateCcw size={14} /> Refresh
+          <button onClick={load} className="btn btn-ghost" style={{ height: 32, fontSize: 12 }}>
+            <RotateCcw size={13} /> Refresh
           </button>
         </div>
       </div>
 
-      <div className="flex gap-6" style={{ minHeight: 500 }}>
+      <div className="flex gap-5" style={{ minHeight: 500 }}>
         {/* Sidebar tabs */}
-        <div className="hidden md:flex flex-col gap-1" style={{ width: 180, flexShrink: 0 }}>
+        <div className="hidden md:flex flex-col gap-0.5" style={{ width: 170, flexShrink: 0 }}>
           {SECTIONS.map((s) => {
             const Icon = s.icon;
             const active_ = active === s.key;
@@ -122,13 +120,13 @@ export default function SiteConfigPage() {
               <button
                 key={s.key}
                 onClick={() => setActive(s.key)}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium transition-all text-left"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all text-left"
                 style={{
-                  color: active_ ? "var(--accent)" : "var(--text-secondary)",
-                  background: active_ ? "var(--accent-muted)" : "transparent",
+                  color: active_ ? "var(--text)" : "var(--text-secondary)",
+                  background: active_ ? "rgba(255,255,255,0.06)" : "transparent",
                 }}
               >
-                <Icon size={16} />
+                <Icon size={15} />
                 {s.label}
               </button>
             );
@@ -145,9 +143,9 @@ export default function SiteConfigPage() {
                 onClick={() => setActive(s.key)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap"
                 style={{
-                  color: active === s.key ? "var(--accent)" : "var(--text-muted)",
-                  background: active === s.key ? "var(--accent-muted)" : "rgba(255,255,255,0.03)",
-                  border: `1px solid ${active === s.key ? "var(--accent)" : "var(--border)"}`,
+                  color: active === s.key ? "var(--text)" : "var(--text-muted)",
+                  background: active === s.key ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.03)",
+                  border: `1px solid ${active === s.key ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.05)"}`,
                 }}
               >
                 <Icon size={12} />
@@ -159,16 +157,16 @@ export default function SiteConfigPage() {
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <div className="glass" style={{ padding: 24 }}>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-base font-semibold" style={{ color: "var(--text)" }}>
+          <div className="glass" style={{ padding: 20 }}>
+            <div className="flex items-center justify-between mb-5">
+              <h2 style={{ fontSize: 15, fontWeight: 600, color: "var(--text)" }}>
                 {SECTIONS.find((s) => s.key === active)?.label} Settings
               </h2>
               <button
                 onClick={() => save(active)}
                 disabled={saving}
                 className="btn btn-primary"
-                style={{ height: 36, padding: "0 16px", fontSize: 13 }}
+                style={{ height: 32, fontSize: 12 }}
               >
                 <Save size={14} />
                 {saving ? "Saving..." : "Save"}
