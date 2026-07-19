@@ -128,6 +128,17 @@ body {
 
 .input-field::placeholder { color: var(--text-muted); }
 
+.input-field:-webkit-autofill,
+.input-field:-webkit-autofill:hover,
+.input-field:-webkit-autofill:focus,
+.input-field:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.95) inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 textarea.input-field {
   height: auto;
   min-height: 80px;
