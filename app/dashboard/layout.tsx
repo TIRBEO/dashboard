@@ -78,15 +78,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-screen" style={{ background: "#000" }}>
       <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
         <DotField
-          dotRadius={1.5}
-          dotSpacing={14}
-          bulgeStrength={67}
-          glowRadius={160}
-          sparkle={false}
+          dotRadius={2}
+          dotSpacing={10}
+          bulgeStrength={80}
+          glowRadius={200}
+          sparkle={true}
           waveAmplitude={0}
-          gradientFrom="rgba(255, 255, 255, 0.1)"
-          gradientTo="rgba(255, 255, 255, 0.03)"
-          glowColor="rgba(255, 255, 255, 0.05)"
+          gradientFrom="rgba(255, 255, 255, 0.35)"
+          gradientTo="rgba(255, 255, 255, 0.12)"
+          glowColor="rgba(255, 255, 255, 0.15)"
         />
       </div>
       {sidebarOpen && (
