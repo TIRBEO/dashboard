@@ -269,6 +269,7 @@ select.input-field {
 /* ═══ CARDS ═══ */
 .card-section {
   padding: 20px;
+  margin: 0.5rem 0;
 }
 
 .card-section h3 {
