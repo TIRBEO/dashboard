@@ -39,8 +39,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     fetch(`${API}/api/profile`, { credentials: "include" })
       .then(r => (r.ok ? r.json() : null))
-      .then(d => { if (d) setUser(d); else window.location.href = `https://accounts.tirbeo.app/login?redirect=${encodeURIComponent(window.location.href)}`; })
-      .catch(() => { window.location.href = `https://accounts.tirbeo.app/login?redirect=${encodeURIComponent(window.location.href)}`; })
+      .then(d => { if (d) setUser(d); })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
@@ -189,7 +189,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <kbd className="hidden sm:inline px-1.5 py-0.5 rounded-md text-[10px] font-medium" style={{ background: "rgba(255,255,255,0.06)", color: "var(--text-muted)", border: "1px solid rgba(255,255,255,0.06)" }}>⌘K</kbd>
             </button>
           </div>
-          <div className="flex items-center gap-3">
           </div>
         </header>
 
@@ -203,18 +202,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {searchOpen && (
         <div className="search-overlay" onClick={() => setSearchOpen(false)}>
           <div className="search-modal" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center gap-3 px-5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", height: 52 }}>
-              <Search size={16} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+            <div className="flex items-center gap-3 px-5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", height: 54 }}>
+              <Search size={17} style={{ color: "rgba(255,255,255,0.4)", flexShrink: 0 }} />
               <input autoFocus value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search settings..."
-                className="flex-1 bg-transparent border-none outline-none" style={{ color: "#ffffff", fontSize: 14 }} />
-              <kbd className="text-[11px] px-2 py-1 rounded-md font-medium" style={{ background: "rgba(255,255,255,0.05)", color: "var(--text-muted)", border: "1px solid rgba(255,255,255,0.06)" }}>ESC</kbd>
+                className="flex-1 bg-transparent border-none outline-none" style={{ color: "#ffffff", fontSize: 15 }} />
+              <kbd className="text-[11px] px-2 py-1 rounded-lg font-medium" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.08)" }}>ESC</kbd>
             </div>
             <div className="max-h-80 overflow-y-auto px-2 py-2">
-              {filteredNav.map(n => {
+              {filteredNav.map((n, i) => {
                 const Icon = n.icon;
                 return (
                   <Link key={n.href} href={n.href} onClick={() => setSearchOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm" style={{ color: "var(--text-secondary)", transition: "all 0.15s ease" }}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm"
+                    style={{ color: "var(--text-secondary)", transition: "all 0.12s ease" }}
                     onMouseEnter={e => {
                       e.currentTarget.style.background = "rgba(255,255,255,0.06)";
                       e.currentTarget.style.color = "#ffffff";
@@ -223,13 +223,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       e.currentTarget.style.background = "transparent";
                       e.currentTarget.style.color = "var(--text-secondary)";
                     }}>
-                    <Icon size={15} />
+                    <Icon size={16} strokeWidth={1.5} />
                     <span className="flex-1">{n.label}</span>
-                    <ChevronRight size={13} style={{ color: "var(--text-muted)", opacity: 0.5 }} />
+                    <ChevronRight size={13} style={{ color: "rgba(255,255,255,0.2)" }} />
                   </Link>
                 );
               })}
-              {filteredNav.length === 0 && <p className="text-xs px-4 py-4 text-center" style={{ color: "var(--text-muted)" }}>No results found</p>}
+              {filteredNav.length === 0 && (
+                <div className="flex flex-col items-center py-8">
+                  <Search size={24} style={{ color: "rgba(255,255,255,0.15)", marginBottom: 8 }} />
+                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.3)" }}>No results found</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

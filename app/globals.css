@@ -92,8 +92,8 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 30px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
   font-size: 13px;
   font-weight: 500;
   color: var(--text-secondary);
@@ -390,31 +390,32 @@ select.input-field {
 .search-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   z-index: 100;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding-top: 16vh;
-  animation: fadeIn 0.15s ease;
+  padding-top: 20vh;
+  animation: fadeIn 0.12s ease;
 }
 
 .search-modal {
   width: 100%;
-  max-width: 560px;
-  background: rgba(12, 12, 12, 0.9);
+  max-width: 540px;
+  margin: 0 16px;
+  background: rgba(14, 14, 14, 0.92);
   backdrop-filter: blur(80px);
   -webkit-backdrop-filter: blur(80px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
   overflow: hidden;
   box-shadow:
     0 0 0 0.5px rgba(255, 255, 255, 0.04),
-    0 32px 100px -20px rgba(0, 0, 0, 0.9),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  animation: slideUp 0.2s ease;
+    0 40px 120px -20px rgba(0, 0, 0, 0.95),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  animation: slideUp 0.18s ease;
 }
 
 /* ═══ SECTION HEADER ═══ */
