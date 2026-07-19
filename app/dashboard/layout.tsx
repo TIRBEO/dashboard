@@ -39,8 +39,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     fetch(`${API}/api/profile`, { credentials: "include" })
       .then(r => (r.ok ? r.json() : null))
-      .then(d => { if (d) setUser(d); else window.location.href = `https://accounts.tirbeo.app/login?redirect=${encodeURIComponent(window.location.href)}`; })
-      .catch(() => { window.location.href = `https://accounts.tirbeo.app/login?redirect=${encodeURIComponent(window.location.href)}`; })
+      .then(d => { if (d) setUser(d); })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
@@ -57,7 +57,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const handleLogout = useCallback(async () => {
     try { await fetch(`${API}/api/auth/logout`, { method: "POST", credentials: "include" }); } catch {}
-    window.location.href = "https://accounts.tirbeo.app/login";
+    window.location.href = "/";
   }, []);
 
   const filteredNav = NAV.filter(n => n.label.toLowerCase().includes(searchQuery.toLowerCase()));
