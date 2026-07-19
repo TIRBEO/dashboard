@@ -115,19 +115,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </button>
         </div>
 
-        <div className="px-3 pt-3 pb-1">
-          <div className="flex items-center gap-2.5 px-2 mb-4">
-            <div className="avatar" style={{ width: 32, height: 32, fontSize: 12, borderRadius: 8 }}>
-              {user?.photoUrl ? <img src={user.photoUrl} alt="" /> : initials}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold truncate" style={{ color: "#ffffff", fontSize: 13 }}>{user?.name || "User"}</p>
-              <p className="truncate" style={{ color: "var(--text-muted)", fontSize: 11 }}>{user?.email}</p>
-            </div>
-          </div>
-        </div>
-
-        <nav className="flex-1 overflow-y-auto px-3 py-1 flex flex-col gap-0.5">
+        <nav className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-0.5">
           {NAV.map(n => {
             const Icon = n.icon;
             const active = isActive(n.href);
@@ -140,11 +128,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           })}
         </nav>
 
-        <div className="px-3 pb-3" style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 8 }}>
-          <button onClick={handleLogout} className="sidebar-link w-full" style={{ color: "var(--text-muted)" }}>
-            <LogOut size={16} />
-            <span>Sign Out</span>
-          </button>
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+          <div className="px-3 py-3">
+            <Link href="/dashboard/profile" className="flex items-center gap-3 px-2 py-2 rounded-xl" style={{ textDecoration: "none", transition: "background 0.15s ease" }}
+              onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
+              <div className="avatar" style={{ width: 36, height: 36, fontSize: 13, borderRadius: 10, flexShrink: 0 }}>
+                {user?.photoUrl ? <img src={user.photoUrl} alt="" /> : initials}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p style={{ fontSize: 13, fontWeight: 600, color: "#ffffff" }} className="truncate">{user?.name || "User"}</p>
+                <p style={{ fontSize: 11, color: "var(--text-muted)" }} className="truncate">{user?.email}</p>
+              </div>
+            </Link>
+          </div>
+          <div className="px-3 pb-3">
+            <button onClick={handleLogout} className="sidebar-link w-full" style={{ color: "var(--text-muted)" }}>
+              <LogOut size={16} />
+              <span>Sign Out</span>
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -187,9 +190,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </button>
           </div>
           <div className="flex items-center gap-3">
-            <div className="avatar" style={{ width: 28, height: 28, fontSize: 10, borderRadius: 7 }}>
-              {user?.photoUrl ? <img src={user.photoUrl} alt="" /> : initials}
-            </div>
           </div>
         </header>
 
