@@ -143,7 +143,7 @@ export default function ProfilePage() {
   const initials = p.name ? p.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() : p.email[0].toUpperCase();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       <div className="section-header flex items-center justify-between" style={{ marginBottom: 0 }}>
         <div>
           <h1>Profile</h1>
