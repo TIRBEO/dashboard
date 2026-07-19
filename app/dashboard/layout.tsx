@@ -40,8 +40,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     fetch(`${API}/api/profile`, { credentials: "include" })
       .then(r => (r.ok ? r.json() : null))
-      .then(d => { if (d) setUser(d); })
-      .catch(() => {})
+      .then(d => { if (d) setUser(d); else window.location.href = `https://accounts.tirbeo.app/login?redirect=${encodeURIComponent(window.location.href)}`; })
+      .catch(() => { window.location.href = `https://accounts.tirbeo.app/login?redirect=${encodeURIComponent(window.location.href)}`; })
       .finally(() => setLoading(false));
   }, []);
 
@@ -78,13 +78,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-screen" style={{ background: "#000" }}>
       <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
         <DotField
-          dotRadius={4}
-          dotSpacing={20}
+          dotRadius={5}
+          dotSpacing={22}
           cursorRadius={300}
-          bulgeStrength={30}
-          waveAmplitude={1}
-          gradientFrom="rgba(255, 255, 255, 0.3)"
-          gradientTo="rgba(255, 255, 255, 0.15)"
+          bulgeStrength={25}
+          waveAmplitude={0.8}
+          gradientFrom="rgba(255, 255, 255, 0.45)"
+          gradientTo="rgba(255, 255, 255, 0.22)"
         />
       </div>
       {sidebarOpen && (
