@@ -161,27 +161,32 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-2.5 px-5 h-10 rounded-xl"
+              className="flex items-center gap-3 px-5 h-10 rounded-2xl"
               style={{
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                color: "var(--text-muted)",
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.06)",
+                color: "rgba(255,255,255,0.35)",
                 fontSize: 13,
-                transition: "all 0.2s ease",
-                minWidth: 240,
+                transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+                minWidth: 260,
+                cursor: "pointer",
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.background = "rgba(255,255,255,0.08)";
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.14)";
+                e.currentTarget.style.background = "rgba(255,255,255,0.07)";
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
+                e.currentTarget.style.color = "rgba(255,255,255,0.6)";
+                e.currentTarget.style.transform = "scale(1.01)";
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+                e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)";
+                e.currentTarget.style.color = "rgba(255,255,255,0.35)";
+                e.currentTarget.style.transform = "scale(1)";
               }}
             >
-              <Search size={15} />
+              <Search size={15} strokeWidth={1.5} />
               <span className="hidden sm:inline">Search settings...</span>
-              <kbd className="hidden sm:inline px-2 py-0.5 rounded-lg text-[11px] font-medium ml-4" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.06)" }}>⌘K</kbd>
+              <kbd className="hidden sm:inline ml-auto px-2 py-0.5 rounded-lg text-[10px] font-medium" style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.3)", border: "1px solid rgba(255,255,255,0.05)" }}>⌘K</kbd>
             </button>
           </div>
         </header>
@@ -196,37 +201,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {searchOpen && (
         <div className="search-overlay" onClick={() => setSearchOpen(false)}>
           <div className="search-modal" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center gap-3 px-5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", height: 54 }}>
-              <Search size={17} style={{ color: "rgba(255,255,255,0.4)", flexShrink: 0 }} />
+            <div className="flex items-center gap-3 px-5" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", height: 56 }}>
+              <Search size={18} strokeWidth={1.5} style={{ color: "rgba(255,255,255,0.3)", flexShrink: 0 }} />
               <input autoFocus value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search settings..."
-                className="flex-1 bg-transparent border-none outline-none" style={{ color: "#ffffff", fontSize: 15 }} />
-              <kbd className="text-[11px] px-2 py-1 rounded-lg font-medium" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.08)" }}>ESC</kbd>
+                className="flex-1 bg-transparent border-none outline-none" style={{ color: "#ffffff", fontSize: 15, letterSpacing: "-0.01em" }} />
+              <kbd className="text-[11px] px-2.5 py-1 rounded-lg font-medium" style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.3)", border: "1px solid rgba(255,255,255,0.06)" }}>ESC</kbd>
             </div>
-            <div className="max-h-80 overflow-y-auto px-2 py-2">
-              {filteredNav.map((n, i) => {
+            <div className="max-h-80 overflow-y-auto" style={{ padding: "0.3rem" }}>
+              {filteredNav.map((n) => {
                 const Icon = n.icon;
                 return (
                   <Link key={n.href} href={n.href} onClick={() => setSearchOpen(false)}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm"
-                    style={{ color: "var(--text-secondary)", transition: "all 0.12s ease" }}
+                    className="flex items-center gap-3 rounded-xl text-sm"
+                    style={{ color: "rgba(255,255,255,0.5)", transition: "all 0.15s ease", padding: "0.3rem 0.75rem" }}
                     onMouseEnter={e => {
                       e.currentTarget.style.background = "rgba(255,255,255,0.06)";
                       e.currentTarget.style.color = "#ffffff";
                     }}
                     onMouseLeave={e => {
                       e.currentTarget.style.background = "transparent";
-                      e.currentTarget.style.color = "var(--text-secondary)";
+                      e.currentTarget.style.color = "rgba(255,255,255,0.5)";
                     }}>
                     <Icon size={16} strokeWidth={1.5} />
                     <span className="flex-1">{n.label}</span>
-                    <ChevronRight size={13} style={{ color: "rgba(255,255,255,0.2)" }} />
+                    <ChevronRight size={13} style={{ color: "rgba(255,255,255,0.15)" }} />
                   </Link>
                 );
               })}
               {filteredNav.length === 0 && (
-                <div className="flex flex-col items-center py-8">
-                  <Search size={24} style={{ color: "rgba(255,255,255,0.15)", marginBottom: 8 }} />
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.3)" }}>No results found</p>
+                <div className="flex flex-col items-center py-10">
+                  <Search size={28} strokeWidth={1} style={{ color: "rgba(255,255,255,0.1)", marginBottom: 10 }} />
+                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.25)" }}>No results found</p>
                 </div>
               )}
             </div>
