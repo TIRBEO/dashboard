@@ -7,6 +7,7 @@ import {
   Home, User, Shield, Building2, Bell, Plug, Settings, Activity,
   HelpCircle, LogOut, Search, Menu, X, ChevronRight, LayoutGrid,
 } from "lucide-react";
+import DotField from "../components/DotField";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
@@ -39,8 +40,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     fetch(`${API}/api/profile`, { credentials: "include" })
       .then(r => (r.ok ? r.json() : null))
-      .then(d => { if (d) setUser(d); })
-      .catch(() => {})
+      .then(d => { if (d) setUser(d); else window.location.href = `https://accounts.tirbeo.app/login?redirect=${encodeURIComponent(window.location.href)}`; })
+      .catch(() => { window.location.href = `https://accounts.tirbeo.app/login?redirect=${encodeURIComponent(window.location.href)}`; })
       .finally(() => setLoading(false));
   }, []);
 
@@ -57,7 +58,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const handleLogout = useCallback(async () => {
     try { await fetch(`${API}/api/auth/logout`, { method: "POST", credentials: "include" }); } catch {}
-    window.location.href = "/";
+    window.location.href = "https://accounts.tirbeo.app/login";
   }, []);
 
   const filteredNav = NAV.filter(n => n.label.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -75,6 +76,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-screen" style={{ background: "#000" }}>
+      <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
+        <DotField
+          dotRadius={1.5}
+          dotSpacing={14}
+          bulgeStrength={67}
+          glowRadius={160}
+          sparkle={false}
+          waveAmplitude={0}
+          gradientFrom="rgba(255, 255, 255, 0.1)"
+          gradientTo="rgba(255, 255, 255, 0.03)"
+          glowColor="rgba(255, 255, 255, 0.05)"
+        />
+      </div>
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 md:hidden"
