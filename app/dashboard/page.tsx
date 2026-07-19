@@ -58,54 +58,54 @@ export default function DashboardHome() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         {[
           { label: "Completion", value: `${pct}%`, icon: Zap },
           { label: "2FA", value: user.is2FAEnabled ? "Active" : "Off", icon: Shield },
         ].map((s) => (
-          <div key={s.label} className="glass" style={{ padding: "14px 16px" }}>
-            <div className="flex items-center gap-2 mb-2">
+          <div key={s.label} className="glass" style={{ padding: "18px 20px" }}>
+            <div className="flex items-center gap-2 mb-3">
               <s.icon size={13} style={{ color: "var(--text-muted)" }} />
               <span style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)" }}>{s.label}</span>
             </div>
-            <p style={{ fontSize: 22, fontWeight: 700, color: "#ffffff", letterSpacing: "-0.03em" }}>{s.value}</p>
+            <p style={{ fontSize: 24, fontWeight: 700, color: "#ffffff", letterSpacing: "-0.03em" }}>{s.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="glass" style={{ padding: "18px 20px" }}>
-        <div className="flex items-center gap-2 mb-4">
+      <div className="glass" style={{ padding: "22px 24px" }}>
+        <div className="flex items-center gap-2 mb-5">
           <Activity size={14} style={{ color: "var(--text-muted)" }} />
-          <h3 style={{ fontSize: 13, fontWeight: 600, color: "#ffffff" }}>Quick Actions</h3>
+          <h3 style={{ fontSize: 14, fontWeight: 600, color: "#ffffff" }}>Quick Actions</h3>
         </div>
-        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { label: "Profile", desc: "Edit your info", href: "/dashboard/profile", icon: User },
             { label: "Security", desc: "Password & 2FA", href: "/dashboard/security", icon: Shield },
             { label: "Notifications", desc: "Manage alerts", href: "/dashboard/notifications", icon: Bell },
             { label: "Settings", desc: "Preferences", href: "/dashboard/preferences", icon: Settings },
           ].map(q => (
-            <Link key={q.href} href={q.href} className="glass-subtle group" style={{ padding: "12px 14px", display: "block", textDecoration: "none", transition: "all 0.15s", borderRadius: 12 }}>
-              <div className="flex items-center justify-between mb-2">
+            <Link key={q.href} href={q.href} className="glass-subtle group" style={{ padding: "14px 16px", display: "block", textDecoration: "none", transition: "all 0.15s", borderRadius: 12 }}>
+              <div className="flex items-center justify-between mb-3">
                 <q.icon size={16} style={{ color: "var(--text-secondary)" }} />
                 <ArrowUpRight size={11} style={{ color: "var(--text-muted)" }} className="opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
               <p style={{ fontSize: 13, fontWeight: 500, color: "#ffffff" }}>{q.label}</p>
-              <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{q.desc}</p>
+              <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 3 }}>{q.desc}</p>
             </Link>
           ))}
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="glass" style={{ padding: "18px 20px" }}>
-          <div className="flex items-center gap-2 mb-3">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="glass" style={{ padding: "22px 24px" }}>
+          <div className="flex items-center gap-2 mb-4">
             <CheckCircle2 size={14} style={{ color: "var(--text-muted)" }} />
-            <h3 style={{ fontSize: 13, fontWeight: 600, color: "#ffffff" }}>Account Status</h3>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: "#ffffff" }}>Account Status</h3>
           </div>
           <div>
             {checks.map(c => (
-              <div key={c.label} className="table-row" style={{ padding: "8px 0" }}>
+              <div key={c.label} className="table-row" style={{ padding: "10px 0" }}>
                 <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{c.label}</span>
                 {c.ok ? (
                   <CheckCircle2 size={14} style={{ color: "rgba(255,255,255,0.7)" }} />
@@ -116,23 +116,23 @@ export default function DashboardHome() {
             ))}
           </div>
           {pct < 100 && (
-            <Link href="/dashboard/profile" style={{ fontSize: 12, color: "#ffffff", textDecoration: "none", marginTop: 8, display: "inline-block" }}>
+            <Link href="/dashboard/profile" style={{ fontSize: 12, color: "#ffffff", textDecoration: "none", marginTop: 12, display: "inline-block" }}>
               Complete your profile →
             </Link>
           )}
         </div>
 
-        <div className="glass" style={{ padding: "18px 20px" }}>
-          <div className="flex items-center gap-2 mb-3">
+        <div className="glass" style={{ padding: "22px 24px" }}>
+          <div className="flex items-center gap-2 mb-4">
             <Clock size={14} style={{ color: "var(--text-muted)" }} />
-            <h3 style={{ fontSize: 13, fontWeight: 600, color: "#ffffff" }}>Recent Activity</h3>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: "#ffffff" }}>Recent Activity</h3>
           </div>
           {activity.length === 0 ? (
             <p style={{ fontSize: 13, color: "var(--text-muted)" }}>No recent activity</p>
           ) : (
             <div>
               {activity.map((a) => (
-                <div key={a.id} className="table-row" style={{ padding: "8px 0" }}>
+                <div key={a.id} className="table-row" style={{ padding: "10px 0" }}>
                   <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{a.action}</span>
                   <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{new Date(a.createdAt).toLocaleDateString()}</span>
                 </div>

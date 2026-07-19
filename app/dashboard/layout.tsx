@@ -102,14 +102,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           borderRight: "1px solid rgba(255,255,255,0.06)",
         }}
       >
-        <div className="flex items-center justify-between px-5 h-14" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          <div className="flex items-center gap-3">
-            <div className="traffic-lights">
-              <span className="traffic-light red" />
-              <span className="traffic-light yellow" />
-              <span className="traffic-light green" />
-            </div>
-          </div>
+        <div className="flex items-center justify-end px-5 h-14" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
           <button onClick={() => setSidebarOpen(false)} className="md:hidden" style={{ color: "var(--text-muted)" }}>
             <X size={16} />
           </button>
