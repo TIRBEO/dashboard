@@ -40,8 +40,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     fetch(`${API}/api/profile`, { credentials: "include" })
       .then(r => (r.ok ? r.json() : null))
-      .then(d => { if (d) setUser(d); else window.location.href = `https://accounts.tirbeo.app/login?redirect=${encodeURIComponent(window.location.href)}`; })
-      .catch(() => { window.location.href = `https://accounts.tirbeo.app/login?redirect=${encodeURIComponent(window.location.href)}`; })
+      .then(d => { if (d) setUser(d); })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
@@ -58,7 +58,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const handleLogout = useCallback(async () => {
     try { await fetch(`${API}/api/auth/logout`, { method: "POST", credentials: "include" }); } catch {}
-    window.location.href = "https://accounts.tirbeo.app/login";
+    window.location.href = "/";
   }, []);
 
   const filteredNav = NAV.filter(n => n.label.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -78,15 +78,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-screen" style={{ background: "#000" }}>
       <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none" }}>
         <DotField
-          dotRadius={2}
-          dotSpacing={10}
-          bulgeStrength={80}
-          glowRadius={200}
-          sparkle={true}
-          waveAmplitude={0}
-          gradientFrom="rgba(255, 255, 255, 0.35)"
-          gradientTo="rgba(255, 255, 255, 0.12)"
-          glowColor="rgba(255, 255, 255, 0.15)"
+          dotRadius={3}
+          dotSpacing={16}
+          cursorRadius={280}
+          bulgeStrength={35}
+          waveAmplitude={1.2}
+          gradientFrom="rgba(255, 255, 255, 0.16)"
+          gradientTo="rgba(255, 255, 255, 0.06)"
         />
       </div>
       {sidebarOpen && (
