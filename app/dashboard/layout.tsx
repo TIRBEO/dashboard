@@ -83,8 +83,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           cursorRadius={300}
           bulgeStrength={25}
           waveAmplitude={0.8}
-          gradientFrom="rgba(255, 255, 255, 0.45)"
-          gradientTo="rgba(255, 255, 255, 0.22)"
+          gradientFrom="rgba(255, 255, 255, 1)"
+          gradientTo="rgba(255, 255, 255, 0.6)"
         />
       </div>
       {sidebarOpen && (
