@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   Home, User, Shield, Building2, Bell, Plug, Settings, Activity,
-  HelpCircle, LogOut, Search, Menu, X, ChevronRight, LayoutGrid,
+  HelpCircle, LogOut, Search, Menu, X, ChevronRight,
 } from "lucide-react";
 import DotField from "../components/DotField";
 
@@ -24,7 +24,6 @@ const NAV = [
   { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
   { href: "/dashboard/integrations", label: "Integrations", icon: Plug },
   { href: "/dashboard/preferences", label: "Preferences", icon: Settings },
-  { href: "/dashboard/site-config", label: "Site Config", icon: LayoutGrid },
   { href: "/dashboard/activity", label: "Activity", icon: Activity },
   { href: "/dashboard/help", label: "Help", icon: HelpCircle },
 ];
