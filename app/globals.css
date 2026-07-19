@@ -55,6 +55,11 @@ body {
   border-radius: 16px;
   position: relative;
   overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.glass:hover {
+  border-color: rgba(255,255,255,0.12);
 }
 
 .glass::before {
@@ -109,11 +114,11 @@ body {
 /* ═══ INPUTS ═══ */
 .input-field {
   width: 100%;
-  height: 40px;
+  height: 42px;
   padding: 0 14px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
+  border-radius: 11px;
   color: #ffffff;
   font-size: 13px;
   font-family: inherit;
@@ -122,8 +127,9 @@ body {
 }
 
 .input-field:focus {
-  border-color: rgba(255,255,255,0.25);
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.2);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.06);
 }
 
 .input-field::placeholder { color: var(--text-muted); }
@@ -160,27 +166,35 @@ select.input-field {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 0 16px;
-  height: 36px;
-  border-radius: 10px;
+  gap: 7px;
+  padding: 0 18px;
+  height: 38px;
+  border-radius: 11px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   border: none;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
   font-family: inherit;
   letter-spacing: -0.01em;
 }
 
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .btn-primary {
   background: #ffffff;
   color: #000000;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
 .btn-primary:hover {
-  background: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.9);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 .btn-primary:active { transform: scale(0.97); }
@@ -213,21 +227,21 @@ select.input-field {
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
-  border-radius: 20px;
+  padding: 4px 10px;
+  border-radius: 8px;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
 
 .badge-default {
-  background: rgba(255,255,255,0.08);
-  color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.5);
 }
 
 .badge-success {
-  background: rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.7);
 }
 
 .badge-danger {
@@ -268,14 +282,14 @@ select.input-field {
 
 /* ═══ CARDS ═══ */
 .card-section {
-  padding: 20px;
+  padding: 24px;
   margin: 0.5rem 0;
 }
 
 .card-section h3 {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   color: #ffffff;
   letter-spacing: -0.01em;
 }
