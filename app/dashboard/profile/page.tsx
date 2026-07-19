@@ -155,9 +155,9 @@ export default function ProfilePage() {
       </div>
 
       {isOAuth && !p.hasPassword && (
-        <div className="glass card-section" style={{ borderLeft: "3px solid #FFD60A" }}>
+        <div className="glass card-section" style={{ borderLeft: "3px solid var(--warning)" }}>
           <div className="flex items-start gap-3">
-            <Shield size={18} style={{ color: "#FFD60A", marginTop: 2, flexShrink: 0 }} />
+            <Shield size={18} style={{ color: "var(--warning)", marginTop: 2, flexShrink: 0 }} />
             <div className="flex-1">
               <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>
                 Signed in with {p.hasGoogle ? "Google" : "GitHub"}

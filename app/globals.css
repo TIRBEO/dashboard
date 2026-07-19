@@ -469,7 +469,7 @@ select.input-field {
 .search-modal {
   width: 100%;
   max-width: 520px;
-  background: rgba(30,30,30,0.85);
+  background: rgba(0,0,0,0.85);
   backdrop-filter: blur(60px);
   -webkit-backdrop-filter: blur(60px);
   border: 1px solid rgba(255,255,255,0.1);

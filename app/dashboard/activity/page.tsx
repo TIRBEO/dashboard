@@ -71,7 +71,7 @@ export default function ActivityPage() {
             {items.map(log => (
               <div key={log.id} className="table-row" style={{ padding: "10px 18px" }}>
                 <div className="flex items-center gap-3">
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: log.severity === "error" ? "var(--danger)" : log.severity === "warning" ? "#FFD60A" : "var(--text-muted)", flexShrink: 0 }} />
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: log.severity === "error" ? "var(--danger)" : log.severity === "warning" ? "var(--warning)" : "var(--text-muted)", flexShrink: 0 }} />
                   <div>
                     <p style={{ fontSize: 13, color: "var(--text)" }}>{log.action}</p>
                     {log.targetType && <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>{log.targetType}{log.targetId ? ` · ${log.targetId.slice(0, 8)}` : ""}</p>}

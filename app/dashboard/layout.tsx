@@ -89,7 +89,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         className={`fixed top-0 left-0 h-full z-50 flex flex-col transition-transform duration-300 md:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
         style={{
           width: "var(--sidebar-w)",
-          background: "rgba(20,20,20,0.7)",
+          background: "rgba(0,0,0,0.7)",
           backdropFilter: "blur(60px)",
           WebkitBackdropFilter: "blur(60px)",
           borderRight: "1px solid rgba(255,255,255,0.06)",

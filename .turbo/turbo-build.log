@@ -6,6 +6,35 @@
    - Environments: .env.local
 
    Creating an optimized production build ...
- ✓ Compiled successfully in 18.7s
-   Linting and checking validity of types ...
+ ✓ Compiled successfully in 33.9s
+   Skipping validation of types
+   Skipping linting
    Collecting page data ...
+   Generating static pages (0/13) ...
+   Generating static pages (3/13) 
+   Generating static pages (6/13) 
+   Generating static pages (9/13) 
+ ✓ Generating static pages (13/13)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                      123 B         102 kB
+├ ○ /_not-found                            992 B         103 kB
+├ ○ /dashboard                           2.26 kB         109 kB
+├ ○ /dashboard/activity                  1.83 kB         104 kB
+├ ○ /dashboard/help                      2.05 kB         104 kB
+├ ○ /dashboard/integrations              2.12 kB         104 kB
+├ ○ /dashboard/notifications             1.79 kB         104 kB
+├ ○ /dashboard/preferences                2.5 kB         105 kB
+├ ○ /dashboard/profile                   3.99 kB         106 kB
+├ ○ /dashboard/security                  2.94 kB         105 kB
+└ ○ /dashboard/workspace                 2.67 kB         105 kB
++ First Load JS shared by all             102 kB
+  ├ chunks/4557610a-fefa5be19e77ed4a.js  54.2 kB
+  ├ chunks/785-778584e14f2dca51.js       45.8 kB
+  └ other shared chunks (total)             2 kB
+
+
+○  (Static)  prerendered as static content
+
