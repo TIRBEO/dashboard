@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link2, Unlink, ExternalLink } from "lucide-react";
 import { IntegrationsSkeleton } from "../../components/Skeleton";
+import { AlertDialogProvider, useAlertDialog } from "../../components/AlertDialog";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
@@ -40,12 +41,13 @@ const OAUTH_PROVIDERS = [
   },
 ];
 
-export default function IntegrationsPage() {
+function IntegrationsContent() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState<string | null>(null);
   const fetched = useRef(false);
+  const { openAlert } = useAlertDialog();
 
   useEffect(() => {
     if (fetched.current) return;
@@ -82,24 +84,33 @@ export default function IntegrationsPage() {
     window.location.href = `${API}/api/auth/${provider}?redirect=${encodeURIComponent(window.location.origin + "/dashboard/integrations?connected=" + provider)}`;
   };
 
-  const handleDisconnect = async (provider: string) => {
-    try {
-      await fetch(`${API}/api/integrations`, {
-        method: "DELETE",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ provider }),
-      });
-      setProfile(prev => prev ? {
-        ...prev,
-        hasGoogle: provider === "google" ? false : prev.hasGoogle,
-        hasGithub: provider === "github" ? false : prev.hasGithub,
-      } : prev);
-      setToast(`${provider} disconnected`);
-    } catch {
-      setToast("Failed to disconnect");
-    }
-    setTimeout(() => setToast(null), 3000);
+  const handleDisconnect = (provider: string) => {
+    openAlert({
+      title: `Disconnect ${provider}?`,
+      description: `You'll need to reconnect your ${provider} account to sign in with it again.`,
+      confirmLabel: "Disconnect",
+      cancelLabel: "Keep",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await fetch(`${API}/api/integrations`, {
+            method: "DELETE",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ provider }),
+          });
+          setProfile(prev => prev ? {
+            ...prev,
+            hasGoogle: provider === "google" ? false : prev.hasGoogle,
+            hasGithub: provider === "github" ? false : prev.hasGithub,
+          } : prev);
+          setToast(`${provider} disconnected`);
+        } catch {
+          setToast("Failed to disconnect");
+        }
+        setTimeout(() => setToast(null), 3000);
+      },
+    });
   };
 
   if (loading) return <IntegrationsSkeleton />;
@@ -180,5 +191,13 @@ export default function IntegrationsPage() {
 
       {toast && <div className="toast toast-success">{toast}</div>}
     </div>
+  );
+}
+
+export default function IntegrationsPage() {
+  return (
+    <AlertDialogProvider>
+      <IntegrationsContent />
+    </AlertDialogProvider>
   );
 }

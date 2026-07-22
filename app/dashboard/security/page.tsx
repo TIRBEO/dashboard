@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Shield, KeyRound, Smartphone, Eye, EyeOff } from "lucide-react";
 import { SecuritySkeleton } from "../../components/Skeleton";
+import { AlertDialogProvider, useAlertDialog } from "../../components/AlertDialog";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
@@ -13,10 +14,11 @@ type SecurityInfo = {
   sessions: { id: string; createdAt: string; userAgent?: string; ipAddress?: string }[];
 };
 
-export default function SecurityPage() {
+function SecurityContent() {
   const [info, setInfo] = useState<SecurityInfo | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const fetched = useRef(false);
+  const { openAlert } = useAlertDialog();
 
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
@@ -53,6 +55,21 @@ export default function SecurityPage() {
       else { const msg = await res.text(); setToast(msg || "Failed"); }
     } catch { setToast("Connection error"); }
     setChangingPw(false);
+  };
+
+  const revokeSession = (sessionId: string) => {
+    openAlert({
+      title: "Revoke Session",
+      description: "This will sign you out of this device immediately. You can't undo this action.",
+      confirmLabel: "Revoke",
+      cancelLabel: "Keep",
+      variant: "danger",
+      onConfirm: async () => {
+        await fetch(`${API}/api/security/sessions/${sessionId}`, { method: "DELETE", credentials: "include" });
+        setInfo(prev => prev ? { ...prev, sessions: prev.sessions.filter(s => s.id !== sessionId) } : prev);
+        setToast("Session revoked");
+      },
+    });
   };
 
   if (!info) return <SecuritySkeleton />;
@@ -139,11 +156,14 @@ export default function SecurityPage() {
         ) : (
           <div>
             {info.sessions.map(s => (
-              <div key={s.id} className="table-row">
+              <div key={s.id} className="table-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div>
                   <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>{s.userAgent || "Unknown device"}</p>
                   <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{s.ipAddress || "Unknown IP"} · {new Date(s.createdAt).toLocaleDateString()}</p>
                 </div>
+                <button onClick={() => revokeSession(s.id)} className="btn btn-ghost" style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                  Revoke
+                </button>
               </div>
             ))}
           </div>
@@ -152,5 +172,13 @@ export default function SecurityPage() {
 
       {toast && <div className={`toast ${toast.includes("changed") ? "toast-success" : "toast-error"}`}>{toast}</div>}
     </div>
+  );
+}
+
+export default function SecurityPage() {
+  return (
+    <AlertDialogProvider>
+      <SecurityContent />
+    </AlertDialogProvider>
   );
 }
