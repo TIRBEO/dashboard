@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import {
-  User, Shield, Bell, Clock, Zap, Settings, Activity, ArrowUpRight,
-  CheckCircle2, XCircle, MapPin, Globe, TrendingUp, Eye, Calendar,
+  User, Shield, Bell, Clock, Settings, Activity, ArrowUpRight,
+  CheckCircle2, XCircle, MapPin, Globe, Smartphone,
 } from "lucide-react";
 import { HomeSkeleton } from "../components/Skeleton";
 
@@ -29,8 +29,8 @@ function RingProgress({ pct, size = 80, stroke = 6 }: { pct: number; size?: numb
   return (
     <div className="ring-progress" style={{ width: size, height: size }}>
       <svg width={size} height={size}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={stroke} />
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth={stroke}
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--bg-elevated)" strokeWidth={stroke} />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="var(--accent)" strokeWidth={stroke}
           strokeDasharray={circ} strokeDashoffset={offset} strokeLinecap="round"
           style={{ transition: "stroke-dashoffset 0.8s cubic-bezier(0.16,1,0.3,1)" }} />
       </svg>
@@ -52,9 +52,9 @@ function ActivityChart({ activity }: { activity: ActivityLog[] }) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
         <span style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)" }}>Activity (24h)</span>
-        <span style={{ fontSize: 11, color: "var(--text-ash)" }}>{activity.length} events</span>
+        <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{activity.length} events</span>
       </div>
       <div className="chart-bar">
         {hourlyData.map(d => (
@@ -63,12 +63,10 @@ function ActivityChart({ activity }: { activity: ActivityLog[] }) {
             title={`${d.hour}:00 — ${d.count} events`} />
         ))}
       </div>
-      <div className="flex justify-between mt-1">
-        <span style={{ fontSize: 9, color: "var(--text-ash)" }}>12am</span>
-        <span style={{ fontSize: 9, color: "var(--text-ash)" }}>6am</span>
-        <span style={{ fontSize: 9, color: "var(--text-ash)" }}>12pm</span>
-        <span style={{ fontSize: 9, color: "var(--text-ash)" }}>6pm</span>
-        <span style={{ fontSize: 9, color: "var(--text-ash)" }}>Now</span>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+        {["12am", "6am", "12pm", "6pm", "Now"].map(t => (
+          <span key={t} style={{ fontSize: 9, color: "var(--text-muted)" }}>{t}</span>
+        ))}
       </div>
     </div>
   );
@@ -117,29 +115,29 @@ export default function DashboardHome() {
   };
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {/* Welcome Banner */}
-      <div className="glass" style={{ padding: "28px 32px" }}>
-        <div className="flex items-start gap-5">
-          <div className="avatar" style={{ width: 64, height: 64, fontSize: 22, borderRadius: 16, flexShrink: 0 }}>
+      <div className="card-section" style={{ padding: "24px 28px" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 20, flexWrap: "wrap" }}>
+          <div className="avatar" style={{ width: 56, height: 56, fontSize: 20, borderRadius: 14, flexShrink: 0 }}>
             {user.photoUrl ? <img src={user.photoUrl} alt="" /> : initials}
           </div>
-          <div className="flex-1 min-w-0">
-            <h1 style={{ fontSize: 26, fontWeight: 700, color: "#ffffff", letterSpacing: "-0.03em", lineHeight: 1.2 }}>
+          <div style={{ flex: "1 1 280px", minWidth: 0 }}>
+            <h1 style={{ fontSize: 24, fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.03em", lineHeight: 1.2 }}>
               {getGreeting()}, {user.name?.split(" ")[0] || "there"}!
             </h1>
-            <div className="flex items-center gap-3 mt-2 flex-wrap">
-              <span className="badge badge-default" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: isOnline ? "#59d499" : "rgba(255,255,255,0.2)" }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8, flexWrap: "wrap" }}>
+              <span className="badge badge-default" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: isOnline ? "var(--success)" : "var(--text-ash)" }} />
                 {isOnline ? "Online" : "Offline"}
               </span>
               {user.occupation && <span style={{ fontSize: 13, color: "var(--text-muted)" }}>{user.occupation}</span>}
               {user.country && <span style={{ fontSize: 13, color: "var(--text-muted)" }}>· {user.country}</span>}
               {user.language && <span style={{ fontSize: 13, color: "var(--text-muted)" }}>· {user.language.toUpperCase()}</span>}
             </div>
-            <p style={{ fontSize: 12, color: "var(--text-ash)", marginTop: 6 }}>{user.email}</p>
+            <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>{user.email}</p>
           </div>
-          <div className="flex gap-2">
+          <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
             <Link href="/dashboard/profile" className="btn btn-primary"><User size={14} /> Edit Profile</Link>
             <Link href="/dashboard/security" className="btn btn-ghost"><Shield size={14} /> Security</Link>
           </div>
@@ -147,68 +145,64 @@ export default function DashboardHome() {
       </div>
 
       {/* Stats Row */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
         <div className="stat-card">
-          <div className="flex items-center justify-between mb-3">
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
             <span style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)" }}>Profile</span>
-            <RingProgress pct={completionPct} size={44} stroke={4} />
+            <RingProgress pct={completionPct} size={40} stroke={3} />
           </div>
-          <p style={{ fontSize: 24, fontWeight: 700, color: "#fff", letterSpacing: "-0.03em" }}>{completionPct}%</p>
-          <p style={{ fontSize: 11, color: "var(--text-ash)", marginTop: 2 }}>{completedChecks}/{checks.length} complete</p>
+          <p className="stat-value" style={{ fontSize: 22 }}>{completionPct}%</p>
+          <p className="stat-label">{completedChecks}/{checks.length} complete</p>
           <div className="progress-bar" style={{ marginTop: 10 }}>
             <div className="progress-bar-fill" style={{ width: `${completionPct}%` }} />
           </div>
         </div>
 
         <div className="stat-card">
-          <div className="flex items-center gap-2 mb-3">
-            <Shield size={12} style={{ color: "var(--text-muted)" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
+            <Shield size={13} style={{ color: "var(--text-muted)" }} />
             <span style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)" }}>Security</span>
           </div>
-          <p style={{ fontSize: 24, fontWeight: 700, color: user.is2FAEnabled ? "#59d499" : "#ff6161", letterSpacing: "-0.03em" }}>
+          <p className="stat-value" style={{ fontSize: 22, color: user.is2FAEnabled ? "var(--success)" : "var(--danger)" }}>
             {user.is2FAEnabled ? "Strong" : "Weak"}
           </p>
-          <p style={{ fontSize: 11, color: "var(--text-ash)", marginTop: 2 }}>
-            {user.is2FAEnabled ? "2FA is active" : "Enable 2FA for protection"}
-          </p>
+          <p className="stat-label">{user.is2FAEnabled ? "2FA is active" : "Enable 2FA for protection"}</p>
           {!user.is2FAEnabled && (
-            <Link href="/dashboard/security" style={{ fontSize: 11, color: "#fff", textDecoration: "none", marginTop: 8, display: "inline-block" }}>
+            <Link href="/dashboard/security" style={{ fontSize: 11, color: "var(--accent)", textDecoration: "none", marginTop: 8, display: "inline-block", fontWeight: 500 }}>
               Enable now →
             </Link>
           )}
         </div>
 
         <div className="stat-card">
-          <div className="flex items-center gap-2 mb-3">
-            <Clock size={12} style={{ color: "var(--text-muted)" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
+            <Clock size={13} style={{ color: "var(--text-muted)" }} />
             <span style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)" }}>Member</span>
           </div>
-          <p style={{ fontSize: 24, fontWeight: 700, color: "#fff", letterSpacing: "-0.03em" }}>
+          <p className="stat-value" style={{ fontSize: 22 }}>
             {memberMonths < 1 ? "New" : `${memberMonths} mo`}
           </p>
-          <p style={{ fontSize: 11, color: "var(--text-ash)", marginTop: 2 }}>
+          <p className="stat-label">
             Since {new Date(user.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
           </p>
         </div>
 
         <div className="stat-card">
-          <div className="flex items-center gap-2 mb-3">
-            <Activity size={12} style={{ color: "var(--text-muted)" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
+            <Activity size={13} style={{ color: "var(--text-muted)" }} />
             <span style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)" }}>Activity</span>
           </div>
-          <p style={{ fontSize: 24, fontWeight: 700, color: activity.length > 0 ? "#57c1ff" : "#9c9c9d", letterSpacing: "-0.03em" }}>
+          <p className="stat-value" style={{ fontSize: 22, color: activity.length > 0 ? "var(--accent)" : "var(--text-muted)" }}>
             {activity.length}
           </p>
-          <p style={{ fontSize: 11, color: "var(--text-ash)", marginTop: 2 }}>
-            {activity.length > 0 ? "Events this session" : "No activity yet"}
-          </p>
+          <p className="stat-label">{activity.length > 0 ? "Events this session" : "No activity yet"}</p>
         </div>
       </div>
 
       {/* Last Login */}
       {lastLoginInfo && (
-        <div className="glass-subtle" style={{ padding: "12px 18px", display: "flex", alignItems: "center", gap: 10, borderRadius: 10 }}>
-          <MapPin size={13} style={{ color: "var(--text-muted)" }} />
+        <div className="card" style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+          <MapPin size={13} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
           <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
             Last login from <span style={{ color: "var(--text-secondary)" }}>{lastLoginInfo.ip}</span>
             {lastLoginInfo.location && <span> ({lastLoginInfo.location})</span>}
@@ -218,30 +212,30 @@ export default function DashboardHome() {
       )}
 
       {/* Activity + Account Status */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="glass" style={{ padding: "24px 28px" }}>
+      <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))" }}>
+        <div className="card-section">
           <ActivityChart activity={activity} />
         </div>
 
-        <div className="glass" style={{ padding: "24px 28px" }}>
-          <div className="flex items-center gap-2 mb-4">
+        <div className="card-section">
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
             <CheckCircle2 size={14} style={{ color: "var(--text-muted)" }} />
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>Account Status</h3>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>Account Status</h3>
           </div>
-          <div className="space-y-2">
+          <div>
             {checks.map(c => (
-              <div key={c.label} className="flex items-center justify-between" style={{ padding: "6px 0" }}>
+              <div key={c.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "5px 0" }}>
                 <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{c.label}</span>
                 {c.ok ? (
-                  <CheckCircle2 size={13} style={{ color: "rgba(255,255,255,0.6)" }} />
+                  <CheckCircle2 size={13} style={{ color: "var(--success)" }} />
                 ) : (
-                  <XCircle size={13} style={{ color: "var(--text-ash)" }} />
+                  <XCircle size={13} style={{ color: "var(--text-muted)" }} />
                 )}
               </div>
             ))}
           </div>
           {completionPct < 100 && (
-            <Link href="/dashboard/profile" style={{ fontSize: 12, color: "#fff", textDecoration: "none", marginTop: 14, display: "inline-block", fontWeight: 500 }}>
+            <Link href="/dashboard/profile" style={{ fontSize: 12, color: "var(--accent)", textDecoration: "none", marginTop: 12, display: "inline-block", fontWeight: 500 }}>
               Complete your profile →
             </Link>
           )}
@@ -249,43 +243,45 @@ export default function DashboardHome() {
       </div>
 
       {/* Quick Links */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div style={{ display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
         {[
           { label: "Profile", desc: "Personal info & bio", href: "/dashboard/profile", icon: User },
           { label: "Security", desc: "Password, 2FA & sessions", href: "/dashboard/security", icon: Shield },
           { label: "Notifications", desc: "Alerts & preferences", href: "/dashboard/notifications", icon: Bell },
           { label: "Preferences", desc: "Theme, font & layout", href: "/dashboard/preferences", icon: Settings },
         ].map(q => (
-          <Link key={q.href} href={q.href} className="glass-subtle group" style={{ padding: "16px 18px", display: "block", textDecoration: "none", transition: "all 0.15s", borderRadius: 12 }}>
-            <div className="flex items-center justify-between mb-2">
-              <q.icon size={18} style={{ color: "var(--text-secondary)" }} />
-              <ArrowUpRight size={13} style={{ color: "var(--text-ash)" }} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+          <Link key={q.href} href={q.href} className="card" style={{ padding: "16px 18px", display: "block", textDecoration: "none", transition: "all 0.12s" }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--border-hover)")}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--border)")}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+              <q.icon size={16} style={{ color: "var(--text-muted)" }} />
+              <ArrowUpRight size={12} style={{ color: "var(--text-muted)" }} />
             </div>
-            <p style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>{q.label}</p>
-            <p style={{ fontSize: 11, color: "var(--text-ash)", marginTop: 3 }}>{q.desc}</p>
+            <p style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>{q.label}</p>
+            <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{q.desc}</p>
           </Link>
         ))}
       </div>
 
       {/* Active Sessions Preview */}
       {sessions.length > 0 && (
-        <div className="glass" style={{ padding: "20px 24px" }}>
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
+        <div className="card-section" style={{ padding: "18px 20px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <Smartphone size={13} style={{ color: "var(--text-muted)" }} />
-              <span style={{ fontSize: 13, fontWeight: 600, color: "#fff" }}>Active Sessions</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>Active Sessions</span>
             </div>
             <Link href="/dashboard/security" style={{ fontSize: 11, color: "var(--text-muted)", textDecoration: "none" }}>View all →</Link>
           </div>
           <div>
             {sessions.slice(0, 3).map(s => (
               <div key={s.id} className="device-card" style={{ padding: "10px 0" }}>
-                <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(255,255,255,0.04)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ width: 32, height: 32, borderRadius: "var(--radius-md)", background: "var(--bg-elevated)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Smartphone size={14} style={{ color: "var(--text-muted)" }} />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontSize: 12, color: "var(--text-secondary)" }}>{s.userAgent?.split(" ").slice(0, 2).join(" ") || "Unknown device"}</p>
-                  <p style={{ fontSize: 11, color: "var(--text-ash)" }}>{s.ipAddress || "Unknown IP"} · {new Date(s.createdAt).toLocaleDateString()}</p>
+                  <p style={{ fontSize: 11, color: "var(--text-muted)" }}>{s.ipAddress || "Unknown IP"} · {new Date(s.createdAt).toLocaleDateString()}</p>
                 </div>
               </div>
             ))}
@@ -294,9 +290,9 @@ export default function DashboardHome() {
       )}
 
       {/* Footer */}
-      <div className="glass-subtle" style={{ padding: "14px 20px", display: "flex", alignItems: "center", gap: 10, borderRadius: 10 }}>
-        <Globe size={13} style={{ color: "var(--text-ash)" }} />
-        <p style={{ fontSize: 12, color: "var(--text-ash)" }}>
+      <div className="card" style={{ padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+        <Globe size={13} style={{ color: "var(--text-muted)" }} />
+        <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
           Member since {new Date(user.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })}
           {user.country ? ` · ${user.country}` : ""}
           {user.language ? ` · ${user.language.toUpperCase()}` : ""}
