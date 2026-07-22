@@ -72,6 +72,103 @@ function ActivityChart({ activity }: { activity: ActivityLog[] }) {
   );
 }
 
+function ActivityCalendar({ activity }: { activity: ActivityLog[] }) {
+  const calendarData = useMemo(() => {
+    const weeks: { date: Date; level: number; type: string }[][] = [];
+    const today = new Date();
+    const startDate = new Date(today);
+    startDate.setDate(startDate.getDate() - 83); // ~12 weeks
+
+    // Count events per day
+    const dayCounts: Record<string, { count: number; types: Set<string> }> = {};
+    activity.forEach(a => {
+      const key = new Date(a.createdAt).toISOString().slice(0, 10);
+      if (!dayCounts[key]) dayCounts[key] = { count: 0, types: new Set() };
+      dayCounts[key].count++;
+      const action = a.action?.toLowerCase() || "";
+      if (action.includes("login")) dayCounts[key].types.add("login");
+      else if (action.includes("password")) dayCounts[key].types.add("password");
+      else if (action.includes("profile")) dayCounts[key].types.add("profile");
+      else if (action.includes("2fa") || action.includes("security")) dayCounts[key].types.add("security");
+      else dayCounts[key].types.add("other");
+    });
+
+    // Build weeks
+    let currentWeek: { date: Date; level: number; type: string }[] = [];
+    const d = new Date(startDate);
+    while (d <= today) {
+      const key = d.toISOString().slice(0, 10);
+      const data = dayCounts[key];
+      let level = 0;
+      let type = "none";
+      if (data) {
+        if (data.count >= 10) level = 4;
+        else if (data.count >= 5) level = 3;
+        else if (data.count >= 2) level = 2;
+        else level = 1;
+        // Determine dominant type
+        if (data.types.size === 1) type = Array.from(data.types)[0];
+        else if (data.types.size > 1) type = "mixed";
+      }
+      currentWeek.push({ date: new Date(d), level, type });
+      if (d.getDay() === 6 || d.getTime() === today.getTime()) {
+        weeks.push(currentWeek);
+        currentWeek = [];
+      }
+      d.setDate(d.getDate() + 1);
+    }
+    if (currentWeek.length > 0) weeks.push(currentWeek);
+    return weeks;
+  }, [activity]);
+
+  return (
+    <div>
+      <div className="activity-calendar">
+        {calendarData.map((week, wi) => (
+          <div key={wi} className="activity-calendar-row">
+            {week.map((day, di) => {
+              const cls = day.level > 0
+                ? day.type === "login" ? "login"
+                  : day.type === "password" ? "password"
+                  : day.type === "profile" ? "profile"
+                  : day.type === "security" ? "security"
+                  : day.type === "mixed" ? "mixed"
+                  : `level-${day.level}`
+                : "";
+              return (
+                <div key={di} className={`activity-calendar-cell ${cls}`}
+                  title={`${day.date.toLocaleDateString()} — ${day.level > 0 ? `${day.count || day.level} events` : "No activity"}`} />
+              );
+            })}
+          </div>
+        ))}
+      </div>
+      <div className="activity-calendar-legend">
+        <div className="activity-calendar-legend-item">
+          <div className="activity-calendar-legend-dot" style={{ background: "rgba(89,212,153,0.2)" }} />
+          <span>Login</span>
+        </div>
+        <div className="activity-calendar-legend-item">
+          <div className="activity-calendar-legend-dot" style={{ background: "rgba(255,97,97,0.5)" }} />
+          <span>Password</span>
+        </div>
+        <div className="activity-calendar-legend-item">
+          <div className="activity-calendar-legend-dot" style={{ background: "rgba(87,193,255,0.5)" }} />
+          <span>Profile</span>
+        </div>
+        <div className="activity-calendar-legend-item">
+          <div className="activity-calendar-legend-dot" style={{ background: "rgba(255,197,51,0.5)" }} />
+          <span>Security</span>
+        </div>
+        <div className="activity-calendar-legend-item">
+          <div className="activity-calendar-legend-dot" style={{ background: "var(--text-ash)" }} />
+          <span>None</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardHome() {
   const [user, setUser] = useState<Me | null>(null);
   const [activity, setActivity] = useState<ActivityLog[]>([]);
@@ -217,7 +314,18 @@ export default function DashboardHome() {
           <ActivityChart activity={activity} />
         </div>
 
+        {/* Activity Calendar */}
         <div className="card-section">
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+            <Activity size={14} style={{ color: "var(--text-muted)" }} />
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>Activity Calendar</h3>
+          </div>
+          <ActivityCalendar activity={activity} />
+        </div>
+      </div>
+
+      {/* Account Status */}
+      <div className="card-section">
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
             <CheckCircle2 size={14} style={{ color: "var(--text-muted)" }} />
             <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>Account Status</h3>
@@ -239,7 +347,6 @@ export default function DashboardHome() {
               Complete your profile →
             </Link>
           )}
-        </div>
       </div>
 
       {/* Quick Links */}
