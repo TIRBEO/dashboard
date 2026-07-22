@@ -1,6 +1,5 @@
-'use client';
-
 import { useEffect, useRef, memo } from 'react';
+import './DotField.css';
 
 const TWO_PI = Math.PI * 2;
 
@@ -12,20 +11,16 @@ interface DotFieldProps {
   waveAmplitude?: number;
   gradientFrom?: string;
   gradientTo?: string;
-  glowRadius?: number;
-  sparkle?: boolean;
 }
 
 const DotField = memo(({
-  dotRadius = 1.5,
+  dotRadius = 1,
   dotSpacing = 14,
-  cursorRadius = 300,
-  bulgeStrength = 24,
+  cursorRadius = 160,
+  bulgeStrength = 10,
   waveAmplitude = 0,
-  gradientFrom = 'rgba(0, 122, 204, 0.3)',
-  gradientTo = 'rgba(100, 100, 120, 0.08)',
-  glowRadius = 180,
-  sparkle = false,
+  gradientFrom = 'rgba(255, 255, 255, 0.15)',
+  gradientTo = 'rgba(255, 255, 255, 0.04)',
 }: DotFieldProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef({ x: -9999, y: -9999 });
@@ -38,55 +33,55 @@ const DotField = memo(({
     if (!ctx) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    let width = 0;
-    let height = 0;
+    let w = 0;
+    let h = 0;
 
     function resize() {
-      const rect = canvas.parentElement?.getBoundingClientRect();
-      if (!rect) return;
-      width = rect.width;
-      height = rect.height;
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = w + 'px';
+      canvas.style.height = h + 'px';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
     function onMouseMove(e: MouseEvent) {
-      const rect = canvas.getBoundingClientRect();
-      mouseRef.current.x = e.clientX - rect.left;
-      mouseRef.current.y = e.clientY - rect.top;
+      mouseRef.current.x = e.clientX;
+      mouseRef.current.y = e.clientY;
     }
 
-    let frameCount = 0;
-
     function tick() {
-      frameCount++;
       const m = mouseRef.current;
+      const t = performance.now() * 0.001;
       const step = dotRadius * 2 + dotSpacing;
-      const cols = Math.ceil(width / step) + 1;
-      const rows = Math.ceil(height / step) + 1;
-      const padX = ((width - (cols - 1) * step) % step) / 2;
-      const padY = ((height - (rows - 1) * step) % step) / 2;
+      const cols = Math.ceil(w / step) + 1;
+      const rows = Math.ceil(h / step) + 1;
+      const padX = ((w - (cols - 1) * step) % step) / 2;
+      const padY = ((h - (rows - 1) * step) % step) / 2;
+      const rad = dotRadius;
       const cr = cursorRadius;
       const crSq = cr * cr;
 
-      ctx.clearRect(0, 0, width, height);
-      const grad = ctx.createLinearGradient(0, 0, width, height);
+      ctx.clearRect(0, 0, w, h);
+
+      const grad = ctx.createLinearGradient(0, 0, w, h);
       grad.addColorStop(0, gradientFrom);
       grad.addColorStop(1, gradientTo);
       ctx.fillStyle = grad;
+
       ctx.beginPath();
 
       for (let row = 0; row < rows; row++) {
         const ay = padY + row * step;
         const dy = m.y - ay;
         const dySq = dy * dy;
+
         for (let col = 0; col < cols; col++) {
           const ax = padX + col * step;
           const dx = m.x - ax;
           const distSq = dx * dx + dySq;
+
           let drawX = ax;
           let drawY = ay;
 
@@ -99,40 +94,30 @@ const DotField = memo(({
             drawY -= Math.sin(angle) * push;
           }
 
-          if (waveAmplitude > 0) {
-            drawY += Math.sin(drawX * 0.02 + frameCount * 0.015) * waveAmplitude;
-          }
-
-          let r = dotRadius;
-          if (sparkle) {
-            const hash = ((row * cols + col) * 2654435761) ^ (frameCount >> 4);
-            if ((hash >>> 0) % 100 < 2) r = dotRadius * 2;
-          }
-
-          ctx.moveTo(drawX + r, drawY);
-          ctx.arc(drawX, drawY, r, 0, TWO_PI);
+          ctx.moveTo(drawX + rad, drawY);
+          ctx.arc(drawX, drawY, rad, 0, TWO_PI);
         }
       }
 
       ctx.fill();
-      rafRef.current = window.requestAnimationFrame(tick);
+      rafRef.current = requestAnimationFrame(tick);
     }
 
     resize();
     window.addEventListener('resize', resize);
     window.addEventListener('mousemove', onMouseMove, { passive: true });
-    rafRef.current = window.requestAnimationFrame(tick);
+    rafRef.current = requestAnimationFrame(tick);
 
     return () => {
-      window.cancelAnimationFrame(rafRef.current);
+      cancelAnimationFrame(rafRef.current);
       window.removeEventListener('resize', resize);
       window.removeEventListener('mousemove', onMouseMove);
     };
-  }, [dotRadius, dotSpacing, cursorRadius, bulgeStrength, waveAmplitude, gradientFrom, gradientTo, glowRadius, sparkle]);
+  }, [dotRadius, dotSpacing, cursorRadius, bulgeStrength, waveAmplitude, gradientFrom, gradientTo]);
 
   return (
-    <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'hidden', pointerEvents: 'none' }}>
-      <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%', opacity: 0.85 }} />
+    <div className="dot-field-container">
+      <canvas ref={canvasRef} />
     </div>
   );
 });
