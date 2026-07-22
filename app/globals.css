@@ -28,7 +28,7 @@
   --glass-border: rgba(255,255,255,0.08);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 2px; padding: 1px; }
 
 body {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
