@@ -9,6 +9,7 @@ import {
   Palette, Globe, Eye, KeyRound, Smartphone, Fingerprint,
   CreditCard, Database, Sun, Moon, Monitor,
 } from "lucide-react";
+import DotField from "../components/DotField";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
@@ -63,6 +64,13 @@ function applyTheme(theme: Theme) {
   }
 }
 
+function getResolvedTheme(theme: Theme): "dark" | "light" {
+  if (theme === "system") {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  return theme;
+}
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [user, setUser] = useState<Me | null>(null);
@@ -72,19 +80,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [searchQuery, setSearchQuery] = useState("");
   const [currentTime, setCurrentTime] = useState("");
   const [theme, setThemeState] = useState<Theme>("dark");
+  const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("dark");
 
   // Initialize theme from localStorage
   useEffect(() => {
     const saved = (localStorage.getItem("tirbeo-theme") as Theme) || "dark";
     setThemeState(saved);
     applyTheme(saved);
+    setResolvedTheme(getResolvedTheme(saved));
   }, []);
 
   // Listen for system theme changes
   useEffect(() => {
-    if (theme !== "system") return;
+    if (theme !== "system") {
+      setResolvedTheme(theme as "dark" | "light");
+      return;
+    }
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = () => applyTheme("system");
+    const handler = () => {
+      applyTheme("system");
+      setResolvedTheme(getResolvedTheme("system"));
+    };
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
   }, [theme]);
@@ -95,6 +111,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     setThemeState(next);
     localStorage.setItem("tirbeo-theme", next);
     applyTheme(next);
+    setResolvedTheme(getResolvedTheme(next));
   }, [theme]);
 
   const themeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
@@ -166,7 +183,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isActive = (href: string) => href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${resolvedTheme === "light" ? "app-shell--oceanic" : ""}`}>
+      {/* Background effects */}
+      <div className="app-bg" aria-hidden="true">
+        {resolvedTheme === "dark" ? (
+          <DotField
+            dotRadius={1.5}
+            dotSpacing={14}
+            cursorRadius={300}
+            bulgeStrength={24}
+            gradientFrom="rgba(0, 122, 204, 0.25)"
+            gradientTo="rgba(60, 60, 80, 0.06)"
+            glowRadius={180}
+            sparkle={false}
+          />
+        ) : null}
+      </div>
       {/* ═══ TOP BAR — full width ═══ */}
       <header className="topbar">
         <button className="topbar-hamburger" onClick={() => setSidebarOpen(o => !o)}>
