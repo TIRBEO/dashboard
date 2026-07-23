@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   HelpCircle, BookOpen, MessageSquare, Shield, Bug, ExternalLink,
-  ChevronDown, ChevronRight, Search, Mail, FileText, Zap, Globe,
+  ChevronDown, ChevronRight, Search, Mail, FileText, Zap, Globe, Bell,
 } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
