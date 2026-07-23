@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Globe, Clock, Zap, Palette, Type, Moon } from "lucide-react";
 import { PREFERENCES_PAGE } from "../../dashboard-config";
+import { normalizePreferenceState, applyPreferenceStyles } from "../../preferences-theme";
 import { PageContainer, PageHeader, Card, SettingRow, Toggle, Button, Select, Skeleton, useToast } from "../components";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
@@ -17,29 +18,6 @@ type Prefs = {
 
 const SECTION_ICONS: Record<string, any> = { Globe, Clock, Zap, Palette, Type, Moon };
 
-function applyPreferenceStyles(prefs: Prefs) {
-  const root = document.documentElement;
-  const accent = prefs?.preferences?.accentColor || "#ffffff";
-  const shell = prefs?.preferences?.shellStyle || "dark";
-  const density = prefs?.preferences?.density || "comfortable";
-  const sidebarWidth = prefs?.preferences?.sidebarWidth || "wide";
-  const fontScale = prefs?.preferences?.fontScale || "default";
-  root.style.setProperty("--accent", accent);
-  root.style.setProperty("--accent-muted", accent + "20");
-  root.style.setProperty("--sidebar-w", sidebarWidth === "compact" ? "220px" : "260px");
-  root.style.setProperty("--dashboard-density", density === "compact" ? "0.9" : density === "spacious" ? "1.05" : "1");
-  root.style.setProperty("--font-scale", fontScale === "large" ? "1.02" : fontScale === "small" ? "0.96" : "1");
-  if (shell === "midnight") {
-    root.style.setProperty("--bg", "#05060a");
-    root.style.setProperty("--bg-surface", "#0b0d12");
-    root.style.setProperty("--bg-card", "#12141b");
-  } else {
-    root.style.setProperty("--bg", "#050507");
-    root.style.setProperty("--bg-surface", "#0a0a0c");
-    root.style.setProperty("--bg-card", "#0e0e10");
-  }
-}
-
 export default function PreferencesPage() {
   const [prefs, setPrefs] = useState<Prefs>(null);
   const [saving, setSaving] = useState(false);
@@ -52,9 +30,10 @@ export default function PreferencesPage() {
     if (fetched.current) return;
     fetched.current = true;
     fetch(API + "/api/preferences", { credentials: "include" }).then(function(r) { return r.ok ? r.json() : null; }).then(function(data) {
-      setPrefs(data);
-      originalPrefs.current = JSON.parse(JSON.stringify(data));
-      applyPreferenceStyles(data);
+      const normalized = normalizePreferenceState(data);
+      setPrefs(normalized as Prefs);
+      originalPrefs.current = JSON.parse(JSON.stringify(normalized));
+      applyPreferenceStyles(normalized);
     }).catch(function() {});
   }, []);
 
@@ -72,16 +51,17 @@ export default function PreferencesPage() {
     if (!prefs) return;
     setSaving(true);
     try {
-      applyPreferenceStyles(prefs);
+      const normalized = normalizePreferenceState(prefs as Prefs);
+      applyPreferenceStyles(normalized);
       var res = await fetch(API + "/api/preferences", {
         method: "PATCH", credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(prefs),
+        body: JSON.stringify(normalized),
       });
       if (res.ok) {
         toast.show("Preferences saved");
         setDirty(false);
-        originalPrefs.current = JSON.parse(JSON.stringify(prefs));
+        originalPrefs.current = JSON.parse(JSON.stringify(normalized));
       } else {
         toast.show("Failed to save preferences", "error");
       }

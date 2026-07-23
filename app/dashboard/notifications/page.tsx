@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Bell } from "lucide-react";
+import { Bell, X } from "lucide-react";
 import {
   PageContainer,
   PageHeader,
@@ -184,7 +184,7 @@ export default function NotificationsPage() {
                   }}
                   title="Delete"
                 >
-                  &times;
+                  <X size={14} />
                 </button>
               </div>
             ))}

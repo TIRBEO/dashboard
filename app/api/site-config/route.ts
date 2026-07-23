@@ -1,27 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+export const dynamic = 'force-dynamic';
 
-const headers = {
-  apikey: SUPABASE_KEY,
-  Authorization: `Bearer ${SUPABASE_KEY}`,
-  'Content-Type': 'application/json',
-};
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || 'https://api.tirbeo.app';
 
-export async function GET() {
+function getApp(req: NextRequest) {
+  return req.nextUrl.searchParams.get('app') || 'landing';
+}
+
+function getProxyHeaders(req: NextRequest, extra: Record<string, string> = {}) {
+  const cookie = req.headers.get('cookie');
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...extra,
+  };
+  if (cookie) headers.Cookie = cookie;
+  return headers;
+}
+
+async function readConfigFromApi(req: NextRequest, app: string) {
+  const res = await fetch(`${API_BASE}/api/admin/site-config?app=${encodeURIComponent(app)}`, {
+    headers: getProxyHeaders(req),
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || `Upstream request failed with ${res.status}`);
+  }
+
+  const payload = await res.json();
+  const config = payload?.config && typeof payload.config === 'object' ? payload.config : {};
+  return config;
+}
+
+export async function GET(req: NextRequest) {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/site_config?select=section,data,description,updated_at`, {
-      headers,
-      next: { revalidate: 0 },
-    });
-    if (!res.ok) return NextResponse.json({ error: 'Failed to fetch' }, { status: res.status });
-    const rows = await res.json();
-    const config: Record<string, any> = {};
-    for (const row of rows) {
-      config[row.section] = { ...row.data, _description: row.description, _updated_at: row.updated_at };
-    }
-    return NextResponse.json(config);
+    const app = getApp(req);
+    const config = await readConfigFromApi(req, app);
+    return NextResponse.json(config, { status: 200 });
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || 'Error' }, { status: 500 });
   }
@@ -29,19 +46,32 @@ export async function GET() {
 
 export async function PUT(req: NextRequest) {
   try {
-    const { section, data } = await req.json();
+    const app = getApp(req);
+    const body = await req.json();
+    const { section, data } = body || {};
+
     if (!section || !data) {
       return NextResponse.json({ error: 'section and data required' }, { status: 400 });
     }
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/site_config?section=eq.${encodeURIComponent(section)}`, {
-      method: 'PATCH',
-      headers: { ...headers, Prefer: 'return=minimal' },
-      body: JSON.stringify({ data, updated_at: new Date().toISOString() }),
+
+    const existingConfig = await readConfigFromApi(req, app);
+    const mergedConfig = {
+      ...(existingConfig && typeof existingConfig === 'object' ? existingConfig : {}),
+      [section]: data,
+    };
+
+    const res = await fetch(`${API_BASE}/api/admin/site-config?app=${encodeURIComponent(app)}`, {
+      method: 'PUT',
+      headers: getProxyHeaders(req),
+      body: JSON.stringify({ config: mergedConfig }),
+      cache: 'no-store',
     });
+
     if (!res.ok) {
       const err = await res.text();
       return NextResponse.json({ error: err }, { status: res.status });
     }
+
     return NextResponse.json({ ok: true });
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || 'Error' }, { status: 500 });

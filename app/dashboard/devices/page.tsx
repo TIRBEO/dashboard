@@ -15,12 +15,12 @@ type DeviceEntry = {
   lastActive: string; ip: string; location: string; rawUA: string; trusted: boolean; isCurrent: boolean;
 };
 
-function parseUA(ua?: string) {
-  if (!ua) return { browser: "Unknown", os: "Unknown", device: "desktop" as const, raw: "" };
+function parseUA(ua?: string): { browser: string; os: string; device: "desktop" | "mobile" | "tablet"; raw: string } {
+  if (!ua) return { browser: "Unknown", os: "Unknown", device: "desktop", raw: "" };
   var browser = ua.includes("Firefox") ? "Firefox" : ua.includes("Edg") ? "Edge" : ua.includes("Chrome") ? "Chrome" : ua.includes("Safari") ? "Safari" : "Unknown";
   var os = ua.includes("Windows") ? "Windows" : ua.includes("Mac") ? "macOS" : ua.includes("Linux") ? "Linux" : ua.includes("iPhone") ? "iOS" : ua.includes("Android") ? "Android" : "Unknown";
   var device = (ua.includes("Mobile") || ua.includes("iPhone")) ? "mobile" : ua.includes("Tablet") ? "tablet" : "desktop";
-  return { browser: browser, os: os, device: device, raw: ua };
+  return { browser: browser, os: os, device: device as "desktop" | "mobile" | "tablet", raw: ua };
 }
 
 function getDeviceIcon(type: "desktop" | "mobile" | "tablet") {

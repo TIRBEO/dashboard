@@ -1,6 +1,12 @@
 import { getCache, setCache } from './redis';
 import prisma from '@tirbeo/database'; // assumes prisma client export
 
+const prismaClient = prisma as unknown as {
+  workspace?: {
+    findUnique?: (args: { where: { slug: string } }) => Promise<unknown | null>;
+  };
+};
+
 const WORKSPACE_CACHE_TTL = 300; // seconds
 
 export async function getWorkspaceBySlug(slug: string) {
@@ -10,7 +16,7 @@ export async function getWorkspaceBySlug(slug: string) {
     return JSON.parse(cached);
   }
   // DB fallback
-  const ws = await prisma.workspace.findUnique({
+  const ws = await prismaClient.workspace?.findUnique?.({
     where: { slug },
   });
   if (ws) {

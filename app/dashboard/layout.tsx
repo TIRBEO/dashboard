@@ -4,34 +4,18 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
-  Home, User, Shield, Building2, Bell, Plug, Settings, Activity,
-  HelpCircle, LogOut, Search, Menu, X, ChevronRight, Clock, FileText,
-  Palette, Globe, Lock, Eye, BellRing, MessageSquare, BarChart3,
-  KeyRound, Key, Smartphone, Mail, Fingerprint, CreditCard, Users,
-  Database, Download, Trash2, AlertTriangle, ExternalLink,
-  Monitor, Terminal, Tag, Cloud, Archive,
-  Link2, Crown, UserPlus, HardDrive, Paintbrush, Layout,
-  Accessibility, Type, Zap, Moon, CalendarDays, AppWindow, Webhook,
-  ScrollText, Package, GraduationCap, ListOrdered, FlaskConical,
-  Sparkles, Code, LifeBuoy, Puzzle, Hash, MessageCircle, Send,
-  Camera, Upload, Sun, BookOpen, PanelLeft, LayoutDashboard,
+  Home, User, Shield, Bell, Settings,
+  HelpCircle, LogOut, Search, Menu, X, ChevronRight, Clock,
+  Globe, Eye, Database, Download, Sun, Moon, Monitor,
 } from "lucide-react";
 import { SIDEBAR_GROUPS, SEARCH_INDEX, searchEverything } from "../dashboard-config";
+import { applyPreferenceStyles, normalizePreferenceState } from "../preferences-theme";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
 const ICON_MAP: Record<string, any> = {
-  Home, User, Shield, Building2, Bell, Plug, Settings, Activity,
-  HelpCircle, Monitor, Smartphone, Eye, Link2, Crown, UserPlus,
-  HardDrive, Palette, Layout, Accessibility, Type, Zap, Moon,
-  CalendarDays, Key, AppWindow, Webhook, ScrollText, Package,
-  Terminal, CreditCard, Wallet: CreditCard, RefreshCw: Activity, BarChart3,
-  FileText, Tag, Download, Upload, Archive, Database, Cloud,
-  Puzzle, Github: Plug, Chrome: Globe, MessageCircle, Hash,
-  MessageSquare, GraduationCap, ListOrdered, FlaskConical, Sparkles,
-  Code, LifeBuoy, Trash2, LogOut, Camera, Send,
-  KeyRound, Fingerprint, Clock, Sun, BookOpen, PanelLeft,
-  LayoutDashboard, Token: Key,
+  Home, User, Shield, Bell, Settings, HelpCircle, Monitor, Eye,
+  Globe, Download, Database, Sun, Moon,
 };
 
 function getIcon(name: string) {
@@ -56,9 +40,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [isOnline, setIsOnline] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [theme, setTheme] = useState("dark");
   const heartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const prefsFetched = useRef(false);
 
-  // Auth check
   useEffect(() => {
     fetch(`${API}/api/profile`, { credentials: "include" })
       .then(r => (r.ok ? r.json() : null))
@@ -70,7 +55,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       .finally(() => setLoading(false));
   }, []);
 
-  // Heartbeat to stay "online"
+  useEffect(() => {
+    if (!user || prefsFetched.current) return;
+    prefsFetched.current = true;
+    fetch(`${API}/api/preferences`, { credentials: "include" })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d) {
+          const normalized = normalizePreferenceState(d);
+          applyPreferenceStyles(normalized);
+          setTheme(normalized.theme || "dark");
+        }
+      })
+      .catch(() => {});
+  }, [user]);
+
   useEffect(() => {
     if (!user) return;
     const beat = () => {
@@ -81,7 +80,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return () => { if (heartbeatRef.current) clearInterval(heartbeatRef.current); };
   }, [user]);
 
-  // Online status based on lastActiveAt
   useEffect(() => {
     if (!user?.lastActiveAt) return;
     const check = () => {
@@ -93,7 +91,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return () => clearInterval(id);
   }, [user?.lastActiveAt]);
 
-  // Clock
   useEffect(() => {
     const tick = () => {
       setCurrentTime(new Date().toLocaleTimeString("en-US",
@@ -105,7 +102,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return () => clearInterval(id);
   }, [user?.timeFormat]);
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") { e.preventDefault(); setSearchOpen(o => !o); }
@@ -115,16 +111,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  // Close sidebar on navigate
   useEffect(() => { setSidebarOpen(false); }, [pathname]);
 
-  // Fetch unread notification count
   useEffect(() => {
     fetch(`${API}/api/notifications?limit=1`, { credentials: "include" })
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.unreadCount) setUnreadCount(d.unreadCount); })
       .catch(() => {});
   }, []);
+
+  const toggleTheme = useCallback(async () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
+    applyPreferenceStyles({ theme: newTheme });
+    fetch(`${API}/api/preferences`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ theme: newTheme }),
+    }).catch(() => {});
+  }, [theme]);
 
   const handleLogout = useCallback(async () => {
     await fetch(`${API}/api/auth/logout`, { method: "POST", credentials: "include" });
@@ -139,7 +145,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     });
   };
 
-  // Global search
   const searchResults = useMemo(() => searchEverything(searchQuery), [searchQuery]);
 
   const recentSearches = useMemo(() => {
@@ -165,21 +170,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
+  const currentPath = pathname || "/dashboard";
   const initials = user?.name ? user.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() : user?.email?.[0]?.toUpperCase() || "?";
-  const isActive = (href: string) => href === "/dashboard" ? pathname === "/dashboard" : pathname.startsWith(href);
+  const isActive = (href: string) => href === "/dashboard" ? currentPath === "/dashboard" : currentPath.startsWith(href);
 
-  // Group sidebar items by their group
   const visibleGroups = SIDEBAR_GROUPS.filter(g => g.items.length > 0);
 
   return (
     <div className="flex min-h-screen" style={{ background: "var(--bg)" }}>
       {sidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />}
 
-      {/* ═══ SIDEBAR ═══ */}
       <aside className={`fixed top-0 left-0 h-full z-50 flex flex-col transition-transform duration-300 md:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
         style={{ width: "var(--sidebar-w)", background: "var(--bg-surface)", borderRight: "1px solid var(--border)" }}>
 
-        {/* Logo */}
         <div className="flex items-center justify-between px-5 h-14" style={{ borderBottom: "1px solid var(--border)" }}>
           <Link href="/dashboard" className="flex items-center gap-2.5" style={{ textDecoration: "none" }}>
             <span className="text-sm font-bold tracking-[0.2em] uppercase" style={{ color: "var(--text)" }}>Tirbeo</span>
@@ -187,7 +190,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <button onClick={() => setSidebarOpen(false)} className="md:hidden" style={{ color: "var(--text-muted)" }}><X size={16} /></button>
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-1">
           {visibleGroups.map(group => {
             const GroupIcon = getIcon(group.icon);
@@ -243,7 +245,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           })}
         </nav>
 
-        {/* User Profile */}
         <div className="px-3 pb-3" style={{ borderTop: "1px solid var(--border)", paddingTop: 10 }}>
           <Link href="/dashboard/profile" className="flex items-center gap-3 px-2 mb-2" style={{ textDecoration: "none" }}>
             <div className="avatar" style={{ width: 32, height: 32, fontSize: 11 }}>
@@ -261,12 +262,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </aside>
 
-      {/* ═══ MAIN CONTENT ═══ */}
       <div className="flex-1 flex flex-col min-h-screen" style={{ marginLeft: "var(--sidebar-w)" }}>
 
-        {/* Header */}
         <header className="sticky top-0 z-30 h-14 flex items-center justify-between px-4 md:px-6"
-          style={{ background: "rgba(5,5,7,0.85)", backdropFilter: "blur(24px)", borderBottom: "1px solid var(--border)" }}>
+          style={{ background: "var(--bg-surface)", backdropFilter: "blur(24px)", borderBottom: "1px solid var(--border)" }}>
           <div className="flex items-center gap-3">
             <button onClick={() => setSidebarOpen(true)} className="md:hidden" style={{ color: "var(--text-secondary)" }}>
               <Menu size={20} />
@@ -281,6 +280,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </button>
           </div>
           <div className="flex items-center gap-2">
+            <button onClick={toggleTheme} className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200"
+              style={{ background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--text-muted)", cursor: "pointer" }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--border-hover)"; e.currentTarget.style.color = "var(--text)"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.color = "var(--text-muted)"; }}>
+              {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+            </button>
             <div className="hidden sm:flex items-center gap-1.5 px-2.5 h-9 rounded-xl text-xs font-medium"
               style={{ background: "var(--bg-card)", border: "1px solid var(--border)", color: "var(--text-muted)", fontVariantNumeric: "tabular-nums" }}>
               <Clock size={12} />
@@ -299,7 +304,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </header>
 
-        {/* Content */}
         <main className="flex-1 animate-in" style={{ padding: "28px 24px 48px" }}>
           <div className="max-w-5xl mx-auto">
             {children}
@@ -307,7 +311,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </div>
 
-      {/* ═══ GLOBAL SEARCH MODAL ═══ */}
       {searchOpen && (
         <div className="search-overlay" onClick={() => setSearchOpen(false)}>
           <div className="search-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 560 }}>

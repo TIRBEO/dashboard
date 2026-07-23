@@ -31,7 +31,9 @@ const DotField = memo(({
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+    const renderCtx = ctx;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const canvasEl = canvas;
 
     let w = 0;
     let h = 0;
@@ -39,11 +41,11 @@ const DotField = memo(({
     function resize() {
       w = window.innerWidth;
       h = window.innerHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      canvas.style.width = w + 'px';
-      canvas.style.height = h + 'px';
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      canvasEl.width = w * dpr;
+      canvasEl.height = h * dpr;
+      canvasEl.style.width = w + 'px';
+      canvasEl.style.height = h + 'px';
+      renderCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
     function onMouseMove(e: MouseEvent) {
@@ -63,14 +65,14 @@ const DotField = memo(({
       const cr = cursorRadius;
       const crSq = cr * cr;
 
-      ctx.clearRect(0, 0, w, h);
+      renderCtx.clearRect(0, 0, w, h);
 
-      const grad = ctx.createLinearGradient(0, 0, w, h);
+      const grad = renderCtx.createLinearGradient(0, 0, w, h);
       grad.addColorStop(0, gradientFrom);
       grad.addColorStop(1, gradientTo);
-      ctx.fillStyle = grad;
+      renderCtx.fillStyle = grad;
 
-      ctx.beginPath();
+      renderCtx.beginPath();
 
       for (let row = 0; row < rows; row++) {
         const ay = padY + row * step;
@@ -94,12 +96,12 @@ const DotField = memo(({
             drawY -= Math.sin(angle) * push;
           }
 
-          ctx.moveTo(drawX + rad, drawY);
-          ctx.arc(drawX, drawY, rad, 0, TWO_PI);
+          renderCtx.moveTo(drawX + rad, drawY);
+          renderCtx.arc(drawX, drawY, rad, 0, TWO_PI);
         }
       }
 
-      ctx.fill();
+      renderCtx.fill();
       rafRef.current = requestAnimationFrame(tick);
     }
 

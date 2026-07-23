@@ -1,8 +1,8 @@
 "use client";
 
-export function SkeletonLine({ width, height = 14, radius = 6, className = "" }: { width?: string | number; height?: number; radius?: number; className?: string }) {
+export function SkeletonLine({ width, height = 14, radius = 6, className = "", style }: { width?: string | number; height?: number; radius?: number; className?: string; style?: React.CSSProperties }) {
   return (
-    <div className={`skeleton ${className}`} style={{ width: width || "100%", height, borderRadius: radius, flexShrink: 0 }} />
+    <div className={`skeleton ${className}`} style={{ width: width || "100%", height, borderRadius: radius, flexShrink: 0, ...style }} />
   );
 }
 

@@ -157,10 +157,10 @@ export function Button({ children, variant = "primary", size = "default", onClic
 
 // ─── Badge ─────────────────────────────────────────────────────
 
-export function Badge({ children, variant = "default", className = "" }: {
-  children: React.ReactNode; variant?: "default" | "success" | "danger" | "warning" | "gold" | "info"; className?: string;
+export function Badge({ children, variant = "default", className = "", style }: {
+  children: React.ReactNode; variant?: "default" | "success" | "danger" | "warning" | "gold" | "info"; className?: string; style?: React.CSSProperties;
 }) {
-  return <span className={"badge badge-" + variant + " " + className}>{children}</span>;
+  return <span className={"badge badge-" + variant + " " + className} style={style}>{children}</span>;
 }
 
 // ─── Empty State ───────────────────────────────────────────────

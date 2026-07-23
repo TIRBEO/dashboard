@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Download, Trash2, Ban } from "lucide-react";
+import { normalizePreferenceState, applyPreferenceStyles } from "../../preferences-theme";
 import { PageContainer, PageHeader, Card, SettingRow, Toggle, Button, EmptyState, Toast, useToast } from "../components";
 
+const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 const STORAGE_KEY = "tirbeo-privacy-settings";
 
 interface PrivacySettings {
@@ -29,12 +31,26 @@ export default function PrivacyPage() {
       var stored = localStorage.getItem(STORAGE_KEY);
       if (stored) setSettings(Object.assign({}, defaultSettings, JSON.parse(stored)));
     } catch (e) {}
+
+    fetch(API + "/api/preferences", { credentials: "include" })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(data) {
+        const normalized = normalizePreferenceState(data);
+        applyPreferenceStyles(normalized);
+      })
+      .catch(function() {});
   }, []);
 
   var updateSetting = function(key: keyof PrivacySettings, value: boolean) {
     var next = Object.assign({}, settings, Object.fromEntries([[key, value]]));
     setSettings(next);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    fetch(API + "/api/preferences", {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ preferences: { privacy: next } }),
+    }).catch(function() {});
     toast.show("Privacy settings saved");
   };
 
