@@ -81,13 +81,7 @@ export default function PrivacyPage() {
   };
 
   var handleDeleteAll = function() {
-    if (window.confirm("Are you sure you want to delete all your data? This will remove your account and cannot be undone.")) {
-      if (window.confirm("This is your final warning. Type DELETE in your mind and click OK to proceed.")) {
-        localStorage.removeItem(STORAGE_KEY);
-        setSettings(defaultSettings);
-        toast.show("Data deletion requested. Contact support to finalize account removal.");
-      }
-    }
+    window.open("mailto:support@tirbeo.app?subject=Account%20Deletion%20Request&body=I%20request%20permanent%20deletion%20of%20my%20Tirbeo%20account.%0A%0AAccount%20email:%20" + encodeURIComponent("") + "%0A%0AI%20understand%20this%20action%20is%20irreversible.");
   };
 
   return (

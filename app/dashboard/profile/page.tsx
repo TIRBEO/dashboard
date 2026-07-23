@@ -141,9 +141,9 @@ export default function ProfilePage() {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => { if (d) setP(d); })
       .catch(() => {});
-    fetch(API + "/api/activity", { credentials: "include" })
+    fetch(API + "/api/user/activity?limit=5", { credentials: "include" })
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { if (d?.signins) setSignins(d.signins); })
+      .then((d) => { if (d?.activities) setSignins(d.activities.map((a: any) => ({ device: a.metadata?.userAgent || "Unknown", ip: a.metadata?.ip || "Unknown", location: a.metadata?.location || "Unknown", time: a.createdAt }))); })
       .catch(() => {});
   }, []);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Code, Key, Terminal, ArrowUpRight, Copy, CheckCircle2 } from "lucide-react";
+import { Code, Key, ArrowUpRight, Copy, CheckCircle2 } from "lucide-react";
 import { PageContainer, PageHeader, Card, Button, Badge, useToast, Toast } from "../components";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
@@ -42,7 +42,7 @@ export default function DeveloperOverview() {
     <PageContainer>
       {toast.toast && <Toast message={toast.toast.message} type={toast.toast.type} onClose={toast.hide} />}
 
-      <PageHeader title="Developer" description="API keys, webhooks, and CLI access for your account" />
+      <PageHeader title="Developer" description="API keys and reference for programmatic access" />
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12 }}>
         {stats.map(s => (
@@ -74,28 +74,15 @@ export default function DeveloperOverview() {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", borderRadius: 10, background: "var(--bg-elevated)", border: "1px solid var(--border)" }}>
-            <div style={{ width: 36, height: 36, borderRadius: 8, background: "var(--accent-muted)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--success)", flexShrink: 0 }}>
-              <Terminal size={16} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>Install the CLI</div>
-              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Manage your account from the terminal</div>
-            </div>
-            <a href="/dashboard/developer/cli" className="btn btn-ghost btn-sm" style={{ textDecoration: "none" }}>
-              Install <ArrowUpRight size={12} />
-            </a>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", borderRadius: 10, background: "var(--bg-elevated)", border: "1px solid var(--border)" }}>
             <div style={{ width: 36, height: 36, borderRadius: 8, background: "var(--accent-muted)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--accent)", flexShrink: 0 }}>
-              <Terminal size={16} />
+              <Code size={16} />
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>Use the CLI</div>
-              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Manage your account from the command line</div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>API Reference</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>View endpoints, examples, and docs</div>
             </div>
             <a href="/dashboard/developer/cli" className="btn btn-ghost btn-sm" style={{ textDecoration: "none" }}>
-              Docs <ArrowUpRight size={12} />
+              Reference <ArrowUpRight size={12} />
             </a>
           </div>
         </div>

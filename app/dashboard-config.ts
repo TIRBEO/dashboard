@@ -99,7 +99,7 @@ export const SIDEBAR_GROUPS: SidebarGroup[] = [
     items: [
       { id: "dev-overview", label: "Overview", icon: "Code", route: "/dashboard/developer", group: "developer", order: 0, description: "Developer dashboard" },
       { id: "dev-api-keys", label: "API Keys", icon: "Key", route: "/dashboard/developer/api-keys", group: "developer", order: 1, description: "Manage API keys" },
-      { id: "dev-cli", label: "CLI", icon: "Terminal", route: "/dashboard/developer/cli", group: "developer", order: 2, description: "Command-line tool" },
+      { id: "dev-cli", label: "API Reference", icon: "Terminal", route: "/dashboard/developer/cli", group: "developer", order: 2, description: "REST API docs and examples" },
       { id: "dev-logs", label: "Logs", icon: "Database", route: "/dashboard/developer/logs", group: "developer", order: 3, description: "API request logs" },
     ],
   },

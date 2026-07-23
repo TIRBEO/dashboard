@@ -429,7 +429,7 @@ export default function SecurityPage() {
 
         {/* Passkeys */}
         <SettingRow label="Passkeys and security keys" description={passkeyDesc}>
-          <span style={{ fontSize: 11, color: "var(--text-ash)", fontStyle: "italic" }}>Coming soon</span>
+          <Badge style={{ fontSize: 10 }}>Coming soon</Badge>
         </SettingRow>
 
         {/* Password */}
