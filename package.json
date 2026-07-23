@@ -9,10 +9,6 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@tirbeo/auth": "workspace:*",
-    "@tirbeo/database": "workspace:*",
-    "@tirbeo/ui": "workspace:*",
-    "@tirbeo/utils": "workspace:*",
     "lucide-react": "^0.460.0",
     "motion": "12.6.5",
     "next": "^15.1.0",
@@ -22,7 +18,6 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.0",
-    "@tirbeo/config": "workspace:*",
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
