@@ -102,6 +102,30 @@ export default function PreferencesPage() {
         }
       />
 
+      <Card title="Live Preview" subtitle="Theme and appearance changes update instantly">
+        <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
+          <div style={{ padding: 14, borderRadius: 14, background: "var(--bg-surface)", border: "1px solid var(--border)" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", marginBottom: 8 }}>Shell</div>
+            <div style={{ height: 90, borderRadius: 12, background: "var(--bg-card)", border: "1px solid var(--border)", padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ height: 10, width: "45%", background: "var(--accent)", borderRadius: 999 }} />
+              <div style={{ height: 8, width: "80%", background: "var(--text-muted)", borderRadius: 999, opacity: 0.7 }} />
+              <div style={{ height: 8, width: "60%", background: "var(--text-muted)", borderRadius: 999, opacity: 0.5 }} />
+              <div style={{ marginTop: "auto", height: 24, width: "100%", background: "var(--bg-elevated)", borderRadius: 8 }} />
+            </div>
+          </div>
+          <div style={{ padding: 14, borderRadius: 14, background: "var(--bg-surface)", border: "1px solid var(--border)" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "var(--text-muted)", marginBottom: 8 }}>Accent</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: "50%", background: prefs.preferences?.accentColor || "#ffffff", border: "1px solid var(--border)" }} />
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Focused UI</div>
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Buttons, highlights, and chips follow your accent.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
       {PREFERENCES_PAGE.sections.map(function(section) {
         var SectionIcon = SECTION_ICONS[section.icon] || Globe;
         return (

@@ -7,15 +7,16 @@ import {
   Home, User, Shield, Bell, Settings,
   HelpCircle, LogOut, Search, Menu, X, ChevronRight, Clock,
   Globe, Eye, Database, Download, Sun, Moon, Monitor,
+  Code, Key, Terminal, Webhook,
 } from "lucide-react";
 import { SIDEBAR_GROUPS, SEARCH_INDEX, searchEverything } from "../dashboard-config";
-import { applyPreferenceStyles, normalizePreferenceState } from "../preferences-theme";
+import { applyPreferenceStyles, getStoredPreferences, normalizePreferenceState } from "../preferences-theme";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
 const ICON_MAP: Record<string, any> = {
   Home, User, Shield, Bell, Settings, HelpCircle, Monitor, Eye,
-  Globe, Download, Database, Sun, Moon,
+  Globe, Download, Database, Sun, Moon, Code, Key, Terminal, Webhook,
 };
 
 function getIcon(name: string) {
@@ -45,6 +46,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const prefsFetched = useRef(false);
 
   useEffect(() => {
+    const stored = getStoredPreferences();
+    if (stored) {
+      const normalized = normalizePreferenceState(stored);
+      applyPreferenceStyles(normalized);
+      setTheme(normalized.theme || "dark");
+    }
+
     fetch(`${API}/api/profile`, { credentials: "include" })
       .then(r => (r.ok ? r.json() : null))
       .then(d => {
@@ -122,8 +130,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const toggleTheme = useCallback(async () => {
     const newTheme = theme === "dark" ? "light" : "dark";
+    const merged = { theme: newTheme, preferences: { ...(getStoredPreferences()?.preferences || {}) } };
     setTheme(newTheme);
-    applyPreferenceStyles({ theme: newTheme });
+    applyPreferenceStyles(merged);
     fetch(`${API}/api/preferences`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -174,7 +183,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const initials = user?.name ? user.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() : user?.email?.[0]?.toUpperCase() || "?";
   const isActive = (href: string) => href === "/dashboard" ? currentPath === "/dashboard" : currentPath.startsWith(href);
 
-  const visibleGroups = SIDEBAR_GROUPS.filter(g => g.items.length > 0);
+  const visibleGroups = SIDEBAR_GROUPS
+    .map(group => ({ ...group, items: group.items.filter(item => item.visible !== false) }))
+    .filter(group => group.items.length > 0);
 
   return (
     <div className="flex min-h-screen" style={{ background: "var(--bg)" }}>

@@ -84,29 +84,13 @@ export const SIDEBAR_GROUPS: SidebarGroup[] = [
       { id: "profile", label: "Profile", icon: "User", route: "/dashboard/profile", group: "account", order: 0, description: "Personal info, avatar, bio" },
       { id: "preferences", label: "Preferences", icon: "Settings", route: "/dashboard/preferences", group: "account", order: 1, description: "Language, timezone, theme" },
       { id: "security", label: "Security", icon: "Shield", route: "/dashboard/security", group: "account", order: 2, description: "Password, 2FA, backup codes" },
-      { id: "sessions", label: "Sessions", icon: "Monitor", route: "/dashboard/sessions", group: "account", order: 3, description: "Active sessions" },
-      { id: "devices", label: "Devices", icon: "Smartphone", route: "/dashboard/devices", group: "account", order: 4, description: "Trusted devices" },
-      { id: "privacy", label: "Privacy", icon: "Eye", route: "/dashboard/privacy", group: "account", order: 5, description: "Visibility & data sharing" },
+      { id: "privacy", label: "Privacy", icon: "Eye", route: "/dashboard/privacy", group: "account", order: 3, description: "Visibility & data sharing" },
     ],
   },
   {
     id: "notifications", label: "Notifications", icon: "Bell", order: 2,
     items: [
       { id: "notif-main", label: "Notifications", icon: "Bell", route: "/dashboard/notifications", group: "notifications", order: 0, description: "All notification settings" },
-    ],
-  },
-  {
-    id: "developer", label: "Developer", icon: "Globe", order: 3,
-    items: [
-      { id: "dev-export", label: "Export", icon: "Download", route: "/dashboard/data/export", group: "developer", order: 0, description: "Export your data" },
-      { id: "dev-import", label: "Import", icon: "Database", route: "/dashboard/data/import", group: "developer", order: 1, description: "Import data" },
-      { id: "dev-backups", label: "Backups", icon: "Database", route: "/dashboard/data/backups", group: "developer", order: 2, description: "Backup settings" },
-    ],
-  },
-  {
-    id: "help", label: "Help", icon: "HelpCircle", order: 4,
-    items: [
-      { id: "help-center", label: "Help Center", icon: "HelpCircle", route: "/dashboard/help", group: "help", order: 0 },
     ],
   },
 ];
@@ -137,17 +121,7 @@ export const SEARCH_INDEX: SearchEntry[] = SIDEBAR_GROUPS.flatMap(group =>
   { id: "search-export", title: "Export Data", description: "Download your account data", route: "/dashboard/data/export", category: "Developer", icon: "Download", keywords: ["export", "download", "data", "backup"] },
 ]);
 
-export const HOME_WIDGETS: WidgetConfig[] = [
-  { id: "welcome", title: "Welcome", type: "welcome", order: 0, size: "full", visible: true },
-  { id: "profile-completion", title: "Profile Completion", type: "stats", order: 1, size: "md", visible: true },
-  { id: "security-score", title: "Security Score", type: "security-profile", order: 2, size: "md", visible: true },
-  { id: "activity-chart", title: "Recent Activity", type: "chart", order: 3, size: "lg", visible: true },
-  { id: "sessions-preview", title: "Active Sessions", type: "sessions", order: 4, size: "md", visible: true },
-  { id: "quick-links", title: "Quick Actions", type: "quicklinks", order: 5, size: "md", visible: true },
-  { id: "notifications-preview", title: "Notifications", type: "notifications", order: 6, size: "md", visible: true },
-  { id: "workspace-info", title: "Workspace", type: "workspace", order: 7, size: "md", visible: true },
-  { id: "usage", title: "Usage", type: "usage", order: 8, size: "md", visible: true },
-];
+
 
 export const PREFERENCES_PAGE: SettingsPage = {
   id: "preferences", label: "Preferences", route: "/dashboard/preferences", icon: "Settings",

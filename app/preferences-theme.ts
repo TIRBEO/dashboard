@@ -70,22 +70,25 @@ export function applyPreferenceStyles(prefs: Record<string, any> | null | undefi
   if (typeof document === "undefined") return;
   const root = document.documentElement;
   const data = prefs || {};
-  const theme = resolveTheme(data.theme || data.preferences?.theme || "dark");
-  const accent = data.preferences?.accentColor || data.accentColor || "#ffffff";
-  const shell = data.preferences?.shellStyle || data.shellStyle || "dark";
-  const density = data.preferences?.density || data.density || "comfortable";
-  const sidebarWidth = data.preferences?.sidebarWidth || data.sidebarWidth || "wide";
-  const fontScale = data.preferences?.fontScale || data.fontScale || "default";
-  const blur = data.preferences?.blurIntensity ?? data.blurIntensity ?? 40;
-  const rounded = data.preferences?.roundedCorners ?? data.roundedCorners ?? 16;
-  const compact = !!data.preferences?.compactMode || !!data.compactMode;
-  const reduceMotion = !!data.reduceMotion || !!data.preferences?.reduceMotion;
-  const highContrast = !!data.highContrast || !!data.preferences?.highContrast;
-  const fontFamily = data.preferences?.fontFamily || "Inter";
-  const glassEffect = data.preferences?.glassEffect !== undefined ? data.preferences.glassEffect : true;
-  const transparency = data.preferences?.transparency !== undefined ? data.preferences.transparency : true;
+  const normalized = normalizePreferenceState(data as any);
+  const theme = resolveTheme(normalized.theme || "dark");
+  const accent = normalized.preferences?.accentColor || "#ffffff";
+  const shell = normalized.preferences?.shellStyle || "dark";
+  const density = normalized.preferences?.density || "comfortable";
+  const sidebarWidth = normalized.preferences?.sidebarWidth || "wide";
+  const fontScale = normalized.preferences?.fontScale || "default";
+  const blur = normalized.preferences?.blurIntensity ?? 40;
+  const rounded = normalized.preferences?.roundedCorners ?? 16;
+  const compact = !!normalized.preferences?.compactMode;
+  const reduceMotion = !!normalized.reduceMotion || !!normalized.preferences?.reduceMotion;
+  const highContrast = !!normalized.highContrast || !!normalized.preferences?.highContrast;
+  const fontFamily = normalized.preferences?.fontFamily || "Inter";
+  const glassEffect = normalized.preferences?.glassEffect !== undefined ? normalized.preferences.glassEffect : true;
+  const transparency = normalized.preferences?.transparency !== undefined ? normalized.preferences.transparency : true;
 
+  persistPreferences(normalized as Record<string, any>);
   root.setAttribute("data-theme", theme);
+  root.setAttribute("data-shell", shell);
 
   if (theme === "light") {
     root.style.setProperty("--bg", "#f8f9fa");
