@@ -1,7 +1,8 @@
 "use client";
 
-import { BookOpen, ExternalLink, Search } from "lucide-react";
 import { useState } from "react";
+import { BookOpen, Search } from "lucide-react";
+import { PageContainer, PageHeader, Card, Badge, EmptyState, Input } from "../../components";
 
 const DOCS = [
   { title: "Getting Started", category: "Basics", desc: "Set up your account and workspace" },
@@ -15,36 +16,42 @@ const DOCS = [
 ];
 
 export default function DocsPage() {
-  const [search, setSearch] = useState("");
-  const filtered = search ? DOCS.filter((d) => d.title.toLowerCase().includes(search.toLowerCase()) || d.desc.toLowerCase().includes(search.toLowerCase())) : DOCS;
+  var [search, setSearch] = useState("");
+  var filtered = search
+    ? DOCS.filter(function(d) { return d.title.toLowerCase().includes(search.toLowerCase()) || d.desc.toLowerCase().includes(search.toLowerCase()); })
+    : DOCS;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-2">Documentation</h1>
-        <p className="text-sm text-muted-foreground">Guides and API reference</p>
+    <PageContainer>
+      <PageHeader title="Documentation" description="Guides and API reference" />
+
+      <div style={{ position: "relative" }}>
+        <Search size={14} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--text-ash)", pointerEvents: "none" }} />
+        <Input value={search} onChange={setSearch} placeholder="Search docs..." />
       </div>
 
-      <div className="relative">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        <input placeholder="Search docs..." value={search} onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2.5 text-sm text-white" />
-      </div>
-
-      <div className="space-y-2">
-        {filtered.map((doc, i) => (
-          <div key={i} className="glass card-section flex items-center justify-between cursor-pointer hover:bg-white/[0.04] transition-colors">
-            <div className="flex items-center gap-3">
-              <BookOpen size={14} className="text-[#d8b36a]" />
-              <div>
-                <p className="text-sm font-medium text-white">{doc.title}</p>
-                <p className="text-xs text-muted-foreground">{doc.desc}</p>
-              </div>
-            </div>
-            <span className="px-2 py-0.5 rounded text-[10px] bg-white/5 text-muted-foreground">{doc.category}</span>
+      <Card>
+        {filtered.length === 0 ? (
+          <EmptyState icon={BookOpen} title="No docs found" description="Try a different search term" />
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {filtered.map(function(doc, i) {
+              return (
+                <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", borderRadius: 10, cursor: "pointer", transition: "background 0.15s" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <BookOpen size={14} style={{ color: "var(--gold)" }} />
+                    <div>
+                      <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)", margin: 0 }}>{doc.title}</p>
+                      <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0 }}>{doc.desc}</p>
+                    </div>
+                  </div>
+                  <Badge>{doc.category}</Badge>
+                </div>
+              );
+            })}
           </div>
-        ))}
-      </div>
-    </div>
+        )}
+      </Card>
+    </PageContainer>
   );
 }

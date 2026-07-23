@@ -1,6 +1,7 @@
 "use client";
 
-import { GraduationCap, Play, Clock } from "lucide-react";
+import { Clock, Play } from "lucide-react";
+import { PageContainer, PageHeader, Card } from "../../components";
 
 const TUTORIALS = [
   { title: "Setting Up Your First Workspace", duration: "5 min", level: "Beginner", icon: "1" },
@@ -13,29 +14,32 @@ const TUTORIALS = [
 
 export default function TutorialsPage() {
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-2">Tutorials</h1>
-        <p className="text-sm text-muted-foreground">Step-by-step guides to get the most out of Tirbeo</p>
-      </div>
+    <PageContainer>
+      <PageHeader title="Tutorials" description="Step-by-step guides to get the most out of Tirbeo" />
 
-      <div className="space-y-3">
-        {TUTORIALS.map((t, i) => (
-          <div key={i} className="glass card-section flex items-center gap-4 cursor-pointer hover:bg-white/[0.04] transition-colors">
-            <div className="w-10 h-10 rounded-lg bg-[#d8b36a]/15 flex items-center justify-center text-[#d8b36a] text-sm font-bold shrink-0">
-              {t.icon}
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-white">{t.title}</p>
-              <div className="flex items-center gap-3 mt-0.5">
-                <span className="text-xs text-muted-foreground flex items-center gap-1"><Clock size={10} /> {t.duration}</span>
-                <span className="text-xs text-muted-foreground">{t.level}</span>
+      <Card>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {TUTORIALS.map(function(t, i) {
+            return (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 16, padding: "14px 16px", borderRadius: 10, cursor: "pointer", transition: "background 0.15s" }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(216,179,106,0.15)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--gold)", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
+                  {t.icon}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)", margin: 0 }}>{t.title}</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 3 }}>
+                    <span style={{ fontSize: 11, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                      <Clock size={10} /> {t.duration}
+                    </span>
+                    <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{t.level}</span>
+                  </div>
+                </div>
+                <Play size={14} style={{ color: "var(--gold)" }} />
               </div>
-            </div>
-            <Play size={14} className="text-[#d8b36a]" />
-          </div>
-        ))}
-      </div>
-    </div>
+            );
+          })}
+        </div>
+      </Card>
+    </PageContainer>
   );
 }

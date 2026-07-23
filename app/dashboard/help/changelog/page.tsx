@@ -1,8 +1,9 @@
 "use client";
 
-import { ListOrdered, Tag, CheckCircle, Bug, Zap } from "lucide-react";
+import { Tag, CheckCircle, Bug, Zap } from "lucide-react";
+import { PageContainer, PageHeader, Card, Badge } from "../../components";
 
-const ENTRIES = [
+var ENTRIES = [
   { version: "1.4.0", date: "July 2026", changes: [
     { type: "feature", text: "Developer section with API keys and webhooks" },
     { type: "feature", text: "Data export and backup system" },
@@ -29,41 +30,48 @@ const ENTRIES = [
   ]},
 ];
 
-const typeIcon = (t: string) => {
-  if (t === "feature") return <Zap size={10} className="text-[#59d499]" />;
-  if (t === "fix") return <Bug size={10} className="text-[#d8b36a]" />;
-  return <CheckCircle size={10} className="text-[#4f7aff]" />;
+var typeIcon = function(t: string) {
+  if (t === "feature") return <Zap size={10} style={{ color: "var(--success)" }} />;
+  if (t === "fix") return <Bug size={10} style={{ color: "var(--gold)" }} />;
+  return <CheckCircle size={10} style={{ color: "var(--info, #4f7aff)" }} />;
+};
+
+var typeBadge = function(t: string) {
+  if (t === "feature") return <Badge variant="success">Feature</Badge>;
+  if (t === "fix") return <Badge variant="warning">Fix</Badge>;
+  return <Badge variant="info">Improvement</Badge>;
 };
 
 export default function ChangelogPage() {
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-2">Changelog</h1>
-        <p className="text-sm text-muted-foreground">What's new in Tirbeo Dashboard</p>
-      </div>
+    <PageContainer>
+      <PageHeader title="Changelog" description="What's new in Tirbeo Dashboard" />
 
-      <div className="space-y-6">
-        {ENTRIES.map((entry) => (
-          <div key={entry.version} className="glass card-section">
-            <div className="flex items-center gap-3 mb-3">
-              <Tag size={14} className="text-[#d8b36a]" />
-              <div>
-                <span className="text-sm font-semibold text-white">v{entry.version}</span>
-                <span className="text-xs text-muted-foreground ml-2">{entry.date}</span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              {entry.changes.map((c, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  {typeIcon(c.type)}
-                  <span className="text-xs text-muted-foreground">{c.text}</span>
+      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        {ENTRIES.map(function(entry) {
+          return (
+            <Card key={entry.version}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+                <Tag size={14} style={{ color: "var(--gold)" }} />
+                <div>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>v{entry.version}</span>
+                  <span style={{ fontSize: 12, color: "var(--text-muted)", marginLeft: 8 }}>{entry.date}</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        ))}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {entry.changes.map(function(c, i) {
+                  return (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      {typeIcon(c.type)}
+                      <span style={{ fontSize: 13, color: "var(--text-muted)" }}>{c.text}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          );
+        })}
       </div>
-    </div>
+    </PageContainer>
   );
 }

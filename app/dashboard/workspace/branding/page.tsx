@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Palette, Upload, Trash2, Plus, Globe, Download, Eye } from "lucide-react";
+import { Palette, Trash2, Plus, Globe, Download, Eye } from "lucide-react";
+import { PageContainer, PageHeader, Card, Button, Badge, EmptyState, Skeleton, Input, Select, useToast, Toast } from "../../components";
 
 var API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
@@ -17,147 +18,124 @@ type Branding = {
 };
 
 export default function WorkspaceBrandingPage() {
-  var [brandings, setBrandings] = useState<Branding[]>([]);
-  var [loading, setLoading] = useState(true);
-  var [showCreate, setShowCreate] = useState(false);
-  var [name, setName] = useState("");
-  var [primaryColor, setPrimaryColor] = useState("#d8b36a");
-  var [secondaryColor, setSecondaryColor] = useState("#f2eee8");
-  var [fontFamily, setFontFamily] = useState("Inter");
-  var fetched = useRef(false);
+  const [brandings, setBrandings] = useState<Branding[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showCreate, setShowCreate] = useState(false);
+  const [name, setName] = useState("");
+  const [primaryColor, setPrimaryColor] = useState("#d8b36a");
+  const [secondaryColor, setSecondaryColor] = useState("#f2eee8");
+  const [fontFamily, setFontFamily] = useState("Inter");
+  const { toast, show, hide } = useToast();
+  const fetched = useRef(false);
 
-  useEffect(function () {
+  useEffect(() => {
     if (fetched.current) return;
     fetched.current = true;
-    var url = API + "/api/workspaces/1/branding/workspaces";
-    fetch(url, { credentials: "include" })
-      .then(function (r) { return r.ok ? r.json() : []; })
-      .then(function (data) { setBrandings(Array.isArray(data) ? data : []); })
-      .catch(function () {})
-      .finally(function () { setLoading(false); });
+    fetch(API + "/api/workspaces/1/branding/workspaces", { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data) => setBrandings(Array.isArray(data) ? data : []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  var create = useCallback(function () {
+  const create = useCallback(() => {
     if (!name) return;
-    var url = API + "/api/workspaces/1/branding/workspaces";
-    fetch(url, {
+    fetch(API + "/api/workspaces/1/branding/workspaces", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: name, primaryColor: primaryColor, secondaryColor: secondaryColor, fontFamily: fontFamily }),
-    }).then(function (res) {
+    }).then((res) => {
       if (res.ok) return res.json();
       throw new Error("Failed");
-    }).then(function (b) {
-      setBrandings(function (prev) { return prev.concat([b]); });
+    }).then((b) => {
+      setBrandings((prev) => prev.concat([b]));
       setShowCreate(false);
       setName("");
-    }).catch(function () {});
-  }, [name, primaryColor, secondaryColor, fontFamily]);
+      show("Branding created");
+    }).catch(() => show("Failed to create branding", "error"));
+  }, [name, primaryColor, secondaryColor, fontFamily, show]);
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        {[1, 2, 3].map(function (i) {
-          return <div key={i} className="glass card-section animate-pulse" style={{ height: 80 }} />;
-        })}
-      </div>
-    );
-  }
+  const removeBranding = (id: string) => {
+    setBrandings((prev) => prev.filter((b) => b.id !== id));
+    show("Branding deleted");
+  };
+
+  if (loading) return <PageContainer><Skeleton count={3} height={80} /></PageContainer>;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-2">Workspace Branding</h1>
-        <p className="text-sm text-muted-foreground">Manage your workspace custom branding and domains</p>
-      </div>
+    <PageContainer>
+      {toast && <Toast message={toast.message} type={toast.type} onClose={hide} />}
+      <PageHeader title="Workspace Branding" description="Manage your workspace custom branding and domains" />
 
-      <div className="glass card-section">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-sm font-semibold text-white">Your Brandings</h3>
-            <p className="text-xs text-muted-foreground">{brandings.length} custom workspaces</p>
-          </div>
-          <button onClick={function () { setShowCreate(!showCreate); }} className="btn btn-primary text-xs">
+      <Card
+        title={"Your Brandings (" + brandings.length + ")"}
+        action={
+          <Button onClick={() => setShowCreate(!showCreate)} size="sm">
             <Plus size={13} /> New Branding
-          </button>
-        </div>
-
+          </Button>
+        }
+      >
         {brandings.length === 0 ? (
-          <div className="text-center py-12">
-            <Palette size={48} style={{ color: "#7b7e84", margin: "0 auto 12px" }} />
-            <p className="text-sm text-muted-foreground">No custom brandings created</p>
-          </div>
+          <EmptyState icon={Palette} title="No custom brandings created" description="Create your first branding to customize the look" />
         ) : (
-          <div className="space-y-3">
-            {brandings.map(function (b) {
-              return (
-                <div key={b.id} className="p-4 rounded-lg bg-white/[0.03] border border-white/5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div style={{ width: 40, height: 40, borderRadius: 8, background: b.primaryColor }} />
-                      <div>
-                        <p className="text-sm font-medium text-white">{b.name}</p>
-                        <p className="text-xs text-muted-foreground">{b.fontFamily} font</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="px-2 py-0.5 rounded text-[10px] bg-white/5 text-muted-foreground">
-                        {b.isPublic ? "Public" : "Private"}
-                      </span>
-                      <button className="p-1.5 rounded bg-white/5 hover:bg-red-500/20 text-muted-foreground hover:text-red-400">
-                        <Trash2 size={12} />
-                      </button>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {brandings.map((b) => (
+              <div key={b.id} style={{ padding: 16, borderRadius: 10, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 8, background: b.primaryColor }} />
+                    <div>
+                      <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>{b.name}</p>
+                      <p style={{ fontSize: 12, color: "var(--text-muted)" }}>{b.fontFamily} font</p>
                     </div>
                   </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <Badge>{b.isPublic ? "Public" : "Private"}</Badge>
+                    <button onClick={() => removeBranding(b.id)} style={{ padding: 6, borderRadius: 6, background: "rgba(255,255,255,0.05)", border: "none", cursor: "pointer", color: "var(--text-muted)" }}>
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         )}
 
         {showCreate && (
-          <div className="mt-4 pt-4 border-t border-white/5 space-y-3">
-            <input placeholder="Workspace name" value={name} onChange={function (e) { setName(e.target.value); }}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white" />
-            <div className="flex gap-3">
-              <div className="flex-1">
-                <label className="text-xs text-muted-foreground mb-1 block">Primary Color</label>
-                <input type="color" value={primaryColor} onChange={function (e) { setPrimaryColor(e.target.value); }}
-                  className="w-full h-9 rounded cursor-pointer bg-transparent" />
+          <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 12 }}>
+            <Input label="Workspace name" value={name} onChange={setName} placeholder="My Brand Workspace" />
+            <div style={{ display: "flex", gap: 12 }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ fontSize: 12, fontWeight: 500, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>Primary Color</label>
+                <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)}
+                  style={{ width: "100%", height: 36, borderRadius: 8, cursor: "pointer", background: "transparent", border: "1px solid var(--border)" }} />
               </div>
-              <div className="flex-1">
-                <label className="text-xs text-muted-foreground mb-1 block">Secondary Color</label>
-                <input type="color" value={secondaryColor} onChange={function (e) { setSecondaryColor(e.target.value); }}
-                  className="w-full h-9 rounded cursor-pointer bg-transparent" />
+              <div style={{ flex: 1 }}>
+                <label style={{ fontSize: 12, fontWeight: 500, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>Secondary Color</label>
+                <input type="color" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)}
+                  style={{ width: "100%", height: 36, borderRadius: 8, cursor: "pointer", background: "transparent", border: "1px solid var(--border)" }} />
               </div>
-              <div className="flex-1">
-                <label className="text-xs text-muted-foreground mb-1 block">Font Family</label>
-                <select value={fontFamily} onChange={function (e) { setFontFamily(e.target.value); }}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
-                  <option value="Inter">Inter</option>
-                  <option value="System">System</option>
-                  <option value="JetBrains Mono">JetBrains Mono</option>
-                </select>
+              <div style={{ flex: 1 }}>
+                <Select label="Font Family" value={fontFamily} onChange={setFontFamily} options={[{ label: "Inter", value: "Inter" }, { label: "System", value: "System" }, { label: "JetBrains Mono", value: "JetBrains Mono" }]} />
               </div>
             </div>
-            <div className="flex gap-2">
-              <button onClick={create} className="btn btn-primary text-xs">Create Branding</button>
-              <button onClick={function () { setShowCreate(false); }} className="btn btn-ghost text-xs">Cancel</button>
+            <div style={{ display: "flex", gap: 8 }}>
+              <Button onClick={create} size="sm">Create Branding</Button>
+              <Button onClick={() => setShowCreate(false)} variant="ghost" size="sm">Cancel</Button>
             </div>
           </div>
         )}
-      </div>
+      </Card>
 
-      <div className="glass card-section">
-        <h3 className="text-sm font-semibold text-white mb-3">Quick Actions</h3>
-        <div className="grid grid-cols-2 gap-3">
-          <button className="btn btn-primary text-xs"><Upload size={13} /> Upload Logo</button>
-          <button className="btn btn-primary text-xs"><Globe size={13} /> Configure Domain</button>
-          <button className="btn btn-ghost text-xs"><Download size={13} /> Download Assets</button>
-          <button className="btn btn-ghost text-xs"><Eye size={13} /> Preview Branding</button>
+      <Card title="Quick Actions">
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          <Button variant="primary" size="sm"><Palette size={13} /> Upload Logo</Button>
+          <Button variant="primary" size="sm"><Globe size={13} /> Configure Domain</Button>
+          <Button variant="ghost" size="sm"><Download size={13} /> Download Assets</Button>
+          <Button variant="ghost" size="sm"><Eye size={13} /> Preview Branding</Button>
         </div>
-      </div>
-    </div>
+      </Card>
+    </PageContainer>
   );
 }

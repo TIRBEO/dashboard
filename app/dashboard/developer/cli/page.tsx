@@ -1,7 +1,8 @@
 "use client";
 
-import { Terminal, Copy, ExternalLink } from "lucide-react";
+import { Terminal, ExternalLink } from "lucide-react";
 import { useState } from "react";
+import { PageContainer, PageHeader, Card, CodeBlock } from "../../components";
 
 const COMMANDS = [
   { cmd: "npx @tirbeo/cli login", desc: "Authenticate with your Tirbeo account" },
@@ -14,58 +15,33 @@ const COMMANDS = [
 ];
 
 export default function CliPage() {
-  const [copied, setCopied] = useState<string | null>(null);
-
-  const copy = (cmd: string) => {
-    navigator.clipboard.writeText(cmd);
-    setCopied(cmd);
-    setTimeout(() => setCopied(null), 2000);
-  };
-
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-2">CLI</h1>
-        <p className="text-sm text-muted-foreground">Manage your workspace from the command line</p>
-      </div>
+    <PageContainer>
+      <PageHeader title="CLI" description="Manage your workspace from the command line" />
 
-      <div className="glass card-section">
-        <div className="flex items-center gap-2 mb-4">
-          <Terminal size={16} className="text-[#d8b36a]" />
-          <h3 className="text-sm font-semibold text-white">Quick Install</h3>
-        </div>
-        <div className="p-3 rounded-lg bg-black/40 font-mono text-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-[#59d499]">$ npx @tirbeo/cli --version</span>
-            <button onClick={() => copy("npx @tirbeo/cli --version")} className="text-muted-foreground hover:text-white">
-              {copied === "npx @tirbeo/cli --version" ? <span className="text-xs text-[#59d499]">Copied!</span> : <Copy size={12} />}
-            </button>
-          </div>
-        </div>
-      </div>
+      <Card title="Quick Install" subtitle="Check your CLI version">
+        <CodeBlock code="$ npx @tirbeo/cli --version" language="bash" />
+      </Card>
 
-      <div className="glass card-section">
-        <h3 className="text-sm font-semibold text-white mb-4">Available Commands</h3>
-        <div className="space-y-2">
+      <Card title="Available Commands">
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {COMMANDS.map((c, i) => (
-            <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.03] border border-white/5">
+            <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", borderRadius: 10, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
               <div>
-                <code className="text-xs font-mono text-[#d8b36a]">{c.cmd}</code>
-                <p className="text-xs text-muted-foreground mt-0.5">{c.desc}</p>
+                <code style={{ fontSize: 12, fontFamily: "monospace", color: "var(--gold)" }}>{c.cmd}</code>
+                <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{c.desc}</p>
               </div>
-              <button onClick={() => copy(c.cmd)} className="p-1.5 rounded bg-white/5 hover:bg-white/10 text-muted-foreground">
-                {copied === c.cmd ? <span className="text-[10px] text-[#59d499]">Copied</span> : <Copy size={12} />}
-              </button>
+              <CodeBlock code={c.cmd} />
             </div>
           ))}
         </div>
-      </div>
+      </Card>
 
-      <div className="glass card-section">
-        <h3 className="text-sm font-semibold text-white mb-2">Documentation</h3>
-        <p className="text-xs text-muted-foreground mb-3">Read the full CLI documentation for advanced usage and configuration.</p>
-        <a href="#" className="inline-flex items-center gap-1.5 text-xs text-[#d8b36a] hover:underline">View Docs <ExternalLink size={11} /></a>
-      </div>
-    </div>
+      <Card title="Documentation" subtitle="Read the full CLI documentation for advanced usage and configuration.">
+        <a href="#" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--gold)", textDecoration: "none" }}>
+          View Docs <ExternalLink size={11} />
+        </a>
+      </Card>
+    </PageContainer>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Key, Plus, Trash2, Copy, Eye, EyeOff, Shield } from "lucide-react";
+import { Key, Plus, Trash2, Copy } from "lucide-react";
+import { PageContainer, PageHeader, Card, Button, Badge, EmptyState, Skeleton, Input, useToast, Toast } from "../../components";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
@@ -22,14 +23,14 @@ export default function ApiKeysPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState("");
   const [newScopes, setNewScopes] = useState(["read"]);
-  const [revealed, setRevealed] = useState<Record<string, boolean>>({});
   const [copied, setCopied] = useState<string | null>(null);
+  const { toast, show, hide } = useToast();
   const fetched = useRef(false);
 
   useEffect(() => {
     if (fetched.current) return;
     fetched.current = true;
-    fetch(`${API}/api/integrations`, { credentials: "include" })
+    fetch(API + "/api/integrations", { credentials: "include" })
       .then((r) => (r.ok ? r.json() : []))
       .then(() => setKeys([]))
       .catch(() => {})
@@ -38,10 +39,9 @@ export default function ApiKeysPage() {
 
   const createKey = () => {
     if (!newName) return;
-    const keyId = Date.now().toString();
-    const fakeKey = "tb_" + Array.from({ length: 40 }, () => "abcdefghijklmnopqrstuvwxyz0123456789"[Math.floor(Math.random() * 36)]).join("");
-    setKeys((prev) => [...prev, {
-      id: keyId,
+    var fakeKey = "tb_" + Array.from({ length: 40 }, () => "abcdefghijklmnopqrstuvwxyz0123456789"[Math.floor(Math.random() * 36)]).join("");
+    setKeys((prev) => prev.concat([{
+      id: Date.now().toString(),
       name: newName,
       key: fakeKey,
       prefix: fakeKey.slice(0, 8),
@@ -49,12 +49,16 @@ export default function ApiKeysPage() {
       createdAt: new Date().toISOString(),
       lastUsed: "Never",
       expiresAt: null,
-    }]);
+    }]));
     setShowCreate(false);
     setNewName("");
+    show("API key created successfully");
   };
 
-  const deleteKey = (id: string) => setKeys((prev) => prev.filter((k) => k.id !== id));
+  const deleteKey = (id: string) => {
+    setKeys((prev) => prev.filter((k) => k.id !== id));
+    show("API key deleted");
+  };
 
   const copyKey = (key: string, id: string) => {
     navigator.clipboard.writeText(key);
@@ -63,66 +67,65 @@ export default function ApiKeysPage() {
   };
 
   if (loading) {
-    return <div className="max-w-4xl mx-auto space-y-6">{[...Array(3)].map((_, i) => <div key={i} className="glass card-section animate-pulse" style={{ height: 80 }} />)}</div>;
+    return <PageContainer><Skeleton count={3} height={80} /></PageContainer>;
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-2">API Keys</h1>
-        <p className="text-sm text-muted-foreground">Manage API keys for programmatic access</p>
-      </div>
+    <PageContainer>
+      {toast && <Toast message={toast.message} type={toast.type} onClose={hide} />}
+      <PageHeader title="API Keys" description="Manage API keys for programmatic access" />
 
-      <div className="glass card-section">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-white">Active Keys ({keys.length})</h3>
-          <button onClick={() => setShowCreate(!showCreate)} className="btn btn-primary text-xs">
+      <Card
+        title={"Active Keys (" + keys.length + ")"}
+        action={
+          <Button onClick={() => setShowCreate(!showCreate)} size="sm">
             <Plus size={13} /> Generate Key
-          </button>
-        </div>
-
+          </Button>
+        }
+      >
         {showCreate && (
-          <div className="p-4 rounded-lg bg-white/[0.03] border border-white/5 mb-4">
-            <input placeholder="Key name (e.g., Production Server)" value={newName} onChange={(e) => setNewName(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white mb-3" />
-            <div className="flex gap-4 mb-3">
+          <div style={{ padding: 16, borderRadius: 10, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", marginBottom: 16 }}>
+            <Input
+              label="Key name"
+              value={newName}
+              onChange={setNewName}
+              placeholder="e.g., Production Server"
+            />
+            <div style={{ display: "flex", gap: 16, marginTop: 12, marginBottom: 12 }}>
               {["read", "write", "admin"].map((scope) => (
-                <label key={scope} className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <label key={scope} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--text-secondary)", cursor: "pointer" }}>
                   <input type="checkbox" checked={newScopes.includes(scope)}
-                    onChange={(e) => setNewScopes((s) => e.target.checked ? [...s, scope] : s.filter((x) => x !== scope))}
-                    className="rounded border-white/20" />
+                    onChange={(e) => setNewScopes((s) => e.target.checked ? s.concat([scope]) : s.filter((x) => x !== scope))}
+                    style={{ borderRadius: 4, accentColor: "var(--gold)" }} />
                   {scope}
                 </label>
               ))}
             </div>
-            <div className="flex gap-2">
-              <button onClick={createKey} className="btn btn-primary text-xs">Create</button>
-              <button onClick={() => setShowCreate(false)} className="btn btn-ghost text-xs">Cancel</button>
+            <div style={{ display: "flex", gap: 8 }}>
+              <Button onClick={createKey} size="sm">Create</Button>
+              <Button onClick={() => setShowCreate(false)} variant="ghost" size="sm">Cancel</Button>
             </div>
           </div>
         )}
 
         {keys.length === 0 ? (
-          <div className="text-center py-12">
-            <Key size={48} style={{ color: "var(--text-muted)", margin: "0 auto 12px" }} />
-            <p className="text-sm text-muted-foreground">No API keys yet</p>
-          </div>
+          <EmptyState icon={Key} title="No API keys yet" description="Generate your first key to get started" />
         ) : (
-          <div className="space-y-2">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {keys.map((k) => (
-              <div key={k.id} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.03] border border-white/5">
-                <div className="flex items-center gap-3">
-                  <Key size={14} className="text-[#d8b36a]" />
+              <div key={k.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", borderRadius: 10, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <Key size={14} style={{ color: "var(--gold)" }} />
                   <div>
-                    <p className="text-sm font-medium text-white">{k.name}</p>
-                    <p className="text-xs text-muted-foreground font-mono">{k.prefix}... · {k.scopes.join(", ")}</p>
+                    <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>{k.name}</p>
+                    <p style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "monospace" }}>{k.prefix}... · {k.scopes.join(", ")}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => copyKey(k.key, k.id)} className="p-1.5 rounded bg-white/5 hover:bg-white/10 text-muted-foreground" title="Copy key">
-                    {copied === k.id ? <span className="text-xs text-[#59d499]">Copied</span> : <Copy size={12} />}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <button onClick={() => copyKey(k.key, k.id)} style={{ padding: 6, borderRadius: 6, background: "rgba(255,255,255,0.05)", border: "none", cursor: "pointer", color: copied === k.id ? "var(--success)" : "var(--text-muted)" }} title="Copy key">
+                    {copied === k.id ? <span style={{ fontSize: 11 }}>Copied</span> : <Copy size={12} />}
                   </button>
-                  <button onClick={() => deleteKey(k.id)} className="p-1.5 rounded bg-white/5 hover:bg-red-500/20 text-muted-foreground hover:text-red-400">
+                  <button onClick={() => deleteKey(k.id)} style={{ padding: 6, borderRadius: 6, background: "rgba(255,255,255,0.05)", border: "none", cursor: "pointer", color: "var(--text-muted)" }}>
                     <Trash2 size={12} />
                   </button>
                 </div>
@@ -130,7 +133,7 @@ export default function ApiKeysPage() {
             ))}
           </div>
         )}
-      </div>
-    </div>
+      </Card>
+    </PageContainer>
   );
 }

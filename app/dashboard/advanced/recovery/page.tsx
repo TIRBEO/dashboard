@@ -1,52 +1,50 @@
 "use client";
 
 import { useState } from "react";
-import { LifeBuoy, Shield, Key, Download } from "lucide-react";
+import { Key, LifeBuoy, Download } from "lucide-react";
+import { PageContainer, PageHeader, Card, Button, Input } from "../../components";
 
 export default function RecoveryPage() {
-  const [codes] = useState(["a1b2-c3d4", "e5f6-g7h8", "i9j0-k1l2", "m3n4-o5p6", "q7r8-s9t0"]);
-  const [copied, setCopied] = useState(false);
+  var [codes] = useState(["a1b2-c3d4", "e5f6-g7h8", "i9j0-k1l2", "m3n4-o5p6", "q7r8-s9t0"]);
+  var [copied, setCopied] = useState(false);
+  var [recoveryEmail, setRecoveryEmail] = useState("");
 
-  const copyCodes = () => {
+  var copyCodes = function() {
     navigator.clipboard.writeText(codes.join("\n"));
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(function() { setCopied(false); }, 2000);
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-2">Account Recovery</h1>
-        <p className="text-sm text-muted-foreground">Recovery options in case you lose access</p>
-      </div>
+    <PageContainer>
+      <PageHeader title="Account Recovery" description="Recovery options in case you lose access" />
 
-      <div className="glass card-section">
-        <div className="flex items-center gap-2 mb-4">
-          <Key size={16} className="text-[#d8b36a]" />
-          <h3 className="text-sm font-semibold text-white">Backup Codes</h3>
+      <Card title="Backup Codes" subtitle="Use these one-time codes to sign in if you lose access to your 2FA device. Each code can only be used once."
+        action={<Key size={14} style={{ color: "var(--gold)" }} />}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8, marginBottom: 16 }}>
+          {codes.map(function(c) {
+            return (
+              <div key={c} style={{ padding: "8px 12px", borderRadius: 8, background: "rgba(0,0,0,0.4)", fontFamily: "monospace", fontSize: 13, color: "var(--gold)", textAlign: "center", border: "1px solid var(--border)" }}>
+                {c}
+              </div>
+            );
+          })}
         </div>
-        <p className="text-xs text-muted-foreground mb-4">Use these one-time codes to sign in if you lose access to your 2FA device. Each code can only be used once.</p>
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          {codes.map((c) => (
-            <div key={c} className="p-2 rounded bg-black/40 font-mono text-sm text-[#d8b36a] text-center">{c}</div>
-          ))}
+        <div style={{ display: "flex", gap: 8 }}>
+          <Button variant="ghost" size="sm" onClick={copyCodes}>{copied ? "Copied!" : "Copy Codes"}</Button>
+          <Button variant="ghost" size="sm"><Download size={12} /> Download</Button>
         </div>
-        <div className="flex gap-2">
-          <button onClick={copyCodes} className="btn btn-ghost text-xs">{copied ? "Copied!" : "Copy Codes"}</button>
-          <button className="btn btn-ghost text-xs flex items-center gap-1"><Download size={12} /> Download</button>
-        </div>
-      </div>
+      </Card>
 
-      <div className="glass card-section">
-        <div className="flex items-center gap-2 mb-3">
-          <LifeBuoy size={16} className="text-[#d8b36a]" />
-          <h3 className="text-sm font-semibold text-white">Recovery Email</h3>
+      <Card title="Recovery Email" subtitle="Set a recovery email to reset your password if locked out."
+        action={<LifeBuoy size={14} style={{ color: "var(--gold)" }} />}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <Input type="email" value={recoveryEmail} onChange={setRecoveryEmail} placeholder="recovery@example.com" />
+          <div>
+            <Button variant="primary" size="sm">Save Recovery Email</Button>
+          </div>
         </div>
-        <p className="text-xs text-muted-foreground mb-3">Set a recovery email to reset your password if locked out.</p>
-        <input type="email" placeholder="recovery@example.com"
-          className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white mb-3" />
-        <button className="btn btn-primary text-xs">Save Recovery Email</button>
-      </div>
-    </div>
+      </Card>
+    </PageContainer>
   );
 }

@@ -1,9 +1,15 @@
 "use client";
 
-import { Archive, Download, Trash2, Clock } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-
-const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
+import { Archive, Download, Trash2 } from "lucide-react";
+import {
+  PageContainer,
+  PageHeader,
+  Card,
+  EmptyState,
+  Skeleton,
+  Button,
+} from "../../components";
 
 type DownloadEntry = {
   id: string;
@@ -27,44 +33,79 @@ export default function DownloadsPage() {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-2">Downloads</h1>
-        <p className="text-sm text-muted-foreground">Your exported data and generated files</p>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Downloads"
+        description="Your exported data and generated files"
+      />
 
-      <div className="glass card-section">
+      <Card>
         {loading ? (
-          <div className="space-y-2">{[...Array(3)].map((_, i) => <div key={i} className="h-14 bg-white/5 rounded animate-pulse" />)}</div>
+          <Skeleton count={3} height={56} />
         ) : downloads.length === 0 ? (
-          <div className="text-center py-12">
-            <Archive size={48} className="mx-auto mb-3" style={{ color: "#7b7e84" }} />
-            <p className="text-sm text-muted-foreground">No downloads yet</p>
-            <p className="text-xs text-muted-foreground mt-1">Export data from the Data section to see files here</p>
-          </div>
+          <EmptyState
+            icon={Archive}
+            title="No downloads yet"
+            description="Export data from the Data section to see files here"
+          />
         ) : (
-          <div className="space-y-2">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {downloads.map((d) => (
-              <div key={d.id} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.03] border border-white/5">
-                <div className="flex items-center gap-3">
-                  <Archive size={14} className="text-[#d8b36a]" />
+              <div
+                key={d.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "10px 14px",
+                  borderRadius: 10,
+                  background: "var(--bg-surface-elevated)",
+                  border: "1px solid var(--border)",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <Archive size={14} style={{ color: "var(--accent)", flexShrink: 0 }} />
                   <div>
-                    <p className="text-sm font-medium text-white">{d.filename}</p>
-                    <p className="text-xs text-muted-foreground">{d.size} · {d.format} · {d.createdAt}</p>
+                    <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>{d.filename}</p>
+                    <p style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                      {d.size} &middot; {d.format} &middot; {d.createdAt}
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   {d.status === "ready" && (
-                    <button className="p-1.5 rounded bg-white/5 hover:bg-white/10 text-muted-foreground"><Download size={12} /></button>
+                    <button
+                      style={{
+                        padding: 6,
+                        borderRadius: 6,
+                        background: "rgba(255,255,255,0.05)",
+                        border: "none",
+                        color: "var(--text-muted)",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <Download size={12} />
+                    </button>
                   )}
-                  <button onClick={() => setDownloads((p) => p.filter((x) => x.id !== d.id))}
-                    className="p-1.5 rounded bg-white/5 hover:bg-red-500/20 text-muted-foreground hover:text-red-400"><Trash2 size={12} /></button>
+                  <button
+                    onClick={() => setDownloads((p) => p.filter((x) => x.id !== d.id))}
+                    style={{
+                      padding: 6,
+                      borderRadius: 6,
+                      background: "rgba(255,255,255,0.05)",
+                      border: "none",
+                      color: "var(--text-muted)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <Trash2 size={12} />
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </div>
-    </div>
+      </Card>
+    </PageContainer>
   );
 }

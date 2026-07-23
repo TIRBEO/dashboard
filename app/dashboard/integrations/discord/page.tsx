@@ -1,39 +1,45 @@
 "use client";
 
-import { MessageCircle, ExternalLink } from "lucide-react";
+import { MessageCircle } from "lucide-react";
+import { PageContainer, PageHeader, Card, Button, Badge } from "../../components";
 
 export default function DiscordIntegrationPage() {
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-2">Discord Integration</h1>
-        <p className="text-sm text-muted-foreground">Connect your Discord account for notifications and authentication</p>
-      </div>
+    <PageContainer>
+      <PageHeader title="Discord Integration" description="Connect your Discord account for notifications and authentication" />
 
-      <div className="glass card-section">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="w-12 h-12 rounded-xl bg-[#5865F2]/20 flex items-center justify-center">
-            <MessageCircle size={24} className="text-[#5865F2]" />
+      <Card>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(88,101,242,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <MessageCircle size={24} style={{ color: "#5865F2" }} />
           </div>
           <div>
-            <p className="text-sm font-medium text-white">Discord</p>
-            <p className="text-xs text-muted-foreground">Not connected</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color: "var(--text)", margin: 0 }}>Discord</p>
+            <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0 }}>Not connected</p>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground mb-4">Connect Discord to receive workspace notifications in your Discord channels and use Discord as a sign-in method.</p>
-        <button className="btn btn-primary text-xs flex items-center gap-2">
-          <MessageCircle size={13} /> Connect Discord
-        </button>
-      </div>
+        <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 16 }}>
+          Connect Discord to receive workspace notifications in your Discord channels and use Discord as a sign-in method.
+        </p>
+        <Button variant="primary" size="sm"><MessageCircle size={13} /> Connect Discord</Button>
+      </Card>
 
-      <div className="glass card-section">
-        <h3 className="text-sm font-semibold text-white mb-3">What you can do</h3>
-        <ul className="space-y-2 text-xs text-muted-foreground">
-          <li className="flex items-start gap-2"><span className="text-[#59d499] mt-0.5">+</span> Receive workspace notifications via webhook</li>
-          <li className="flex items-start gap-2"><span className="text-[#59d499] mt-0.5">+</span> Sign in with your Discord account</li>
-          <li className="flex items-start gap-2"><span className="text-[#59d499] mt-0.5">+</span> Sync Discord roles with workspace roles</li>
-        </ul>
-      </div>
-    </div>
+      <Card title="What you can do">
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {[
+            "Receive workspace notifications via webhook",
+            "Sign in with your Discord account",
+            "Sync Discord roles with workspace roles",
+          ].map(function(item, i) {
+            return (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ color: "var(--success)", fontSize: 13 }}>+</span>
+                <span style={{ fontSize: 13, color: "var(--text-muted)" }}>{item}</span>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+    </PageContainer>
   );
 }

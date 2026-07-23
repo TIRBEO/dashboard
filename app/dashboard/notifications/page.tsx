@@ -1,32 +1,48 @@
 "use client";
 
-import { useState } from "react";
-import { Bell, CalendarDays, Moon, Monitor } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Bell } from "lucide-react";
+import {
+  PageContainer,
+  PageHeader,
+  Card,
+  Button,
+  Badge,
+  EmptyState,
+  Skeleton,
+  Toast,
+  useToast,
+} from "../components";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [markAllLoading, setMarkAllLoading] = useState(false);
+  const { toast, show, hide } = useToast();
 
-  const loadNotifications = () => {
+  const loadNotifications = useCallback(() => {
     setLoading(true);
-    fetch(`${API}/api/notifications?limit=50`, { credentials: "include" })
-      .then((r) => r.ok ? r.json() : { notifications: [], unread: 0 })
+    fetch(API + "/api/notifications?limit=50", { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : { notifications: [], unread: 0 }))
       .then((d) => {
         setNotifications(d.notifications || []);
         setUnreadCount(d.unread || 0);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  };
+  }, []);
+
+  useEffect(() => {
+    loadNotifications();
+  }, [loadNotifications]);
 
   const markAllRead = async () => {
     setMarkAllLoading(true);
     try {
-      await fetch(`${API}/api/notifications`, {
+      await fetch(API + "/api/notifications", {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -34,13 +50,16 @@ export default function NotificationsPage() {
       });
       setNotifications((n) => n.map((item) => ({ ...item, read: true })));
       setUnreadCount(0);
-    } catch {}
+      show("All notifications marked as read");
+    } catch {
+      show("Failed to mark notifications", "error");
+    }
     setMarkAllLoading(false);
   };
 
   const deleteNotification = async (id: string) => {
     try {
-      await fetch(`${API}/api/notifications?id=${id}`, {
+      await fetch(API + "/api/notifications?id=" + id, {
         method: "DELETE",
         credentials: "include",
       });
@@ -52,81 +71,126 @@ export default function NotificationsPage() {
     } catch {}
   };
 
-  return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Notifications</h1>
-          <p className="text-muted-foreground mt-1">Manage all your notifications and alerts</p>
-        </div>
-        {unreadCount > 0 && (
-          <button
-            onClick={markAllRead}
-            disabled={markAllLoading}
-            className="px-4 py-2 bg-surface-elevated text-white rounded-lg border border-hairline hover:border-primary/30 disabled:opacity-50"
-          >
-            {markAllLoading ? "Marking..." : `Mark All Read (${unreadCount})`}
-          </button>
-        )}
-      </div>
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case "mention": return "@";
+      case "message": return "\u2709";
+      case "task": return "\u2713";
+      case "system": return "\u2699";
+      default: return "\u2022";
+    }
+  };
 
-      <div className="glass card-section">
+  return (
+    <PageContainer>
+      {toast && <Toast message={toast.message} type={toast.type} onClose={hide} />}
+
+      <PageHeader
+        title="Notifications"
+        description="Manage all your notifications and alerts"
+        action={
+          unreadCount > 0 ? (
+            <Button onClick={markAllRead} disabled={markAllLoading}>
+              {markAllLoading ? "Marking..." : "Mark All Read (" + unreadCount + ")"}
+            </Button>
+          ) : undefined
+        }
+      />
+
+      <Card>
         {loading ? (
-          <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
+          <Skeleton count={4} height={72} />
         ) : notifications.length === 0 ? (
-          <div className="text-center py-8">
-            <Bell size={48} className="mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-medium text-white mb-2">No notifications</h3>
-            <p className="text-muted-foreground">You're all caught up!</p>
-          </div>
+          <EmptyState
+            icon={Bell}
+            title="No notifications"
+            description="You're all caught up!"
+          />
         ) : (
-          <div className="space-y-3">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {notifications.map((notif) => (
               <div
                 key={notif.id}
-                className={`p-4 rounded-lg border transition-colors ${notif.read ? "bg-surface border-hairline" : "bg-primary/10 border-primary/30"
-                  }`}
+                style={{
+                  padding: "12px 16px",
+                  borderRadius: 10,
+                  border: "1px solid " + (notif.read ? "var(--border)" : "rgba(216,179,106,0.3)"),
+                  background: notif.read ? "transparent" : "rgba(216,179,106,0.05)",
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 12,
+                }}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      {!notif.read && (
-                        <div className="w-2 h-2 bg-primary rounded-full"></div>
-                      )}
-                      <h3 className={`font-medium ${notif.read ? "text-muted-foreground" : "text-white"}`}>{notif.title}</h3>
-                      {notif.type && (
-                        <span className="px-2 py-0.5 rounded text-xs bg-surface-elevated text-muted-foreground">
-                          {notif.type}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    background: "var(--bg-surface-elevated)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 14,
+                    flexShrink: 0,
+                    marginTop: 2,
+                  }}
+                >
+                  {getTypeIcon(notif.type)}
+                </div>
+
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {!notif.read && (
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#d8b36a", flexShrink: 0 }} />
+                    )}
+                    <p style={{ fontSize: 13, fontWeight: 500, color: notif.read ? "var(--text-muted)" : "var(--text)" }}>
+                      {notif.title}
+                    </p>
+                    {notif.type && (
+                      <Badge>{notif.type}</Badge>
+                    )}
+                  </div>
+                  {notif.body && (
+                    <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4, lineHeight: 1.5 }}>
                       {notif.body}
                     </p>
-                    <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
-                      <span>{new Date(notif.createdAt).toLocaleString()}</span>
-                      {notif.link && (
-                        <a href={notif.link} className="text-primary hover:underline">
-                          View details
-                        </a>
-                      )}
-                    </div>
+                  )}
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 8 }}>
+                    <span style={{ fontSize: 11, color: "var(--text-ash)" }}>
+                      {new Date(notif.createdAt).toLocaleString()}
+                    </span>
+                    {notif.link && (
+                      <a
+                        href={notif.link}
+                        style={{ fontSize: 11, color: "var(--accent)", textDecoration: "none" }}
+                      >
+                        View details
+                      </a>
+                    )}
                   </div>
-                  <button
-                    onClick={() => deleteNotification(notif.id)}
-                    className="text-muted-foreground hover:text-white ml-4"
-                    title="Delete notification"
-                  >
-                    ×
-                  </button>
                 </div>
+
+                <button
+                  onClick={() => deleteNotification(notif.id)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "var(--text-ash)",
+                    cursor: "pointer",
+                    padding: 4,
+                    fontSize: 16,
+                    lineHeight: 1,
+                    flexShrink: 0,
+                  }}
+                  title="Delete"
+                >
+                  &times;
+                </button>
               </div>
             ))}
           </div>
         )}
-      </div>
-    </div>
+      </Card>
+    </PageContainer>
   );
 }

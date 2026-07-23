@@ -1,7 +1,15 @@
 "use client";
 
-import { Database, Plus, Download, Trash2, CheckCircle, Clock } from "lucide-react";
 import { useState } from "react";
+import { Database, Plus, Download, Trash2, CheckCircle, Clock } from "lucide-react";
+import {
+  PageContainer,
+  PageHeader,
+  Card,
+  Button,
+  Badge,
+  EmptyState,
+} from "../../components";
 
 type Backup = {
   id: string;
@@ -26,49 +34,112 @@ export default function BackupsPage() {
     };
     setBackups((prev) => [b, ...prev]);
     setTimeout(() => {
-      setBackups((prev) => prev.map((x) => x.id === b.id ? { ...x, size: "12.4 MB", status: "complete" as const } : x));
+      setBackups((prev) =>
+        prev.map((x) =>
+          x.id === b.id ? { ...x, size: "12.4 MB", status: "complete" as const } : x
+        )
+      );
     }, 3000);
   };
 
-  return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white mb-2">Backups</h1>
-          <p className="text-sm text-muted-foreground">Create and manage account backups</p>
-        </div>
-        <button onClick={createBackup} className="btn btn-primary text-xs"><Plus size={13} /> Create Backup</button>
-      </div>
+  const getStatusBadge = (status: Backup["status"]) => {
+    switch (status) {
+      case "complete": return <Badge variant="success">Complete</Badge>;
+      case "in_progress": return <Badge variant="warning">In Progress</Badge>;
+      case "failed": return <Badge variant="danger">Failed</Badge>;
+    }
+  };
 
-      <div className="glass card-section">
+  const getStatusIcon = (status: Backup["status"]) => {
+    switch (status) {
+      case "complete": return <CheckCircle size={14} style={{ color: "var(--success)" }} />;
+      case "in_progress": return <Clock size={14} style={{ color: "var(--accent)", animation: "spin 1s linear infinite" }} />;
+      case "failed": return <Database size={14} style={{ color: "var(--danger)" }} />;
+    }
+  };
+
+  return (
+    <PageContainer>
+      <PageHeader
+        title="Backups"
+        description="Create and manage account backups"
+        action={
+          <Button variant="gold" onClick={createBackup}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <Plus size={13} /> Create Backup
+            </span>
+          </Button>
+        }
+      />
+
+      <Card>
         {backups.length === 0 ? (
-          <div className="text-center py-12">
-            <Database size={48} className="mx-auto mb-3" style={{ color: "#7b7e84" }} />
-            <p className="text-sm text-muted-foreground">No backups created</p>
-          </div>
+          <EmptyState
+            icon={Database}
+            title="No backups created"
+            description="Create your first backup to protect your data"
+          />
         ) : (
-          <div className="space-y-2">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {backups.map((b) => (
-              <div key={b.id} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.03] border border-white/5">
-                <div className="flex items-center gap-3">
-                  {b.status === "complete" ? <CheckCircle size={14} className="text-[#59d499]" /> :
-                   b.status === "in_progress" ? <Clock size={14} className="text-[#d8b36a] animate-spin" /> :
-                   <Database size={14} className="text-red-400" />}
+              <div
+                key={b.id}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "12px 14px",
+                  borderRadius: 10,
+                  background: "var(--bg-surface-elevated)",
+                  border: "1px solid var(--border)",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  {getStatusIcon(b.status)}
                   <div>
-                    <p className="text-sm font-medium text-white">{b.name}</p>
-                    <p className="text-xs text-muted-foreground">{b.size} · {b.includes.join(", ")}</p>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>{b.name}</p>
+                      {getStatusBadge(b.status)}
+                    </div>
+                    <p style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
+                      {b.size} &middot; {b.includes.join(", ")}
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {b.status === "complete" && <button className="p-1.5 rounded bg-white/5 hover:bg-white/10 text-muted-foreground"><Download size={12} /></button>}
-                  <button onClick={() => setBackups((p) => p.filter((x) => x.id !== b.id))}
-                    className="p-1.5 rounded bg-white/5 hover:bg-red-500/20 text-muted-foreground hover:text-red-400"><Trash2 size={12} /></button>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {b.status === "complete" && (
+                    <button
+                      style={{
+                        padding: 6,
+                        borderRadius: 6,
+                        background: "rgba(255,255,255,0.05)",
+                        border: "none",
+                        color: "var(--text-muted)",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <Download size={12} />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setBackups((p) => p.filter((x) => x.id !== b.id))}
+                    style={{
+                      padding: 6,
+                      borderRadius: 6,
+                      background: "rgba(255,255,255,0.05)",
+                      border: "none",
+                      color: "var(--text-muted)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <Trash2 size={12} />
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </div>
-    </div>
+      </Card>
+    </PageContainer>
   );
 }

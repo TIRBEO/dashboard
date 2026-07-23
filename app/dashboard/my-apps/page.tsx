@@ -1,103 +1,30 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import {
-  Search,
-  LayoutGrid,
-  Users,
-  Shield,
-  LifeBuoy,
-  Globe,
-  Terminal,
-  ArrowUpRight,
-  ArrowRight,
-  Plug,
-  Sparkles,
-  Box,
-} from "lucide-react";
+import { Search, LayoutGrid, Users, Shield, LifeBuoy, Globe, Terminal, ArrowUpRight, ArrowRight, Plug, Sparkles, Box } from "lucide-react";
+import { PageContainer, PageHeader, Card, Badge, EmptyState, Input, Skeleton } from "../components";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
+var API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
 type AppEntry = {
-  id: string;
-  name: string;
-  description: string;
-  icon: React.ReactNode;
-  color: string;
-  route: string;
-  external: boolean;
-  status: "active" | "soon" | "connected";
+  id: string; name: string; description: string; icon: React.ReactNode;
+  color: string; route: string; external: boolean; status: "active" | "soon" | "connected";
 };
 
 type ConnectedIntegration = {
-  provider: string;
-  connected: boolean;
+  provider: string; connected: boolean;
 };
 
-const ECOSYSTEM_APPS: AppEntry[] = [
-  {
-    id: "dashboard",
-    name: "Dashboard",
-    description: "Central account management",
-    icon: <LayoutGrid size={26} />,
-    color: "#4f7aff",
-    route: "/dashboard",
-    external: false,
-    status: "active",
-  },
-  {
-    id: "collab",
-    name: "Collab",
-    description: "Real-time collaboration",
-    icon: <Users size={26} />,
-    color: "#59d499",
-    route: "https://collab.tirbeo.app",
-    external: true,
-    status: "soon",
-  },
-  {
-    id: "admin",
-    name: "Admin Panel",
-    description: "Staff moderation tools",
-    icon: <Shield size={26} />,
-    color: "#f472b6",
-    route: "https://admin.tirbeo.app",
-    external: true,
-    status: "active",
-  },
-  {
-    id: "support",
-    name: "Support",
-    description: "Help desk & FAQ",
-    icon: <LifeBuoy size={26} />,
-    color: "#ffb347",
-    route: "https://support.tirbeo.app",
-    external: true,
-    status: "active",
-  },
-  {
-    id: "landing",
-    name: "Landing",
-    description: "Company website",
-    icon: <Globe size={26} />,
-    color: "#c084fc",
-    route: "https://tirbeo.app",
-    external: true,
-    status: "active",
-  },
-  {
-    id: "api",
-    name: "API Gateway",
-    description: "API management",
-    icon: <Terminal size={26} />,
-    color: "#38bdf8",
-    route: "https://api.tirbeo.app",
-    external: true,
-    status: "active",
-  },
+var ECOSYSTEM_APPS: AppEntry[] = [
+  { id: "dashboard", name: "Dashboard", description: "Central account management", icon: <LayoutGrid size={26} />, color: "#4f7aff", route: "/dashboard", external: false, status: "active" },
+  { id: "collab", name: "Collab", description: "Real-time collaboration", icon: <Users size={26} />, color: "#59d499", route: "https://collab.tirbeo.app", external: true, status: "soon" },
+  { id: "admin", name: "Admin Panel", description: "Staff moderation tools", icon: <Shield size={26} />, color: "#f472b6", route: "https://admin.tirbeo.app", external: true, status: "active" },
+  { id: "support", name: "Support", description: "Help desk & FAQ", icon: <LifeBuoy size={26} />, color: "#ffb347", route: "https://support.tirbeo.app", external: true, status: "active" },
+  { id: "landing", name: "Landing", description: "Company website", icon: <Globe size={26} />, color: "#c084fc", route: "https://tirbeo.app", external: true, status: "active" },
+  { id: "api", name: "API Gateway", description: "API management", icon: <Terminal size={26} />, color: "#38bdf8", route: "https://api.tirbeo.app", external: true, status: "active" },
 ];
 
-const OAUTH_APP_ICONS: Record<string, React.ReactNode> = {
+var OAUTH_APP_ICONS: Record<string, React.ReactNode> = {
   google: (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
       <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#fff" />
@@ -115,351 +42,118 @@ const OAUTH_APP_ICONS: Record<string, React.ReactNode> = {
 
 function AppCard({ app }: { app: AppEntry }) {
   return (
-    <a
-      href={app.route}
-      target={app.external ? "_blank" : undefined}
-      rel={app.external ? "noopener noreferrer" : undefined}
+    <a href={app.route} target={app.external ? "_blank" : undefined} rel={app.external ? "noopener noreferrer" : undefined}
       style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: 0,
-        borderRadius: 14,
-        background: "rgba(8,8,10,0.72)",
-        backdropFilter: "blur(40px) saturate(1.4)",
-        WebkitBackdropFilter: "blur(40px) saturate(1.4)",
-        border: "1px solid rgba(255,255,255,0.06)",
-        padding: "22px 20px 18px",
-        textDecoration: "none",
-        color: "inherit",
-        transition: "border-color 0.2s ease, background 0.2s ease",
-        position: "relative",
-        overflow: "hidden",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
-        e.currentTarget.style.background = "rgba(12,12,14,0.82)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)";
-        e.currentTarget.style.background = "rgba(8,8,10,0.72)";
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: "1px",
-          background: `linear-gradient(90deg, transparent 0%, ${app.color}44 50%, transparent 100%)`,
-          opacity: 0.6,
-        }}
-      />
-
+        display: "flex", flexDirection: "column", gap: 0, borderRadius: 14,
+        background: "rgba(8,8,10,0.72)", backdropFilter: "blur(40px) saturate(1.4)",
+        border: "1px solid rgba(255,255,255,0.06)", padding: "22px 20px 18px",
+        textDecoration: "none", color: "inherit", transition: "border-color 0.2s ease, background 0.2s ease",
+        position: "relative", overflow: "hidden",
+      }}>
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px",
+        background: "linear-gradient(90deg, transparent 0%, " + app.color + "44 50%, transparent 100%)", opacity: 0.6 }} />
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 14 }}>
-        <div
-          style={{
-            width: 52,
-            height: 52,
-            borderRadius: 14,
-            background: `${app.color}18`,
-            border: `1px solid ${app.color}22`,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: app.color,
-            flexShrink: 0,
-          }}
-        >
+        <div style={{ width: 52, height: 52, borderRadius: 14, background: app.color + "18", border: "1px solid " + app.color + "22",
+          display: "flex", alignItems: "center", justifyContent: "center", color: app.color, flexShrink: 0 }}>
           {app.icon}
         </div>
-
-        {app.external ? (
-          <ArrowUpRight size={14} style={{ color: "#6a6b6c", marginTop: 2, flexShrink: 0 }} />
-        ) : (
-          <ArrowRight size={14} style={{ color: "#6a6b6c", marginTop: 2, flexShrink: 0 }} />
-        )}
+        {app.external ? <ArrowUpRight size={14} style={{ color: "var(--text-ash)", marginTop: 2 }} /> : <ArrowRight size={14} style={{ color: "var(--text-ash)", marginTop: 2 }} />}
       </div>
-
-      <div style={{ fontSize: 15, fontWeight: 600, color: "#f4f4f6", letterSpacing: "-0.01em", marginBottom: 4 }}>
-        {app.name}
-      </div>
-
-      <div style={{ fontSize: 12.5, color: "#9c9c9d", lineHeight: 1.4, marginBottom: 14, flex: 1 }}>
-        {app.description}
-      </div>
-
+      <div style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", letterSpacing: "-0.01em", marginBottom: 4 }}>{app.name}</div>
+      <div style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.4, marginBottom: 14, flex: 1 }}>{app.description}</div>
       <div>
-        {app.status === "active" && (
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 5,
-              padding: "3px 9px",
-              borderRadius: 6,
-              fontSize: 11,
-              fontWeight: 600,
-              background: "rgba(89,212,153,0.1)",
-              color: "#59d499",
-            }}
-          >
-            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#59d499" }} />
-            Active
-          </span>
-        )}
-        {app.status === "soon" && (
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 5,
-              padding: "3px 9px",
-              borderRadius: 6,
-              fontSize: 11,
-              fontWeight: 600,
-              background: "rgba(255,197,51,0.1)",
-              color: "#ffc533",
-            }}
-          >
-            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#ffc533" }} />
-            Soon
-          </span>
-        )}
-        {app.status === "connected" && (
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 5,
-              padding: "3px 9px",
-              borderRadius: 6,
-              fontSize: 11,
-              fontWeight: 600,
-              background: "rgba(79,122,255,0.1)",
-              color: "#4f7aff",
-            }}
-          >
-            <Plug size={10} />
-            Connected
-          </span>
-        )}
+        {app.status === "active" && <Badge variant="success">Active</Badge>}
+        {app.status === "soon" && <Badge variant="warning">Soon</Badge>}
+        {app.status === "connected" && <Badge variant="info">Connected</Badge>}
       </div>
     </a>
   );
 }
 
-function IntegrationCard({ integration }: { integration: ConnectedIntegration }) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 14,
-        padding: "14px 16px",
-        borderRadius: 12,
-        background: "rgba(255,255,255,0.02)",
-        border: "1px solid rgba(255,255,255,0.04)",
-      }}
-    >
-      <div
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: 10,
-          background: "rgba(255,255,255,0.06)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#fff",
-          flexShrink: 0,
-        }}
-      >
-        {OAUTH_APP_ICONS[integration.provider] || (
-          <Plug size={18} style={{ color: "#9c9c9d" }} />
-        )}
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13, fontWeight: 500, color: "#f4f4f6", textTransform: "capitalize" }}>
-          {integration.provider}
-        </div>
-        <div style={{ fontSize: 11.5, color: "#9c9c9d", marginTop: 1 }}>
-          {integration.connected ? "Linked to your account" : "Not connected"}
-        </div>
-      </div>
-      {integration.connected && (
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 5,
-            padding: "3px 9px",
-            borderRadius: 6,
-            fontSize: 11,
-            fontWeight: 600,
-            background: "rgba(79,122,255,0.1)",
-            color: "#4f7aff",
-          }}
-        >
-          <Plug size={10} />
-          Connected
-        </span>
-      )}
-    </div>
-  );
-}
-
 export default function MyAppsPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [connectedApps, setConnectedApps] = useState<ConnectedIntegration[]>([]);
-  const [loading, setLoading] = useState(true);
-  const fetched = useRef(false);
+  var [searchQuery, setSearchQuery] = useState("");
+  var [connectedApps, setConnectedApps] = useState<ConnectedIntegration[]>([]);
+  var [loading, setLoading] = useState(true);
+  var fetched = useRef(false);
 
-  useEffect(() => {
+  useEffect(function() {
     if (fetched.current) return;
     fetched.current = true;
-
-    fetch(`${API}/api/integrations`, { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data && Array.isArray(data.providers)) {
-          setConnectedApps(data.providers);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    fetch(API + "/api/integrations", { credentials: "include" })
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(data) { if (data && Array.isArray(data.providers)) setConnectedApps(data.providers); })
+      .catch(function() {})
+      .finally(function() { setLoading(false); });
   }, []);
 
-  const filteredApps = useMemo(() => {
+  var filteredApps = useMemo(function() {
     if (!searchQuery.trim()) return ECOSYSTEM_APPS;
-    const q = searchQuery.toLowerCase();
-    return ECOSYSTEM_APPS.filter(
-      (app) =>
-        app.name.toLowerCase().includes(q) ||
-        app.description.toLowerCase().includes(q)
-    );
+    var q = searchQuery.toLowerCase();
+    return ECOSYSTEM_APPS.filter(function(app) { return app.name.toLowerCase().includes(q) || app.description.toLowerCase().includes(q); });
   }, [searchQuery]);
 
-  const filteredIntegrations = useMemo(() => {
+  var filteredIntegrations = useMemo(function() {
     if (!searchQuery.trim()) return connectedApps;
-    const q = searchQuery.toLowerCase();
-    return connectedApps.filter((i) => i.provider.toLowerCase().includes(q));
+    var q = searchQuery.toLowerCase();
+    return connectedApps.filter(function(i) { return i.provider.toLowerCase().includes(q); });
   }, [searchQuery, connectedApps]);
 
-  const showConnected = filteredIntegrations.length > 0 && !searchQuery.trim();
+  var showConnected = filteredIntegrations.length > 0 && !searchQuery.trim();
 
   return (
-    <div style={{ padding: "24px 0" }}>
-      <div className="section-header" style={{ marginBottom: 24 }}>
-        <h1>My Apps</h1>
-        <p>Access all Tirbeo ecosystem apps and connected integrations</p>
-      </div>
+    <PageContainer>
+      <PageHeader title="My Apps" description="Access all Tirbeo ecosystem apps and connected integrations" />
 
-      <div style={{ marginBottom: 24, position: "relative" }}>
-        <Search
-          size={15}
-          style={{
-            position: "absolute",
-            left: 14,
-            top: "50%",
-            transform: "translateY(-50%)",
-            color: "#6a6b6c",
-            pointerEvents: "none",
-          }}
-        />
-        <input
-          className="input-field"
-          placeholder="Search apps..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ paddingLeft: 38, height: 40, borderRadius: 10 }}
-        />
+      <div style={{ position: "relative" }}>
+        <Search size={15} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--text-ash)", pointerEvents: "none" }} />
+        <Input value={searchQuery} onChange={setSearchQuery} placeholder="Search apps..." />
       </div>
 
       {showConnected && (
-        <div className="glass" style={{ marginBottom: 20 }}>
-          <div className="card-section">
-            <div className="flex items-center gap-2.5" style={{ marginBottom: 4 }}>
-              <Sparkles size={15} style={{ color: "#d8b36a" }} />
-              <h3 style={{ marginBottom: 0 }}>Connected</h3>
-            </div>
-            <p style={{ fontSize: 13, color: "#9c9c9d", marginBottom: 18 }}>
-              OAuth integrations linked to your account
-            </p>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 8 }}>
-              {filteredIntegrations.map((integration) => (
-                <IntegrationCard key={integration.provider} integration={integration} />
-              ))}
-            </div>
+        <Card title="Connected" subtitle="OAuth integrations linked to your account"
+          action={<Sparkles size={14} style={{ color: "var(--gold)" }} />}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 8 }}>
+            {filteredIntegrations.map(function(integration) {
+              return (
+                <div key={integration.provider} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", borderRadius: 12, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", flexShrink: 0 }}>
+                    {OAUTH_APP_ICONS[integration.provider] || <Plug size={18} style={{ color: "var(--text-muted)" }} />}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text)", textTransform: "capitalize" }}>{integration.provider}</div>
+                    <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>{integration.connected ? "Linked to your account" : "Not connected"}</div>
+                  </div>
+                  {integration.connected && <Badge variant="info">Connected</Badge>}
+                </div>
+              );
+            })}
           </div>
-        </div>
+        </Card>
       )}
 
-      <div className="glass">
-        <div className="card-section">
-          <div className="flex items-center gap-2.5" style={{ marginBottom: 4 }}>
-            <Box size={15} style={{ color: "#d8b36a" }} />
-            <h3 style={{ marginBottom: 0 }}>Tirbeo Ecosystem</h3>
+      <Card title="Tirbeo Ecosystem" subtitle="All platform apps and services"
+        action={<Box size={14} style={{ color: "var(--gold)" }} />}>
+        {filteredApps.length === 0 ? (
+          <EmptyState icon={Search} title="No apps match your search" description="Try a different keyword" />
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 12 }}>
+            {filteredApps.map(function(app) {
+              return <AppCard key={app.id} app={app} />;
+            })}
           </div>
-          <p style={{ fontSize: 13, color: "#9c9c9d", marginBottom: 20 }}>
-            All platform apps and services
-          </p>
-
-          {filteredApps.length === 0 ? (
-            <div className="empty-state" style={{ padding: "36px 24px" }}>
-              <Search size={28} style={{ color: "#434345", marginBottom: 12 }} />
-              <div style={{ fontSize: 14, fontWeight: 500, color: "#9c9c9d", marginBottom: 4 }}>
-                No apps match your search
-              </div>
-              <div style={{ fontSize: 12, color: "#6a6b6c" }}>
-                Try a different keyword
-              </div>
-            </div>
-          ) : (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-                gap: 12,
-              }}
-            >
-              {filteredApps.map((app) => (
-                <AppCard key={app.id} app={app} />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+        )}
+      </Card>
 
       {!loading && connectedApps.length === 0 && !searchQuery.trim() && (
-        <div
-          style={{
-            marginTop: 16,
-            padding: "14px 18px",
-            borderRadius: 10,
-            background: "rgba(216,179,106,0.06)",
-            border: "1px solid rgba(216,179,106,0.12)",
-            fontSize: 12.5,
-            color: "#d8b36a",
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-          }}
-        >
+        <div style={{ padding: "14px 18px", borderRadius: 10, background: "rgba(216,179,106,0.06)", border: "1px solid rgba(216,179,106,0.12)", fontSize: 12, color: "var(--gold)", display: "flex", alignItems: "center", gap: 8 }}>
           <Plug size={14} style={{ flexShrink: 0 }} />
           <span>
             No connected integrations yet.{" "}
-            <a
-              href="/dashboard/integrations"
-              style={{ color: "#d8b36a", textDecoration: "underline", textUnderlineOffset: 2 }}
-            >
-              Connect an account
-            </a>{" "}
+            <a href="/dashboard/integrations" style={{ color: "var(--gold)", textDecoration: "underline", textUnderlineOffset: 2 }}>Connect an account</a>{" "}
             to see it here.
           </span>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }

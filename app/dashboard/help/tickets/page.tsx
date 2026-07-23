@@ -1,67 +1,61 @@
 "use client";
 
-import { MessageSquare, Plus, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { useState } from "react";
+import { MessageSquare, Plus, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { PageContainer, PageHeader, Card, Button, Badge, EmptyState, Input, Textarea } from "../../components";
 
 type Ticket = { id: string; subject: string; status: "open" | "in_progress" | "resolved"; createdAt: string; lastReply: string };
 
 export default function TicketsPage() {
-  const [tickets] = useState<Ticket[]>([]);
-  const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ subject: "", message: "" });
+  var [tickets] = useState<Ticket[]>([]);
+  var [showCreate, setShowCreate] = useState(false);
+  var [form, setForm] = useState({ subject: "", message: "" });
 
-  const statusIcon = (s: string) => {
-    if (s === "open") return <AlertCircle size={12} className="text-[#d8b36a]" />;
-    if (s === "in_progress") return <Clock size={12} className="text-[#4f7aff]" />;
-    return <CheckCircle size={12} className="text-[#59d499]" />;
+  var statusBadge = function(s: string) {
+    if (s === "open") return <Badge variant="warning">Open</Badge>;
+    if (s === "in_progress") return <Badge variant="info">In Progress</Badge>;
+    return <Badge variant="success">Resolved</Badge>;
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white mb-2">Support Tickets</h1>
-          <p className="text-sm text-muted-foreground">Get help from our support team</p>
-        </div>
-        <button onClick={() => setShowCreate(!showCreate)} className="btn btn-primary text-xs"><Plus size={13} /> New Ticket</button>
-      </div>
+    <PageContainer>
+      <PageHeader title="Support Tickets" description="Get help from our support team"
+        action={<Button variant="primary" size="sm" onClick={function() { setShowCreate(!showCreate); }}><Plus size={13} /> New Ticket</Button>} />
 
       {showCreate && (
-        <div className="glass card-section space-y-3">
-          <input placeholder="Subject" value={form.subject} onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white" />
-          <textarea placeholder="Describe your issue..." value={form.message} onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white h-32 resize-none" />
-          <div className="flex gap-2">
-            <button className="btn btn-primary text-xs">Submit Ticket</button>
-            <button onClick={() => setShowCreate(false)} className="btn btn-ghost text-xs">Cancel</button>
+        <Card>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <Input label="Subject" value={form.subject} onChange={function(v) { setForm(Object.assign({}, form, { subject: v })); }} placeholder="Subject" />
+            <Textarea label="Message" value={form.message} onChange={function(v) { setForm(Object.assign({}, form, { message: v })); }} placeholder="Describe your issue..." />
+            <div style={{ display: "flex", gap: 8 }}>
+              <Button variant="primary" size="sm">Submit Ticket</Button>
+              <Button variant="ghost" size="sm" onClick={function() { setShowCreate(false); }}>Cancel</Button>
+            </div>
           </div>
-        </div>
+        </Card>
       )}
 
-      <div className="glass card-section">
+      <Card>
         {tickets.length === 0 ? (
-          <div className="text-center py-12">
-            <MessageSquare size={48} className="mx-auto mb-3" style={{ color: "#7b7e84" }} />
-            <p className="text-sm text-muted-foreground">No support tickets</p>
-          </div>
+          <EmptyState icon={MessageSquare} title="No support tickets" description="Create a ticket to get help from our team" />
         ) : (
-          <div className="space-y-2">
-            {tickets.map((t) => (
-              <div key={t.id} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.03] border border-white/5">
-                <div className="flex items-center gap-3">
-                  {statusIcon(t.status)}
-                  <div>
-                    <p className="text-sm font-medium text-white">{t.subject}</p>
-                    <p className="text-xs text-muted-foreground">{t.lastReply}</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {tickets.map(function(t) {
+              return (
+                <div key={t.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderRadius: 10, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    {statusBadge(t.status)}
+                    <div>
+                      <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)", margin: 0 }}>{t.subject}</p>
+                      <p style={{ fontSize: 11, color: "var(--text-muted)", margin: 0 }}>{t.lastReply}</p>
+                    </div>
                   </div>
                 </div>
-                <span className="px-2 py-0.5 rounded text-[10px] bg-white/5 text-muted-foreground capitalize">{t.status.replace("_", " ")}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
-      </div>
-    </div>
+      </Card>
+    </PageContainer>
   );
 }

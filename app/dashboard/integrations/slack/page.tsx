@@ -1,39 +1,45 @@
 "use client";
 
-import { Hash, ExternalLink } from "lucide-react";
+import { Hash } from "lucide-react";
+import { PageContainer, PageHeader, Card, Button } from "../../components";
 
 export default function SlackIntegrationPage() {
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-2">Slack Integration</h1>
-        <p className="text-sm text-muted-foreground">Connect Slack for team notifications and alerts</p>
-      </div>
+    <PageContainer>
+      <PageHeader title="Slack Integration" description="Connect Slack for team notifications and alerts" />
 
-      <div className="glass card-section">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="w-12 h-12 rounded-xl bg-[#4A154B]/20 flex items-center justify-center">
-            <Hash size={24} className="text-[#E01E5A]" />
+      <Card>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
+          <div style={{ width: 48, height: 48, borderRadius: 12, background: "rgba(74,21,75,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Hash size={24} style={{ color: "#E01E5A" }} />
           </div>
           <div>
-            <p className="text-sm font-medium text-white">Slack</p>
-            <p className="text-xs text-muted-foreground">Not connected</p>
+            <p style={{ fontSize: 14, fontWeight: 600, color: "var(--text)", margin: 0 }}>Slack</p>
+            <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0 }}>Not connected</p>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground mb-4">Post workspace activity and alerts directly to your Slack channels.</p>
-        <button className="btn btn-primary text-xs flex items-center gap-2">
-          <Hash size={13} /> Add to Slack
-        </button>
-      </div>
+        <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 16 }}>
+          Post workspace activity and alerts directly to your Slack channels.
+        </p>
+        <Button variant="primary" size="sm"><Hash size={13} /> Add to Slack</Button>
+      </Card>
 
-      <div className="glass card-section">
-        <h3 className="text-sm font-semibold text-white mb-3">Features</h3>
-        <ul className="space-y-2 text-xs text-muted-foreground">
-          <li className="flex items-start gap-2"><span className="text-[#59d499] mt-0.5">+</span> Post notifications to specific channels</li>
-          <li className="flex items-start gap-2"><span className="text-[#59d499] mt-0.5">+</span> Receive DM alerts for mentions</li>
-          <li className="flex items-start gap-2"><span className="text-[#59d499] mt-0.5">+</span> Slash commands for quick actions</li>
-        </ul>
-      </div>
-    </div>
+      <Card title="Features">
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {[
+            "Post notifications to specific channels",
+            "Receive DM alerts for mentions",
+            "Slash commands for quick actions",
+          ].map(function(item, i) {
+            return (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ color: "var(--success)", fontSize: 13 }}>+</span>
+                <span style={{ fontSize: 13, color: "var(--text-muted)" }}>{item}</span>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+    </PageContainer>
   );
 }

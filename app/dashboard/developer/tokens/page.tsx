@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Shield, Plus, Trash2, Copy, Clock } from "lucide-react";
+import { useState } from "react";
+import { Shield, Plus, Trash2, Copy } from "lucide-react";
+import { PageContainer, PageHeader, Card, Button, EmptyState, Input, useToast, Toast } from "../../components";
 
 type Token = {
   id: string;
@@ -18,11 +19,12 @@ export default function TokensPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
+  const { toast, show, hide } = useToast();
 
   const createToken = () => {
     if (!newName) return;
-    const tok = "pat_" + Array.from({ length: 48 }, () => "abcdefghijklmnopqrstuvwxyz0123456789"[Math.floor(Math.random() * 36)]).join("");
-    setTokens((prev) => [...prev, {
+    var tok = "pat_" + Array.from({ length: 48 }, () => "abcdefghijklmnopqrstuvwxyz0123456789"[Math.floor(Math.random() * 36)]).join("");
+    setTokens((prev) => prev.concat([{
       id: Date.now().toString(),
       name: newName,
       token: tok,
@@ -30,9 +32,10 @@ export default function TokensPage() {
       scope: "Full Access",
       createdAt: new Date().toISOString(),
       expiresAt: null,
-    }]);
+    }]));
     setShowCreate(false);
     setNewName("");
+    show("Personal access token created");
   };
 
   const copyToken = (token: string, id: string) => {
@@ -42,57 +45,55 @@ export default function TokensPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-2">Personal Access Tokens</h1>
-        <p className="text-sm text-muted-foreground">Create tokens for CLI and script access</p>
-      </div>
+    <PageContainer>
+      {toast && <Toast message={toast.message} type={toast.type} onClose={hide} />}
+      <PageHeader title="Personal Access Tokens" description="Create tokens for CLI and script access" />
 
-      <div className="glass card-section">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-white">Tokens ({tokens.length})</h3>
-          <button onClick={() => setShowCreate(!showCreate)} className="btn btn-primary text-xs"><Plus size={13} /> Create Token</button>
-        </div>
-
+      <Card
+        title={"Tokens (" + tokens.length + ")"}
+        action={
+          <Button onClick={() => setShowCreate(!showCreate)} size="sm">
+            <Plus size={13} /> Create Token
+          </Button>
+        }
+      >
         {showCreate && (
-          <div className="p-4 rounded-lg bg-white/[0.03] border border-white/5 mb-4 space-y-3">
-            <input placeholder="Token name" value={newName} onChange={(e) => setNewName(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white" />
-            <div className="flex gap-2">
-              <button onClick={createToken} className="btn btn-primary text-xs">Generate</button>
-              <button onClick={() => setShowCreate(false)} className="btn btn-ghost text-xs">Cancel</button>
+          <div style={{ padding: 16, borderRadius: 10, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)", marginBottom: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+            <Input label="Token name" value={newName} onChange={setNewName} placeholder="e.g., CI Pipeline Token" />
+            <div style={{ display: "flex", gap: 8 }}>
+              <Button onClick={createToken} size="sm">Generate</Button>
+              <Button onClick={() => setShowCreate(false)} variant="ghost" size="sm">Cancel</Button>
             </div>
           </div>
         )}
 
         {tokens.length === 0 ? (
-          <div className="text-center py-12">
-            <Shield size={48} className="mx-auto mb-3" style={{ color: "#7b7e84" }} />
-            <p className="text-sm text-muted-foreground">No personal access tokens</p>
-          </div>
+          <EmptyState icon={Shield} title="No personal access tokens" description="Create a token for CLI or script access" />
         ) : (
-          <div className="space-y-2">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {tokens.map((t) => (
-              <div key={t.id} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.03] border border-white/5">
-                <div className="flex items-center gap-3">
-                  <Shield size={14} className="text-[#d8b36a]" />
+              <div key={t.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", borderRadius: 10, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <Shield size={14} style={{ color: "var(--gold)" }} />
                   <div>
-                    <p className="text-sm font-medium text-white">{t.name}</p>
-                    <p className="text-xs text-muted-foreground font-mono">{t.prefix}... · {t.scope}</p>
+                    <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>{t.name}</p>
+                    <p style={{ fontSize: 12, color: "var(--text-muted)", fontFamily: "monospace" }}>{t.prefix}... · {t.scope}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => copyToken(t.token, t.id)} className="p-1.5 rounded bg-white/5 hover:bg-white/10 text-muted-foreground">
-                    {copied === t.id ? <span className="text-xs text-[#59d499]">Copied</span> : <Copy size={12} />}
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <button onClick={() => copyToken(t.token, t.id)} style={{ padding: 6, borderRadius: 6, background: "rgba(255,255,255,0.05)", border: "none", cursor: "pointer", color: copied === t.id ? "var(--success)" : "var(--text-muted)" }}>
+                    {copied === t.id ? <span style={{ fontSize: 11 }}>Copied</span> : <Copy size={12} />}
                   </button>
                   <button onClick={() => setTokens((prev) => prev.filter((x) => x.id !== t.id))}
-                    className="p-1.5 rounded bg-white/5 hover:bg-red-500/20 text-muted-foreground hover:text-red-400"><Trash2 size={12} /></button>
+                    style={{ padding: 6, borderRadius: 6, background: "rgba(255,255,255,0.05)", border: "none", cursor: "pointer", color: "var(--text-muted)" }}>
+                    <Trash2 size={12} />
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </div>
-    </div>
+      </Card>
+    </PageContainer>
   );
 }

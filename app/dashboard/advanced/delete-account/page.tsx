@@ -2,51 +2,57 @@
 
 import { useState } from "react";
 import { Trash2, AlertTriangle } from "lucide-react";
+import { PageContainer, PageHeader, Card, Button, Input } from "../../components";
 
 export default function DeleteAccountPage() {
-  const [confirm, setConfirm] = useState("");
-  const [step, setStep] = useState(0);
+  var [confirm, setConfirm] = useState("");
+  var [step, setStep] = useState(0);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-2">Delete Account</h1>
-        <p className="text-sm text-muted-foreground">Permanently delete your account and all data</p>
-      </div>
+    <PageContainer>
+      <PageHeader title="Delete Account" description="Permanently delete your account and all data" />
 
-      <div className="glass card-section border border-red-500/20">
-        <div className="flex items-start gap-3 mb-4">
-          <AlertTriangle size={18} className="text-red-400 mt-0.5" />
-          <div>
-            <h3 className="text-sm font-semibold text-red-400">This action is irreversible</h3>
-            <p className="text-xs text-muted-foreground mt-1">Deleting your account will permanently remove:</p>
-          </div>
-        </div>
-        <ul className="space-y-1.5 ml-8 text-xs text-muted-foreground mb-6">
-          <li>Your profile and all personal data</li>
-          <li>All workspaces you own (unless transferred)</li>
-          <li>All uploaded files and content</li>
-          <li>API keys and integrations</li>
-          <li>Session history and activity logs</li>
-        </ul>
-
-        {step === 0 ? (
-          <button onClick={() => setStep(1)} className="btn btn-danger text-xs">
-            <Trash2 size={13} /> Delete My Account
-          </button>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-xs text-white">Type <span className="font-mono text-red-400">DELETE</span> to confirm:</p>
-            <input value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder='Type "DELETE"'
-              className="w-full bg-white/5 border border-red-500/30 rounded-lg px-3 py-2 text-sm text-white" />
-            <div className="flex gap-2">
-              <button disabled={confirm !== "DELETE"}
-                className="btn btn-danger text-xs disabled:opacity-30">Confirm Deletion</button>
-              <button onClick={() => { setStep(0); setConfirm(""); }} className="btn btn-ghost text-xs">Cancel</button>
+      <Card>
+        <div style={{ border: "1px solid rgba(255,60,60,0.2)", borderRadius: 12, padding: 24 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 16 }}>
+            <AlertTriangle size={18} style={{ color: "var(--danger)", marginTop: 2 }} />
+            <div>
+              <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--danger)", margin: 0 }}>This action is irreversible</h3>
+              <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0, marginTop: 4 }}>Deleting your account will permanently remove:</p>
             </div>
           </div>
-        )}
-      </div>
-    </div>
+          <ul style={{ marginLeft: 44, marginBottom: 24, display: "flex", flexDirection: "column", gap: 6 }}>
+            {[
+              "Your profile and all personal data",
+              "All workspaces you own (unless transferred)",
+              "All uploaded files and content",
+              "API keys and integrations",
+              "Session history and activity logs",
+            ].map(function(item, i) {
+              return <li key={i} style={{ fontSize: 12, color: "var(--text-muted)" }}>{item}</li>;
+            })}
+          </ul>
+
+          {step === 0 ? (
+            <Button variant="danger" size="sm" onClick={function() { setStep(1); }}>
+              <Trash2 size={13} /> Delete My Account
+            </Button>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <p style={{ fontSize: 12, color: "var(--text)", margin: 0 }}>
+                Type <span style={{ fontFamily: "monospace", color: "var(--danger)" }}>DELETE</span> to confirm:
+              </p>
+              <Input value={confirm} onChange={setConfirm} placeholder='Type "DELETE"' />
+              <div style={{ display: "flex", gap: 8 }}>
+                <Button variant="danger" size="sm" disabled={confirm !== "DELETE"} style={confirm !== "DELETE" ? { opacity: 0.3 } : {}}>
+                  Confirm Deletion
+                </Button>
+                <Button variant="ghost" size="sm" onClick={function() { setStep(0); setConfirm(""); }}>Cancel</Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </Card>
+    </PageContainer>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { HardDrive, Cloud, Database, Trash2, Download, Upload, Settings, Plus } from "lucide-react";
+import { Cloud, Database, HardDrive, Trash2, Plus } from "lucide-react";
+import { PageContainer, PageHeader, Card, Button, Badge, EmptyState, Skeleton, Input, Select, useToast, Toast } from "../../components";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
@@ -20,100 +21,89 @@ export default function WorkspaceStoragePage() {
   const [providers, setProviders] = useState<StorageProvider[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ name: "", type: "cloud" as "local" | "cloud" | "managed", capacity: 1000 });
+  const [form, setForm] = useState({ name: "", type: "cloud", capacity: 1000 });
+  const { toast, show, hide } = useToast();
   const fetched = useRef(false);
 
   useEffect(() => {
     if (fetched.current) return;
     fetched.current = true;
-    fetch(`${API}/api/workspaces`, { credentials: "include" })
+    fetch(API + "/api/workspaces", { credentials: "include" })
       .then((r) => (r.ok ? r.json() : []))
       .then(() => setProviders([]))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  const create = useCallback(async () => {
+  const create = useCallback(() => {
     if (!form.name) return;
-    setProviders((prev) => [...prev, {
+    setProviders((prev) => prev.concat([{
       id: Date.now().toString(),
       name: form.name,
-      type: form.type,
+      type: form.type as "local" | "cloud" | "managed",
       capacity: form.capacity,
       used: 0,
       status: "healthy",
       lastSync: "Just now",
       tier: "Free",
-    }]);
+    }]));
     setShowAdd(false);
     setForm({ name: "", type: "cloud", capacity: 1000 });
-  }, [form]);
+    show("Storage provider added");
+  }, [form, show]);
 
   const remove = useCallback((id: string) => {
     setProviders((prev) => prev.filter((p) => p.id !== id));
-  }, []);
+    show("Provider removed");
+  }, [show]);
 
-  if (loading) {
-    return (
-      <div className="max-w-4xl mx-auto space-y-6">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="glass card-section animate-pulse" style={{ height: 80 }} />
-        ))}
-      </div>
-    );
-  }
+  if (loading) return <PageContainer><Skeleton count={3} height={80} /></PageContainer>;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-white mb-2">Storage</h1>
-        <p className="text-muted-foreground">Manage workspace storage providers and usage</p>
-      </div>
+    <PageContainer>
+      {toast && <Toast message={toast.message} type={toast.type} onClose={hide} />}
+      <PageHeader title="Storage" description="Manage workspace storage providers and usage" />
 
-      <div className="glass card-section">
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-          <h3 className="text-sm font-semibold text-white">Connected Providers ({providers.length})</h3>
-          <button onClick={() => setShowAdd(!showAdd)} className="btn btn-primary" style={{ fontSize: 12 }}>
+      <Card
+        title={"Connected Providers (" + providers.length + ")"}
+        action={
+          <Button onClick={() => setShowAdd(!showAdd)} size="sm">
             <Plus size={13} /> Add Provider
-          </button>
-        </div>
-
+          </Button>
+        }
+      >
         {providers.length === 0 ? (
-          <div className="text-center py-12">
-            <Cloud size={48} style={{ color: "var(--text-muted)", margin: "0 auto 12px" }} />
-            <p className="text-sm text-muted-foreground">No storage providers connected</p>
-            <p style={{ fontSize: 13, color: "#7b7e84", marginTop: 4 }}>Add your first provider to get started</p>
-          </div>
+          <EmptyState icon={Cloud} title="No storage providers connected" description="Add your first provider to get started" />
         ) : (
-          <div className="space-y-3">
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {providers.map((provider) => {
-              const usagePercent = provider.capacity > 0 ? Math.round((provider.used / provider.capacity) * 100) : 0;
-              const barColor = usagePercent > 90 ? "#ff6161" : usagePercent > 80 ? "#d8b36a" : "#59d499";
+              var usagePercent = provider.capacity > 0 ? Math.round((provider.used / provider.capacity) * 100) : 0;
+              var barColor = usagePercent > 90 ? "var(--danger)" : usagePercent > 80 ? "var(--gold)" : "var(--success)";
+              var TypeIcon = provider.type === "cloud" ? Cloud : provider.type === "local" ? Database : HardDrive;
+              var iconColor = provider.type === "cloud" ? "var(--success)" : provider.type === "local" ? "var(--gold)" : "var(--info)";
               return (
-                <div key={provider.id} className="p-4 rounded-lg bg-surface border border-hairline">
+                <div key={provider.id} style={{ padding: 16, borderRadius: 10, background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      {provider.type === "cloud" ? <Cloud size={16} style={{ color: "#59d499" }} /> :
-                       provider.type === "local" ? <Database size={16} style={{ color: "#d8b36a" }} /> :
-                       <HardDrive size={16} style={{ color: "#4f7aff" }} />}
+                      <TypeIcon size={16} style={{ color: iconColor }} />
                       <div>
-                        <p className="text-sm font-medium text-white">{provider.name}</p>
-                        <p style={{ fontSize: 11, color: "#7b7e84" }}>{provider.tier} · {provider.type}</p>
+                        <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>{provider.name}</p>
+                        <p style={{ fontSize: 11, color: "var(--text-muted)" }}>{provider.tier} · {provider.type}</p>
                       </div>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span className="badge" style={{ background: "rgba(89,212,153,0.15)", color: "#59d499", fontSize: 11 }}>{provider.status}</span>
-                      <button onClick={() => remove(provider.id)} style={{ color: "#ff6161", background: "none", border: "none", cursor: "pointer" }}>
+                      <Badge variant="success" style={{ fontSize: 11 }}>{provider.status}</Badge>
+                      <button onClick={() => remove(provider.id)} style={{ padding: 4, background: "none", border: "none", cursor: "pointer", color: "var(--danger)" }}>
                         <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
-                  <div style={{ height: 6, background: "#2a2d31", borderRadius: 3, overflow: "hidden" }}>
+                  <div style={{ height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 3, overflow: "hidden" }}>
                     <div style={{ height: "100%", width: usagePercent + "%", background: barColor, borderRadius: 3, transition: "width 0.3s" }} />
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-                    <span style={{ fontSize: 11, color: "#7b7e84" }}>{provider.used} MB used</span>
-                    <span style={{ fontSize: 11, color: "#7b7e84" }}>{provider.capacity} MB total</span>
+                    <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{provider.used} MB used</span>
+                    <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{provider.capacity} MB total</span>
                   </div>
                 </div>
               );
@@ -122,29 +112,26 @@ export default function WorkspaceStoragePage() {
         )}
 
         {showAdd && (
-          <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-            <h4 className="text-sm font-medium text-white mb-3">Add Storage Provider</h4>
-            <div className="space-y-3">
-              <input placeholder="Provider name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                style={{ width: "100%", padding: "8px 12px", background: "#0a0a0c", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, color: "#fff", fontSize: 13 }} />
+          <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid var(--border)" }}>
+            <h4 style={{ fontSize: 13, fontWeight: 500, color: "var(--text)", marginBottom: 12 }}>Add Storage Provider</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <Input label="Provider name" value={form.name} onChange={(v) => setForm((f) => ({ ...f, name: v }))} placeholder="e.g., S3 Bucket" />
               <div style={{ display: "flex", gap: 8 }}>
-                <select value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as any }))}
-                  style={{ flex: 1, padding: "8px 12px", background: "#0a0a0c", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, color: "#fff", fontSize: 13 }}>
-                  <option value="cloud">Cloud</option>
-                  <option value="local">Local</option>
-                  <option value="managed">Managed</option>
-                </select>
-                <input type="number" placeholder="Capacity (MB)" value={form.capacity} onChange={(e) => setForm((f) => ({ ...f, capacity: parseInt(e.target.value) || 0 }))}
-                  style={{ width: 120, padding: "8px 12px", background: "#0a0a0c", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, color: "#fff", fontSize: 13 }} />
+                <div style={{ flex: 1 }}>
+                  <Select label="Type" value={form.type} onChange={(v) => setForm((f) => ({ ...f, type: v }))} options={[{ label: "Cloud", value: "cloud" }, { label: "Local", value: "local" }, { label: "Managed", value: "managed" }]} />
+                </div>
+                <div style={{ width: 140 }}>
+                  <Input label="Capacity (MB)" value={String(form.capacity)} onChange={(v) => setForm((f) => ({ ...f, capacity: parseInt(v) || 0 }))} />
+                </div>
               </div>
               <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={create} className="btn btn-primary" style={{ fontSize: 12 }}>Add</button>
-                <button onClick={() => setShowAdd(false)} className="btn btn-ghost" style={{ fontSize: 12 }}>Cancel</button>
+                <Button onClick={create} size="sm">Add</Button>
+                <Button onClick={() => setShowAdd(false)} variant="ghost" size="sm">Cancel</Button>
               </div>
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </Card>
+    </PageContainer>
   );
 }
