@@ -25,11 +25,11 @@ import {
   LogOut,
   AlertTriangle,
   Fingerprint,
-  QrCode,
   BadgeCheck,
   Clock,
   MapPin,
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { SecuritySkeleton } from "../../components/Skeleton";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
@@ -132,6 +132,7 @@ export default function SecurityPage() {
   const [showTotpSetup, setShowTotpSetup] = useState(false);
   const [totpCode, setTotpCode] = useState("");
   const [totpSecret, setTotpSecret] = useState("");
+  const [totpUri, setTotpUri] = useState("");
   const [verifyingTotp, setVerifyingTotp] = useState(false);
 
   const [skipPassword, setSkipPassword] = useState(true);
@@ -332,10 +333,13 @@ export default function SecurityPage() {
       if (res.ok) {
         const d = await res.json();
         setTotpSecret(d.secret);
+        setTotpUri(d.uri || `otpauth://totp/Tirbeo:${encodeURIComponent(info?.recoveryEmail || "user")}?secret=${d.secret}&issuer=Tirbeo`);
         setShowTotpSetup(true);
+      } else {
+        showToast("Failed to start TOTP setup", "error");
       }
     } catch {
-      showToast("Failed to start TOTP setup", "error");
+      showToast("Connection error", "error");
     }
   };
 
@@ -811,16 +815,23 @@ export default function SecurityPage() {
                 style={{ padding: 20, display: "flex", flexDirection: "column", gap: 16, animation: "fadeIn 0.2s ease" }}
               >
                 <div style={{ display: "flex", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
-                  {/* QR Code placeholder */}
+                  {/* Real QR Code */}
                   <div
                     style={{
-                      width: 160, height: 160, borderRadius: 12,
+                      width: 180, height: 180, borderRadius: 12,
                       background: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center",
-                      flexDirection: "column", gap: 8, flexShrink: 0,
+                      flexDirection: "column", gap: 6, flexShrink: 0, padding: 10,
+                      boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
                     }}
                   >
-                    <QrCode size={48} style={{ color: "#000000" }} />
-                    <span style={{ fontSize: 10, color: "#666666" }}>Scan with authenticator</span>
+                    <QRCodeSVG
+                      value={totpUri || "otpauth://totp/Tirbeo:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Tirbeo"}
+                      size={160}
+                      bgColor="#ffffff"
+                      fgColor="#000000"
+                      level="M"
+                      style={{ borderRadius: 4 }}
+                    />
                   </div>
 
                   <div style={{ flex: 1, minWidth: 200, display: "flex", flexDirection: "column", gap: 12 }}>
@@ -876,6 +887,7 @@ export default function SecurityPage() {
                           setShowTotpSetup(false);
                           setTotpCode("");
                           setTotpSecret("");
+                          setTotpUri("");
                         }}
                         className="btn btn-ghost"
                       >

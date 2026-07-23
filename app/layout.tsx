@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "./components";
+import { ToastProvider } from "./components/ToastProvider";
 
 export const metadata: Metadata = {
   title: "Dashboard — Tirbeo",
@@ -12,7 +13,9 @@ export default function DashboardRootLayout({ children }: { children: React.Reac
     <html lang="en" data-theme="dark">
       <body style={{ background: "#000" }}>
         <ThemeProvider>
-          {children}
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>
