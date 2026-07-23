@@ -124,7 +124,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   useEffect(() => {
     fetch(`${API}/api/notifications?limit=1`, { credentials: "include" })
       .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.unreadCount) setUnreadCount(d.unreadCount); })
+      .then(d => { if (d?.unread) setUnreadCount(d.unread); })
       .catch(() => {});
   }, []);
 

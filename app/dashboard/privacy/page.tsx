@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Download, Trash2, Ban } from "lucide-react";
+import { Download, Trash2 } from "lucide-react";
 import { normalizePreferenceState, applyPreferenceStyles } from "../../preferences-theme";
 import { PageContainer, PageHeader, Card, SettingRow, Toggle, Button, EmptyState, Toast, useToast } from "../components";
 
@@ -150,10 +150,6 @@ export default function PrivacyPage() {
             <Toggle checked={settings.personalizedRecommendations} onChange={function() { updateSetting("personalizedRecommendations", !settings.personalizedRecommendations); }} />
           </SettingRow>
         </div>
-      </Card>
-
-      <Card title="Blocked Users">
-        <EmptyState icon={Ban} title="No blocked users" description="Users you block will not be able to contact you" />
       </Card>
 
       <Card title="Data">

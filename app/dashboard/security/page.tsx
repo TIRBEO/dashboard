@@ -100,12 +100,7 @@ const ICON_WRAP: React.CSSProperties = {
 const META: React.CSSProperties = { fontSize: 11, color: "var(--text-muted)" };
 const DOT: React.CSSProperties = { fontSize: 11, color: "var(--text-ash)" };
 
-const defaultEvents = [
-  { icon: <ShieldCheck size={14} style={{ color: "var(--success)" }} />, desc: "New sign-in on Chrome \u00b7 Windows", date: "Today, 2:14 PM", loc: "Kathmandu, Nepal", ip: "192.168.1.1" },
-  { icon: <KeyRound size={14} style={{ color: "var(--warning)" }} />, desc: "Password changed", date: "Jun 17, 2026", loc: "Kathmandu, Nepal", ip: "192.168.1.1" },
-  { icon: <ShieldCheck size={14} style={{ color: "var(--success)" }} />, desc: "2-step verification enabled", date: "Jun 17, 2026", loc: "Kathmandu, Nepal", ip: "192.168.1.1" },
-  { icon: <Fingerprint size={14} style={{ color: "var(--success)" }} />, desc: "Passkey added", date: "Jun 10, 2026", loc: "Kathmandu, Nepal", ip: "192.168.1.1" },
-];
+
 
 export default function SecurityPage() {
   const { toast, show: showToast, hide: hideToast } = useToast();
@@ -130,6 +125,7 @@ export default function SecurityPage() {
   const [verifyingTotp, setVerifyingTotp] = useState(false);
 
   const [skipPassword, setSkipPassword] = useState(true);
+  const [savingSkipPw, setSavingSkipPw] = useState(false);
   const [showPasswordCheck, setShowPasswordCheck] = useState(false);
   const [checkingPasswords, setCheckingPasswords] = useState(false);
   const [passwordCheckResult, setPasswordCheckResult] = useState<{ weak: number; reused: number; total: number } | null>(null);
@@ -377,13 +373,13 @@ export default function SecurityPage() {
     ? info.recoveryCodesCount + " code" + (info.recoveryCodesCount !== 1 ? "s" : "") + " available"
     : "No backup codes";
 
-  const eventList = (!info.events || info.events.length === 0) ? defaultEvents : info.events.slice(0, 5).map(ev => ({
+  const eventList = info.events ? info.events.slice(0, 5).map(ev => ({
     icon: getEventIcon(ev.type),
     desc: ev.description,
     date: new Date(ev.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
     loc: ev.location,
     ip: ev.ip,
-  }));
+  })) : [];
 
   return (
     <PageContainer>
@@ -392,9 +388,14 @@ export default function SecurityPage() {
       {/* ── Recent Security Activity ── */}
       <Card
         title="Recent security activity"
-        action={<Button variant="ghost" size="sm">Review activity <ChevronRight size={12} /></Button>}
+        action={eventList.length > 0 ? <a href="/dashboard/sessions" style={{ textDecoration: "none" }}><Button variant="ghost" size="sm">Review activity <ChevronRight size={12} /></Button></a> : undefined}
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {eventList.length === 0 && (
+            <div style={{ fontSize: 13, color: "var(--text-muted)", padding: "12px 0" }}>
+              No security events recorded yet
+            </div>
+          )}
           {eventList.map((ev, i) => (
             <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
               <div style={ICON_WRAP}>{ev.icon}</div>
@@ -428,8 +429,7 @@ export default function SecurityPage() {
 
         {/* Passkeys */}
         <SettingRow label="Passkeys and security keys" description={passkeyDesc}>
-          <Button variant="ghost" size="sm">Manage passkeys</Button>
-          <Button variant="ghost" size="sm">Add passkey</Button>
+          <span style={{ fontSize: 11, color: "var(--text-ash)", fontStyle: "italic" }}>Coming soon</span>
         </SettingRow>
 
         {/* Password */}
@@ -487,7 +487,19 @@ export default function SecurityPage() {
 
         {/* Skip password */}
         <SettingRow label="Skip password when possible" description="Use passkeys or other sign-in methods instead of a password">
-          <Toggle checked={skipPassword} onChange={() => setSkipPassword(!skipPassword)} />
+          <Toggle checked={skipPassword} onChange={async () => {
+            const next = !skipPassword;
+            setSkipPassword(next);
+            setSavingSkipPw(true);
+            try {
+              await fetch(`${API}/api/preferences`, {
+                method: "PATCH", credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ preferences: { skipPassword: next } }),
+              });
+            } catch { setSkipPassword(!next); }
+            setSavingSkipPw(false);
+          }} />
         </SettingRow>
 
         {/* Authenticator app */}
@@ -499,18 +511,18 @@ export default function SecurityPage() {
               : <Button variant="ghost" size="sm" onClick={setupTotp}>Set up</Button>}
           </div>
         </SettingRow>
-        {showTotpSetup && (
+        {showTotpSetup && totpSecret && (
           <div className="glass-subtle" style={{ padding: 20, display: "flex", flexDirection: "column", gap: 16, animation: "fadeIn 0.2s ease" }}>
             <div style={{ display: "flex", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
               <div style={{ width: 180, height: 180, borderRadius: 12, background: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, padding: 10, boxShadow: "0 0 0 1px rgba(0,0,0,0.08)" }}>
-                <QRCodeSVG value={totpUri || "otpauth://totp/Tirbeo:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Tirbeo"} size={160} bgColor="#ffffff" fgColor="#000000" level="M" style={{ borderRadius: 4 }} />
+                <QRCodeSVG value={totpUri} size={160} bgColor="#ffffff" fgColor="#000000" level="M" style={{ borderRadius: 4 }} />
               </div>
               <div style={{ flex: 1, minWidth: 200, display: "flex", flexDirection: "column", gap: 12 }}>
                 <div>
                   <p style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 6 }}>Or enter this key manually:</p>
                   <div style={{ padding: "8px 12px", borderRadius: 8, background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", fontFamily: "monospace", fontSize: 13, color: "var(--text)", letterSpacing: "0.05em", wordBreak: "break-all", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span>{totpSecret || "JBSWY3DPEHPK3PXP"}</span>
-                    <button onClick={() => { navigator.clipboard.writeText(totpSecret || "JBSWY3DPEHPK3PXP"); showToast("Copied to clipboard"); }} style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: 4 }}>
+                    <span>{totpSecret}</span>
+                    <button onClick={() => { navigator.clipboard.writeText(totpSecret); showToast("Copied to clipboard"); }} style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: 4 }}>
                       <Copy size={12} />
                     </button>
                   </div>

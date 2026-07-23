@@ -7,7 +7,6 @@ import {
   Shield,
   Bell,
   MapPin,
-  Globe,
   TrendingUp,
   Activity,
   ArrowUpRight,
@@ -22,6 +21,7 @@ import {
   KeyRound,
   RefreshCw,
   Settings,
+  Globe,
 } from "lucide-react";
 import { Card, RingProgress, ProgressBar, Badge } from "./components";
 
@@ -68,9 +68,9 @@ type SessionEntry = {
 type NotificationEntry = {
   id: string;
   title?: string;
-  message?: string;
+  body?: string;
   read?: boolean;
-  created_at: string;
+  createdAt: string;
   type?: string;
 };
 
@@ -278,7 +278,6 @@ function SecurityScoreCard({ user }: { user: UserProfile }) {
 
   const items = [
     { label: "Two-Factor Auth", done: has2FA, icon: <Lock size={14} /> },
-    { label: "Strong password", done: true, icon: <KeyRound size={14} /> },
     { label: "Recovery email", done: hasRecoveryEmail, icon: <RefreshCw size={14} /> },
     { label: "Backup codes", done: hasBackupCodes, icon: <Shield size={14} /> },
   ];
@@ -545,18 +544,18 @@ function NotificationsPreviewCard({ notifications }: { notifications: Notificati
                   fontSize: 13, fontWeight: isUnread ? 500 : 400, color: "var(--text)",
                   whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                 }}>
-                  {notification.title || notification.message || "Notification"}
+                  {notification.title || notification.body || "Notification"}
                 </div>
-                {notification.message && notification.title && (
+                {notification.body && notification.title && (
                   <div style={{
                     fontSize: 11, color: "var(--text-muted)", marginTop: 2,
                     whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                   }}>
-                    {notification.message}
+                    {notification.body}
                   </div>
                 )}
                 <div style={{ fontSize: 11, color: "var(--text-ash)", marginTop: 3 }}>
-                  {timeAgo(notification.created_at)}
+                  {timeAgo(notification.createdAt)}
                 </div>
               </div>
             </div>
@@ -587,7 +586,6 @@ function AccountOverviewCard({ user }: { user: UserProfile }) {
     { label: "Role", value: user.adminRole ? user.adminRole.replace("_", " ") : "User", icon: <Shield size={13} /> },
     { label: "Member since", value: memberSince, icon: <Calendar size={13} /> },
     { label: "Country", value: user.country || "Not set", icon: <MapPin size={13} /> },
-    { label: "Language", value: "English", icon: <Globe size={13} /> },
   ];
 
   return (
