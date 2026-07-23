@@ -578,7 +578,7 @@ export default function SecurityPage() {
 
         {/* Recovery phone */}
         <SettingRow label="Recovery phone" description={info.recoveryPhone ? maskPhone(info.recoveryPhone) : "No recovery phone set"}>
-          <Button variant="ghost" size="sm">{info.recoveryPhone ? "Change" : "Add phone"}</Button>
+          <Button variant="ghost" size="sm" onClick={() => setAddPhoneMode(!addPhoneMode)}>{info.recoveryPhone ? "Change" : "Add phone"}</Button>
         </SettingRow>
 
         {/* Recovery email */}
@@ -604,34 +604,8 @@ export default function SecurityPage() {
           : undefined}
       >
         {!info.devices || info.devices.length === 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {[
-              { name: "Chrome on Windows", type: "desktop" as const, lastActive: "Just now", loc: "Kathmandu, Nepal", ip: "192.168.1.1", current: true },
-              { name: "Safari on iPhone", type: "mobile" as const, lastActive: "2 hours ago", loc: "Kathmandu, Nepal", ip: "10.0.0.1", current: false },
-              { name: "Firefox on macOS", type: "desktop" as const, lastActive: "Yesterday", loc: "Lalitpur, Nepal", ip: "172.16.0.1", current: false },
-            ].map((device, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", borderRadius: 10, background: device.current ? "rgba(255,255,255,0.04)" : "transparent", border: "1px solid " + (device.current ? "var(--border)" : "transparent") }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)" }}>
-                    {getDeviceIcon(device.type)}
-                  </div>
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <p style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>{device.name}</p>
-                      {device.current && <Badge variant="success" style={{ fontSize: 9, padding: "2px 6px" }}>This device</Badge>}
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
-                      <span style={{ ...META, display: "flex", alignItems: "center", gap: 3 }}><Clock size={10} /> {device.lastActive}</span>
-                      <span style={DOT}>{"\u00b7"}</span>
-                      <span style={{ ...META, display: "flex", alignItems: "center", gap: 3 }}><MapPin size={10} /> {device.loc}</span>
-                      <span style={DOT}>{"\u00b7"}</span>
-                      <span style={META}>{device.ip}</span>
-                    </div>
-                  </div>
-                </div>
-                {!device.current && <Button variant="ghost" size="sm">Sign out</Button>}
-              </div>
-            ))}
+          <div style={{ fontSize: 13, color: "var(--text-muted)", padding: "12px 0" }}>
+            No active devices
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>

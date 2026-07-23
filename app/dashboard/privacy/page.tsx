@@ -27,18 +27,26 @@ export default function PrivacyPage() {
   const toast = useToast();
 
   useEffect(function() {
-    try {
-      var stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setSettings(Object.assign({}, defaultSettings, JSON.parse(stored)));
-    } catch (e) {}
-
     fetch(API + "/api/preferences", { credentials: "include" })
       .then(function(r) { return r.ok ? r.json() : null; })
       .then(function(data) {
         const normalized = normalizePreferenceState(data);
         applyPreferenceStyles(normalized);
+        if (normalized.preferences?.privacy) {
+          setSettings(Object.assign({}, defaultSettings, normalized.preferences.privacy));
+        } else {
+          try {
+            var stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) setSettings(Object.assign({}, defaultSettings, JSON.parse(stored)));
+          } catch (e) {}
+        }
       })
-      .catch(function() {});
+      .catch(function() {
+        try {
+          var stored = localStorage.getItem(STORAGE_KEY);
+          if (stored) setSettings(Object.assign({}, defaultSettings, JSON.parse(stored)));
+        } catch (e) {}
+      });
   }, []);
 
   var updateSetting = function(key: keyof PrivacySettings, value: boolean) {
@@ -54,22 +62,31 @@ export default function PrivacyPage() {
     toast.show("Privacy settings saved");
   };
 
-  var handleExport = function() {
-    var blob = new Blob([JSON.stringify(settings, null, 2)], { type: "application/json" });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement("a");
-    a.href = url;
-    a.download = "tirbeo-privacy-settings.json";
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.show("Data exported successfully");
+  var handleExport = async function() {
+    try {
+      var profileRes = await fetch(API + "/api/profile", { credentials: "include" });
+      var profile = profileRes.ok ? await profileRes.json() : null;
+      var exportData = { settings: settings, profile: profile, exportedAt: new Date().toISOString() };
+      var blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "tirbeo-data-export.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.show("Data exported successfully");
+    } catch (e) {
+      toast.show("Export failed", "error");
+    }
   };
 
   var handleDeleteAll = function() {
-    if (window.confirm("Are you sure you want to delete all your data? This action cannot be undone.")) {
-      localStorage.removeItem(STORAGE_KEY);
-      setSettings(defaultSettings);
-      toast.show("All data has been deleted");
+    if (window.confirm("Are you sure you want to delete all your data? This will remove your account and cannot be undone.")) {
+      if (window.confirm("This is your final warning. Type DELETE in your mind and click OK to proceed.")) {
+        localStorage.removeItem(STORAGE_KEY);
+        setSettings(defaultSettings);
+        toast.show("Data deletion requested. Contact support to finalize account removal.");
+      }
     }
   };
 
@@ -141,10 +158,10 @@ export default function PrivacyPage() {
 
       <Card title="Data">
         <div>
-          <SettingRow label="Export all data" description="Download a copy of your privacy settings and account data">
+          <SettingRow label="Export all data" description="Download a copy of your profile and privacy settings">
             <Button variant="ghost" size="sm" onClick={handleExport}><Download size={12} /> Export</Button>
           </SettingRow>
-          <SettingRow label="Delete all data" description="Permanently remove all your data from Tirbeo. This cannot be undone." border={false}>
+          <SettingRow label="Delete account" description="Request permanent removal of your account. Contact support to finalize." border={false}>
             <Button variant="danger" size="sm" onClick={handleDeleteAll}><Trash2 size={12} /> Delete</Button>
           </SettingRow>
         </div>

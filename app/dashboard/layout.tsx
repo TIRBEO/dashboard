@@ -7,7 +7,7 @@ import {
   Home, User, Shield, Bell, Settings,
   HelpCircle, LogOut, Search, Menu, X, ChevronRight, Clock,
   Globe, Eye, Database, Download, Sun, Moon, Monitor,
-  Code, Key, Terminal, Webhook,
+  Code, Key, Terminal,
 } from "lucide-react";
 import { SIDEBAR_GROUPS, SEARCH_INDEX, searchEverything } from "../dashboard-config";
 import { applyPreferenceStyles, getStoredPreferences, normalizePreferenceState } from "../preferences-theme";
@@ -16,7 +16,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
 const ICON_MAP: Record<string, any> = {
   Home, User, Shield, Bell, Settings, HelpCircle, Monitor, Eye,
-  Globe, Download, Database, Sun, Moon, Code, Key, Terminal, Webhook,
+  Globe, Download, Database, Sun, Moon, Code, Key, Terminal,
 };
 
 function getIcon(name: string) {

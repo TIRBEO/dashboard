@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Code, Key, Terminal, Webhook, ArrowUpRight, Copy, CheckCircle2 } from "lucide-react";
+import { Code, Key, Terminal, ArrowUpRight, Copy, CheckCircle2 } from "lucide-react";
 import { PageContainer, PageHeader, Card, Button, Badge, useToast, Toast } from "../components";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
@@ -35,7 +35,6 @@ export default function DeveloperOverview() {
 
   const stats = [
     { label: "API Keys", value: keys.length, icon: <Key size={18} />, color: "var(--gold)" },
-    { label: "Webhooks", value: 0, icon: <Webhook size={18} />, color: "var(--success)" },
     { label: "Active Keys", value: keys.filter(k => k.active).length, icon: <CheckCircle2 size={18} />, color: "var(--accent)" },
   ];
 
@@ -89,14 +88,14 @@ export default function DeveloperOverview() {
 
           <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", borderRadius: 10, background: "var(--bg-elevated)", border: "1px solid var(--border)" }}>
             <div style={{ width: 36, height: 36, borderRadius: 8, background: "var(--accent-muted)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--accent)", flexShrink: 0 }}>
-              <Webhook size={16} />
+              <Terminal size={16} />
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>Set up Webhooks</div>
-              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Get notified when events happen on your account</div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: "var(--text)" }}>Use the CLI</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Manage your account from the command line</div>
             </div>
-            <a href="/dashboard/developer/webhooks" className="btn btn-ghost btn-sm" style={{ textDecoration: "none" }}>
-              Configure <ArrowUpRight size={12} />
+            <a href="/dashboard/developer/cli" className="btn btn-ghost btn-sm" style={{ textDecoration: "none" }}>
+              Docs <ArrowUpRight size={12} />
             </a>
           </div>
         </div>

@@ -82,15 +82,25 @@ export const SIDEBAR_GROUPS: SidebarGroup[] = [
     id: "account", label: "Account", icon: "User", order: 1,
     items: [
       { id: "profile", label: "Profile", icon: "User", route: "/dashboard/profile", group: "account", order: 0, description: "Personal info, avatar, bio" },
-      { id: "preferences", label: "Preferences", icon: "Settings", route: "/dashboard/preferences", group: "account", order: 1, description: "Language, timezone, theme" },
+      { id: "preferences", label: "Preferences", icon: "Settings", route: "/dashboard/preferences", group: "account", order: 1, description: "Theme, language, behavior" },
       { id: "security", label: "Security", icon: "Shield", route: "/dashboard/security", group: "account", order: 2, description: "Password, 2FA, backup codes" },
       { id: "privacy", label: "Privacy", icon: "Eye", route: "/dashboard/privacy", group: "account", order: 3, description: "Visibility & data sharing" },
+      { id: "sessions", label: "Sessions", icon: "Monitor", route: "/dashboard/sessions", group: "account", order: 4, description: "Active sessions & devices" },
     ],
   },
   {
     id: "notifications", label: "Notifications", icon: "Bell", order: 2,
     items: [
       { id: "notif-main", label: "Notifications", icon: "Bell", route: "/dashboard/notifications", group: "notifications", order: 0, description: "All notification settings" },
+    ],
+  },
+  {
+    id: "developer", label: "Developer", icon: "Code", order: 3,
+    items: [
+      { id: "dev-overview", label: "Overview", icon: "Code", route: "/dashboard/developer", group: "developer", order: 0, description: "Developer dashboard" },
+      { id: "dev-api-keys", label: "API Keys", icon: "Key", route: "/dashboard/developer/api-keys", group: "developer", order: 1, description: "Manage API keys" },
+      { id: "dev-cli", label: "CLI", icon: "Terminal", route: "/dashboard/developer/cli", group: "developer", order: 2, description: "Command-line tool" },
+      { id: "dev-logs", label: "Logs", icon: "Database", route: "/dashboard/developer/logs", group: "developer", order: 3, description: "API request logs" },
     ],
   },
 ];
@@ -116,9 +126,8 @@ export const SEARCH_INDEX: SearchEntry[] = SIDEBAR_GROUPS.flatMap(group =>
   { id: "search-2fa", title: "Enable Two-Factor Auth", description: "Add TOTP authenticator to your account", route: "/dashboard/security", category: "Security", icon: "Shield", keywords: ["2fa", "two-factor", "totp", "authenticator", "security"] },
   { id: "search-avatar", title: "Change Avatar", description: "Upload a new profile picture", route: "/dashboard/profile", category: "Profile", icon: "User", keywords: ["avatar", "photo", "picture", "image"] },
   { id: "search-logout", title: "Sign Out", description: "Sign out of your account", route: "/logout", category: "Account", icon: "LogOut", keywords: ["logout", "sign out", "exit"] },
-  { id: "search-lang", title: "Change Language", description: "Set your preferred language", route: "/dashboard/preferences", category: "Preferences", icon: "Globe", keywords: ["language", "lang", "locale", "english", "nepali"] },
-  { id: "search-timezone", title: "Change Timezone", description: "Set your local timezone", route: "/dashboard/preferences", category: "Preferences", icon: "Clock", keywords: ["timezone", "time", "zone", "utc", "gmt"] },
-  { id: "search-export", title: "Export Data", description: "Download your account data", route: "/dashboard/data/export", category: "Developer", icon: "Download", keywords: ["export", "download", "data", "backup"] },
+  { id: "search-api-keys", title: "API Keys", description: "Manage developer API keys", route: "/dashboard/developer/api-keys", category: "Developer", icon: "Key", keywords: ["api", "keys", "token", "access"] },
+  { id: "search-sessions", title: "Active Sessions", description: "View and manage signed-in devices", route: "/dashboard/sessions", category: "Security", icon: "Monitor", keywords: ["sessions", "devices", "signed in"] },
 ]);
 
 
@@ -170,54 +179,6 @@ export const PREFERENCES_PAGE: SettingsPage = {
         { name: "confirmations", label: "Show Confirmations", type: "toggle", defaultValue: true, description: "Confirm destructive actions before executing" },
         { name: "recentItems", label: "Show Recent Items", type: "toggle", defaultValue: true, description: "Show recently accessed items in search" },
         { name: "experimentalFeatures", label: "Experimental Features", type: "toggle", defaultValue: false, description: "Enable beta features and UI experiments" },
-      ],
-    },
-  ],
-};
-
-export const APPEARANCE_PAGE: SettingsPage = {
-  id: "appearance", label: "Appearance", route: "/dashboard/appearance", icon: "Sun",
-  sections: [
-    {
-      id: "theme", label: "Theme", icon: "Sun",
-      fields: [
-        { name: "theme", label: "Theme", type: "radio-group", defaultValue: "dark", options: [
-          { label: "Light", value: "light" }, { label: "Dark", value: "dark" }, { label: "System", value: "system" },
-        ]},
-        { name: "accentColor", label: "Accent Color", type: "color", defaultValue: "#ffffff" },
-        { name: "customColor", label: "Custom Accent", type: "color", defaultValue: "" },
-      ],
-    },
-    {
-      id: "layout", label: "Layout", icon: "Layout",
-      fields: [
-        { name: "sidebarWidth", label: "Sidebar Width", type: "select", defaultValue: "260", options: [
-          { label: "Default (260px)", value: "260" }, { label: "Compact (220px)", value: "220" }, { label: "Narrow (180px)", value: "180" },
-        ]},
-        { name: "density", label: "Density", type: "select", defaultValue: "comfortable", options: [
-          { label: "Compact", value: "compact" }, { label: "Comfortable", value: "comfortable" }, { label: "Spacious", value: "spacious" },
-        ]},
-        { name: "glassEffect", label: "Glass Effect", type: "toggle", defaultValue: true, description: "Frosted glass panels with backdrop blur" },
-        { name: "transparency", label: "Transparency", type: "toggle", defaultValue: true, description: "Transparent panel backgrounds" },
-        { name: "roundedCorners", label: "Rounded Corners", type: "select", defaultValue: "16", options: [
-          { label: "None (0px)", value: "0" }, { label: "Small (8px)", value: "8" }, { label: "Default (16px)", value: "16" }, { label: "Large (24px)", value: "24" },
-        ]},
-      ],
-    },
-    {
-      id: "typography", label: "Typography", icon: "Type",
-      fields: [
-        { name: "fontFamily", label: "Font Family", type: "select", defaultValue: "Inter", options: [
-          { label: "Inter", value: "Inter" }, { label: "System", value: "system" }, { label: "JetBrains Mono", value: "JetBrains Mono" },
-          { label: "SF Pro", value: "SF Pro" }, { label: "Geist", value: "Geist" },
-        ]},
-        { name: "fontSize", label: "Font Size", type: "select", defaultValue: "14", options: [
-          { label: "Small (13px)", value: "13" }, { label: "Default (14px)", value: "14" }, { label: "Large (15px)", value: "15" }, { label: "Extra Large (16px)", value: "16" },
-        ]},
-        { name: "animationSpeed", label: "Animation Speed", type: "select", defaultValue: "normal", options: [
-          { label: "Instant", value: "instant" }, { label: "Fast", value: "fast" }, { label: "Normal", value: "normal" }, { label: "Slow", value: "slow" },
-        ]},
-        { name: "motionReduction", label: "Reduce Motion", type: "toggle", defaultValue: false, description: "Minimize animations for accessibility" },
       ],
     },
   ],
