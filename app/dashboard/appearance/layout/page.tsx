@@ -1,348 +1,188 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Layout, Monitor, Smartphone, Tablet, Maximize2, Minimize2, Move, Crop } from "lucide-react";
+import { useState } from "react";
+import { Palette, Layout, Type, Accessibility, Zap, Save } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
-type LayoutSettings = {
-  sidebarWidth: number;
-  sidebarStyle: "fixed" | "floating" | "compact";
-  sidebarPosition: "left" | "right";
-  contentMaxWidth: "narrow" | "medium" | "wide" | "full";
-  denseMode: boolean;
-  stickyHeaders: boolean;
-  reducedSpacing: boolean;
-  compactMode: boolean;
-  collapsedSidebar: boolean;
-};
-
 export default function AppearanceLayoutPage() {
-  const [settings, setSettings] = useState<LayoutSettings>({
-    sidebarWidth: 260,
-    sidebarStyle: "fixed",
-    sidebarPosition: "left",
-    contentMaxWidth: "medium",
-    denseMode: false,
-    stickyHeaders: true,
-    reducedSpacing: false,
-    compactMode: false,
-    collapsedSidebar: false,
-  });
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
-  const fetched = useRef(false);
+  const [sidebarStyle, setSidebarStyle] = useState("fixed");
+  const [sidebarWidth, setSidebarWidth] = useState("wide");
+  const [density, setDensity] = useState("comfortable");
+  const [glassEffect, setGlassEffect] = useState(true);
+  const [transparency, setTransparency] = useState(false);
+  const [roundedCorners, setRoundedCorners] = useState("16");
 
-  useEffect(() => {
-    if (fetched.current) return;
-    fetched.current = true;
-
-    fetch(`${API}/api/app-appearance/settings/layout`, { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data) {
-          setSettings((s) => ({ ...s, ...data }));
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  const updateSettings = useCallback(<K extends keyof LayoutSettings>(key: K, value: LayoutSettings[K]) => {
-    setSettings((s) => ({ ...s, [key]: value }));
-  }, []);
-
-  const handleSave = useCallback(async () => {
-    setSaving(true);
+  const saveSettings = async () => {
     try {
-      const res = await fetch(`${API}/api/app-appearance/settings/layout`, {
+      await fetch(`${API}/api/preferences`, {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings),
+        body: JSON.stringify({
+          theme: "dark",
+          fontSize: "14",
+          reduceMotion: false,
+          highContrast: false,
+          preferences: {
+            accentColor: "#ffffff",
+            sidebarStyle,
+            density,
+            glassEffect,
+            transparency,
+            roundedCorners: Number(roundedCorners),
+            fontFamily: "Inter",
+            animationSpeed: "normal",
+            showLabels: true,
+            collapseByDefault: false,
+            iconSize: 18,
+          },
+        }),
       });
-      if (res.ok) {
-        setToast("Layout settings saved");
-        setTimeout(() => setToast(null), 3000);
-      } else {
-        setToast("Failed to save layout settings");
-        setTimeout(() => setToast(null), 3000);
-      }
+      alert("Layout settings saved!");
     } catch {
-      setToast("Connection error");
-      setTimeout(() => setToast(null), 3000);
-    }
-    setSaving(false);
-  }, [settings]);
-
-  const getContentWidthClass = () => {
-    switch (settings.contentMaxWidth) {
-      case "narrow": return "max-w-3xl";
-      case "medium": return "max-w-5xl";
-      case "wide": return "max-w-7xl";
-      case "full": return "max-w-full";
-      default: return "max-w-5xl";
+      alert("Failed to save layout settings");
     }
   };
-
-  const getSidebarStyle = () => {
-    switch (settings.sidebarStyle) {
-      case "fixed": return { position: "fixed", width: `${settings.sidebarWidth}px`, left: 0 };
-      case "floating": return { position: "absolute", width: `${settings.sidebarWidth}px`, left: 20, borderRadius: 8 };
-      case "compact": return { position: "fixed", width: "60px", left: 0 };
-      default: return { position: "fixed", width: `${settings.sidebarWidth}px`, left: 0 };
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="glass card-section animate-in">
-            <div className="skeleton" style={{ height: 80 }} />
-          </div>
-        ))}
-      </div>
-    );
-  }
 
   return (
-    <div className="space-y-6">
-      {toast && (
-        <div className="toast toast-success" style={{ position: "fixed", top: 20, right: 20, zIndex: 9999 }}>{toast}</div>
-      )}
-
-      <div className="section-header">
-        <h1>Layout</h1>
-        <p>Configure the layout and spacing of your dashboard</p>
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-white mb-2">Layout Settings</h1>
+        <p className="text-muted-foreground">Configure your layout preferences and visual behavior</p>
       </div>
 
-      <div className="glass card-section">
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-          <Layout size={18} style={{ color: "#d8b36a" }} />
-          <h3 style={{ fontSize: 14, fontWeight: 600, color: "#ffffff", margin: 0 }}>Layout Options</h3>
-        </div>
-
-        <div style={{ display: "grid", gap: 20 }}>
-          {/* Sidebar Style */}
-          <div>
-            <div className="table-row" style={{ marginBottom: 12 }}>
-              <span style={{ fontSize: 14, color: "#a6a6a6" }}>Sidebar Style</span>
-            </div>
-            <div className="toggle-group">
-              {[
-                { value: "fixed", label: "Fixed", icon: Monitor },
-                { value: "floating", label: "Floating", icon: Maximize2 },
-                { value: "compact", label: "Compact", icon: Minimize2 },
-              ].map((opt) => (
-                <button
-                  key={opt.value}
-                  className={`toggle-group-item ${settings.sidebarStyle === opt.value ? "active" : ""}`}
-                  onClick={() => updateSettings("sidebarStyle", opt.value as LayoutSettings["sidebarStyle"])}
-                >
-                  <opt.icon size={16} style={{ marginRight: 8 }} /> {opt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Content Width */}
-          <div>
-            <div className="table-row" style={{ marginBottom: 12 }}>
-              <span style={{ fontSize: 14, color: "#a6a6a6" }}>Content Width</span>
-            </div>
-            <div className="toggle-group">
-              {[
-                { value: "narrow", label: "Narrow (1024px)" },
-                { value: "medium", label: "Medium (1280px)" },
-                { value: "wide", label: "Wide (1536px)" },
-                { value: "full", label: "Full Width" },
-              ].map((opt) => (
-                <button
-                  key={opt.value}
-                  className={`toggle-group-item ${settings.contentMaxWidth === opt.value ? "active" : ""}`}
-                  onClick={() => updateSettings("contentMaxWidth", opt.value as LayoutSettings["contentMaxWidth"])}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Sidebar Width */}
-          <div>
-            <div className="table-row" style={{ marginBottom: 12 }}>
-              <span style={{ fontSize: 14, color: "#a6a6a6" }}>Sidebar Width</span>
-            </div>
-            <div className="toggle-group">
-              {[
-                { value: 180, label: "Narrow (180px)" },
-                { value: 220, label: "Compact (220px)" },
-                { value: 260, label: "Default (260px)" },
-                { value: 320, label: "Wide (320px)" },
-              ].map((opt) => (
-                <button
-                  key={opt.value}
-                  className={`toggle-group-item ${settings.sidebarWidth === opt.value ? "active" : ""}`}
-                  onClick={() => updateSettings("sidebarWidth", opt.value)}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Additional Settings */}
-          <div style={{ display: "grid", gap: 12 }}>
-            <div
-              className="table-row"
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "8px 0",
-                borderBottom: "1px solid var(--border)",
-              }}
-            >
-              <div>
-                <span style={{ fontSize: 14, color: "#a6a6a6" }}>Sticky Headers</span>
-                <p style={{ fontSize: 12, color: "#7b7e84", margin: "2px 0 0" }}>Keep headers visible while scrolling</p>
-              </div>
-              <button
-                className={`toggle ${settings.stickyHeaders ? "active" : ""}`}
-                onClick={() => updateSettings("stickyHeaders", !settings.stickyHeaders)}
-              />
-            </div>
-
-            <div
-              className="table-row"
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "8px 0",
-                borderBottom: "1px solid var(--border)",
-              }}
-            >
-              <div>
-                <span style={{ fontSize: 14, color: "#a6a6a6" }}>Dense Mode</span>
-                <p style={{ fontSize: 12, color: "#7b7e84", margin: "2px 0 0" }}>Reduce padding and spacing</p>
-              </div>
-              <button
-                className={`toggle ${settings.denseMode ? "active" : ""}`}
-                onClick={() => updateSettings("denseMode", !settings.denseMode)}
-              />
-            </div>
-
-            <div
-              className="table-row"
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "8px 0",
-                borderBottom: "1px solid var(--border)",
-              }}
-            >
-              <div>
-                <span style={{ fontSize: 14, color: "#a6a6a6" }}>Compact Mode</span>
-                <p style={{ fontSize: 12, color: "#7b7e84", margin: "2px 0 0" }}>More compact UI with tighter spacing</p>
-              </div>
-              <button
-                className={`toggle ${settings.compactMode ? "active" : ""}`}
-                onClick={() => updateSettings("compactMode", !settings.compactMode)}
-              />
-            </div>
-
-            <div
-              className="table-row"
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "8px 0",
-                borderBottom: "1px solid var(--border)",
-              }}
-            >
-              <div>
-                <span style={{ fontSize: 14, color: "#a6a6a6" }}>Collapsed Sidebar</span>
-                <p style={{ fontSize: 12, color: "#7b7e84", margin: "2px 0 0" }}>Start with sidebar collapsed</p>
-              </div>
-              <button
-                className={`toggle ${settings.collapsedSidebar ? "active" : ""}`}
-                onClick={() => updateSettings("collapsedSidebar", !settings.collapsedSidebar)}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="glass card-section">
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-          <Monitor size={18} style={{ color: "#d8b36a" }} />
-          <h3 style={{ fontSize: 14, fontWeight: 600, color: "#ffffff", margin: 0 }}>Preview</h3>
-        </div>
-
-        <div style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 20, background: "#07080a" }}>
-          <div style={{ display: "flex", gap: 20 }}>
-            <div style={getSidebarStyle()}>
-              <div style={{ padding: 12, background: "#121417", height: "100%" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-                  <div style={{ width: 24, height: 24, background: "#d8b36a", borderRadius: 4 }} />
-                  <div style={{ width: 60, height: 8, background: "#2a2d31", borderRadius: 4 }} />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} style={{ height: 36, background: "#1c2128", borderRadius: 4 }} />
-                  ))}
-                </div>
+      <div className="glass card-section space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold text-white mb-4">Sidebar Layout</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2 text-muted-foreground">Sidebar Style</label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { value: "fixed", label: "Fixed", desc: "Always visible" },
+                  { value: "floating", label: "Floating", desc: "Hover to reveal" },
+                  { value: "compact", label: "Compact", desc: "Minimalist" },
+                ].map((style) => (
+                  <button
+                    key={style.value}
+                    onClick={() => setSidebarStyle(style.value)}
+                    className={`p-3 rounded-lg border text-left transition-colors ${sidebarStyle === style.value
+                        ? "bg-primary/20 border-primary text-white"
+                        : "bg-surface border-hairline text-muted-foreground hover:border-primary/30"
+                      }`}
+                  >
+                    <div className="font-medium text-sm">{style.label}</div>
+                    <div className="text-xs mt-1">{style.desc}</div>
+                  </button>
+                ))}
               </div>
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                <div style={{ height: 24, width: "60%", background: "#2a2d31", borderRadius: 4 }} />
-                <div style={{ display: "flex", gap: 8 }}>
-                  <div style={{ height: 24, width: 80, background: "#2a2d31", borderRadius: 4 }} />
-                  <div style={{ height: 24, width: 24, background: "#2a2d31", borderRadius: 4 }} />
-                </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2 text-muted-foreground">Sidebar Width</label>
+              <div className="flex gap-2">
+                {[
+                  { value: "compact", label: "Compact (220px)" },
+                  { value: "wide", label: "Wide (260px)" },
+                  { value: "auto", label: "Auto" },
+                ].map((width) => (
+                  <button
+                    key={width.value}
+                    onClick={() => setSidebarWidth(width.value)}
+                    className={`px-4 py-2 rounded-lg border transition-colors text-sm ${sidebarWidth === width.value
+                        ? "bg-primary/20 border-primary text-white"
+                        : "bg-surface border-hairline text-muted-foreground hover:border-primary/30"
+                      }`}
+                  >
+                    {width.label}
+                  </button>
+                ))}
               </div>
-              <div style={{ display: "grid", gap: 12 }}>
-                {[1, 2, 3].map((i) => (
-                  <div key={i} style={{ height: 120, background: "#1c2128", borderRadius: 8 }} />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2 text-muted-foreground">Density</label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { value: "compact", label: "Compact", desc: "More compact spacing" },
+                  { value: "comfortable", label: "Comfortable", desc: "Balanced spacing" },
+                  { value: "spacious", label: "Spacious", desc: "More breathing room" },
+                ].map((d) => (
+                  <button
+                    key={d.value}
+                    onClick={() => setDensity(d.value)}
+                    className={`p-3 rounded-lg border text-left transition-colors ${density === d.value
+                        ? "bg-primary/20 border-primary text-white"
+                        : "bg-surface border-hairline text-muted-foreground hover:border-primary/30"
+                      }`}
+                  >
+                    <div className="font-medium text-sm">{d.label}</div>
+                    <div className="text-xs mt-1">{d.desc}</div>
+                  </button>
                 ))}
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="sticky bottom-0 left-0 right-0 p-4" style={{ background: "#0b0b0d", borderTop: "1px solid var(--border)", marginTop: 32, marginBottom: -32 }}>
-        <div style={{ maxWidth: "860px", margin: "0 auto", display: "flex", justifyContent: "flex-end", gap: 12 }}>
+        <div>
+          <h3 className="text-lg font-semibold text-white mb-4">Visual Effects</h3>
+          <div className="space-y-3">
+            {[
+              { label: "Glass Effect", desc: "Frosted glass panels with backdrop blur", value: glassEffect, setter: setGlassEffect },
+              { label: "Transparency", desc: "Transparent panel backgrounds", value: transparency, setter: setTransparency },
+            ].map((option) => (
+              <div key={option.label} className="flex items-center justify-between p-3 bg-surface rounded-lg border border-hairline">
+                <div>
+                  <div className="font-medium text-white text-sm">{option.label}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{option.desc}</div>
+                </div>
+                <button
+                  onClick={() => option.setter(!option.value)}
+                  className={`w-12 h-6 rounded-full transition-colors relative ${option.value ? "bg-primary" : "bg-surface-elevated"
+                  }`}
+                >
+                  <div
+                    className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-transform ${option.value ? "right-1" : "left-1"
+                    }`}
+                  />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2 text-muted-foreground">Rounded Corners</label>
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { value: "0", label: "None" },
+              { value: "8", label: "Small" },
+              { value: "16", label: "Default" },
+              { value: "24", label: "Large" },
+            ].map((corner) => (
+              <button
+                key={corner.value}
+                onClick={() => setRoundedCorners(corner.value)}
+                className={`p-3 rounded-lg border transition-colors text-sm ${roundedCorners === corner.value
+                    ? "bg-primary/20 border-primary text-white"
+                    : "bg-surface border-hairline text-muted-foreground hover:border-primary/30"
+                  }`}
+              >
+                <div className="font-medium">{corner.label}</div>
+                <div className="text-xs mt-1">({corner.value}px)</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-hairline">
           <button
-            onClick={() => setSettings({
-              sidebarWidth: 260,
-              sidebarStyle: "fixed",
-              sidebarPosition: "left",
-              contentMaxWidth: "medium",
-              denseMode: false,
-              stickyHeaders: true,
-              reducedSpacing: false,
-              compactMode: false,
-              collapsedSidebar: false,
-            })}
-            className="btn btn-ghost"
-            style={{ height: 40, padding: "0 16px", fontSize: 13 }}
+            onClick={saveSettings}
+            className="w-full py-3 px-4 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
           >
-            Reset
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="btn btn-primary"
-            style={{ height: 40, padding: "0 20px", fontSize: 13, opacity: saving ? 0.7 : 1 }}
-          >
-            {saving ? "Saving..." : "Save Changes"}
+            <Layout size={16} /> Save Layout Settings
           </button>
         </div>
       </div>

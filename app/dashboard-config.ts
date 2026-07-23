@@ -110,10 +110,10 @@ export const SIDEBAR_GROUPS: SidebarGroup[] = [
   {
     id: "appearance", label: "Appearance", icon: "Sun", order: 3,
     items: [
-      { id: "themes", label: "Themes", icon: "Sun", route: "/dashboard/appearance", group: "appearance", order: 0 },
+       { id: "themes", label: "Themes", icon: "Sun", route: "/dashboard/appearance", group: "appearance", order: 0 },
       { id: "colors", label: "Colors", icon: "Paintbrush", route: "/dashboard/appearance/colors", group: "appearance", order: 1 },
-      { id: "layout-settings", label: "Layout", icon: "Layout", route: "/dashboard/appearance/layout", group: "appearance", order: 2 },
-      { id: "sidebar-settings", label: "Sidebar", icon: "PanelLeft", route: "/dashboard/appearance/sidebar", group: "appearance", order: 3 },
+      { id: "layout", label: "Layout", icon: "Layout", route: "/dashboard/appearance/layout", group: "appearance", order: 2 },
+      { id: "sidebar", label: "Sidebar", icon: "PanelLeft", route: "/dashboard/appearance/sidebar", group: "appearance", order: 3 },
       { id: "accessibility", label: "Accessibility", icon: "Accessibility", route: "/dashboard/appearance/accessibility", group: "appearance", order: 4 },
       { id: "typography", label: "Typography", icon: "Type", route: "/dashboard/appearance/typography", group: "appearance", order: 5 },
       { id: "motion", label: "Motion", icon: "Zap", route: "/dashboard/appearance/motion", group: "appearance", order: 6 },
@@ -142,17 +142,7 @@ export const SIDEBAR_GROUPS: SidebarGroup[] = [
       { id: "dev-logs", label: "Developer Logs", icon: "ScrollText", route: "/dashboard/developer/logs", group: "developer", order: 6 },
     ],
   },
-  {
-    id: "billing", label: "Billing", icon: "CreditCard", order: 6,
-    items: [
-      { id: "billing-plan", label: "Current Plan", icon: "CreditCard", route: "/dashboard/billing", group: "billing", order: 0 },
-      { id: "billing-sub", label: "Subscription", icon: "RefreshCw", route: "/dashboard/billing/subscription", group: "billing", order: 1 },
-      { id: "billing-usage", label: "Usage", icon: "BarChart3", route: "/dashboard/billing/usage", group: "billing", order: 2 },
-      { id: "billing-invoices", label: "Invoices", icon: "FileText", route: "/dashboard/billing/invoices", group: "billing", order: 3 },
-      { id: "billing-payment", label: "Payment Methods", icon: "Wallet", route: "/dashboard/billing/payment-methods", group: "billing", order: 4 },
-      { id: "billing-coupons", label: "Coupons", icon: "Tag", route: "/dashboard/billing/coupons", group: "billing", order: 5 },
-    ],
-  },
+
   {
     id: "data", label: "Data", icon: "Database", order: 7,
     items: [

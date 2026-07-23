@@ -1,202 +1,140 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Palette, Check } from "lucide-react";
+import { useState } from "react";
+import { Palette, Layout, Type, Accessibility, Zap, Save } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
-type ColorTheme = {
-  id: string;
-  name: string;
-  primary: string;
-  secondary: string;
-  accent: string;
-  background: string;
-  surface: string;
-  text: string;
-  border: string;
-  isCustom: boolean;
-  createdAt: string;
-};
-
 export default function AppearanceColorsPage() {
-  const [themes, setThemes] = useState<ColorTheme[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedTheme, setSelectedTheme] = useState<string>("");
-  const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ name: "", primary: "#d8b36a", secondary: "#f2eee8", accent: "#59d499", background: "#0b0b0d", surface: "#121417", text: "#f2eee8", border: "#2a2d31" });
-  const fetched = useRef(false);
+  const [accentColor, setAccentColor] = useState("#ffffff");
+  const [customColor, setCustomColor] = useState("#4f7aff");
+  const [applyToAll, setApplyToAll] = useState(false);
 
-  useEffect(() => {
-    if (fetched.current) return;
-    fetched.current = true;
+  const predefinedColors = [
+    { name: "White", value: "#ffffff" },
+    { name: "Blue", value: "#4f7aff" },
+    { name: "Purple", value: "#9f7aea" },
+    { name: "Green", value: "#59d499" },
+    { name: "Orange", value: "#ff9f43" },
+    { name: "Red", value: "#ff6161" },
+    { name: "Pink", value: "#f56ebf" },
+    { name: "Gold", value: "#d8b36a" },
+    { name: "Cyan", value: "#38bdf8" },
+    { name: "Emerald", value: "#10b981" },
+  ];
 
-    Promise.all([
-      fetch(`${API}/api/app-appearance/themes`, { credentials: "include" }).then((r) => (r.ok ? r.json() : [])),
-      fetch(`${API}/api/app-appearance/settings`, { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
-    ])
-      .then(([themesData, settingsData]) => {
-        setThemes(themesData || []);
-        if (settingsData?.theme) {
-          setSelectedTheme(settingsData.theme);
-        } else if (themesData && themesData.length > 0) {
-          setSelectedTheme(themesData[0].id);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  const createTheme = useCallback(async () => {
-    if (!form.name) return;
+  const saveSettings = async () => {
     try {
-      const res = await fetch(`${API}/api/app-appearance/themes", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, isCustom: true }),
-      });
-      if (res.ok) {
-        const newTheme = await res.json();
-        setThemes((prev) => [...prev, newTheme]);
-        setShowCreate(false);
-        setForm({ name: "", primary: "#d8b36a", secondary: "#f2eee8", accent: "#59d499", background: "#0b0b0d", surface: "#121417", text: "#f2eee8", border: "#2a2d31" });
-      }
-    } catch {
-    }
-  }, [form]);
-
-  const applyTheme = useCallback(async (themeId: string) => {
-    const theme = themes.find((t) => t.id === themeId);
-    if (!theme) return;
-    try {
-      const res = await fetch(`${API}/api/app-appearance/settings", {
+      await fetch(`${API}/api/preferences`, {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ theme: themeId }),
+        body: JSON.stringify({
+          theme: "dark",
+          fontSize: "14",
+          reduceMotion: false,
+          highContrast: false,
+          preferences: {
+            accentColor: applyToAll ? customColor : accentColor,
+            sidebarStyle: "fixed",
+            density: "comfortable",
+            glassEffect: true,
+            transparency: false,
+            roundedCorners: 12,
+            fontFamily: "Inter",
+            animationSpeed: "normal",
+            showLabels: true,
+            collapseByDefault: false,
+            iconSize: 18,
+          },
+        }),
       });
-      if (res.ok) {
-        setSelectedTheme(themeId);
-      }
+      alert("Color settings saved!");
     } catch {
+      alert("Failed to save color settings");
     }
-  }, [themes]);
-
-  const getColorPreviewStyle = (theme: ColorTheme) => ({
-    backgroundColor: theme.background,
-    borderColor: theme.border,
-    color: theme.text,
-  });
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="glass card-section animate-in">
-            <div className="skeleton" style={{ height: 80 }} />
-          </div>
-        ))}
-      </div>
-    );
-  }
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="section-header">
-        <h1>Colors</h1>
-        <p>Manage color themes and presets for your workspace</p>
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-white mb-2">Color Theme</h1>
+        <p className="text-muted-foreground">Choose your accent colors and theme palette</p>
+      </div>
+
+      <div className="glass card-section space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold text-white mb-4">Predefined Colors</h3>
+          <div className="grid grid-cols-5 gap-3">
+            {predefinedColors.map((color) => (
+              <button
+                key={color.value}
+                onClick={() => setAccentColor(color.value)}
+                className={`aspect-square rounded-lg transition-all ${accentColor === color.value
+                    ? "ring-2 ring-white ring-offset-2 ring-offset-surface"
+                    : "hover:scale-105"
+                  }`}
+                style={{ backgroundColor: color.value }}
+                title={color.name}
+              />
+            ))}
+          </div>
+          <div className="mt-4 text-sm text-muted-foreground">
+            Selected: <span className="text-white font-mono">{accentColor}</span>
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold text-white mb-4">Custom Color</h3>
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium mb-2 text-muted-foreground">Accent Color</label>
+              <input
+                type="color"
+                value={customColor}
+                onChange={(e) => setCustomColor(e.target.value)}
+                className="w-full h-10 rounded border border-hairline bg-transparent"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="apply-all"
+                checked={applyToAll}
+                onChange={(e) => setApplyToAll(e.target.checked)}
+                className="w-4 h-4 text-primary rounded border-hairline"
+              />
+              <label htmlFor="apply-all" className="text-sm text-muted-foreground">
+                Apply to all UI elements
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-hairline">
+          <button
+            onClick={saveSettings}
+            className="w-full py-3 px-4 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+          >
+            <Palette size={16} /> Save Color Settings
+          </button>
+        </div>
       </div>
 
       <div className="glass card-section">
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-          <div>
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: "#ffffff", margin: 0 }}>Available Themes</h3>
-            <p style={{ fontSize: 13, color: "#7b7e84", margin: "4px 0 0" }}>{themes.length} total themes</p>
-          </div>
-          <button onClick={() => setShowCreate(!showCreate)} className="btn btn-primary">
-            <Palette size={13} /> New Theme
-          </button>
-        </div>
-
-        {themes.length === 0 ? (
-          <div className="text-center py-12">
-            <Palette size={48} style={{ color: "var(--text-muted)", margin: "0 auto 12px" }} />
-            <p style={{ fontSize: 15, color: "var(--text-muted)" }}>No custom themes created</p>
-            <p style={{ fontSize: 13, color: "var(--text-ash)", marginTop: 4 }}>Create your first color theme to customize your workspace</p>
-          </div>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {themes.map((theme) => (
-              <div
-                key={theme.id}
-                className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${selectedTheme === theme.id ? "border-accent bg-accent/10" : "border-border hover:border-text/20"}`}
-                style={getColorPreviewStyle(theme)}
-                onClick={() => applyTheme(theme.id)}
-              >
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <p style={{ fontSize: 13, fontWeight: 600 }}>{theme.name}</p>
-                  {selectedTheme === theme.id && <Check size={16} style={{ color: "var(--accent)" }} />}
-                </div>
-                <div style={{ display: "flex", gap: 4, marginBottom: 8 }}>
-                  <div style={{ width: 20, height: 20, borderRadius: "50%", background: theme.primary }} />
-                  <div style={{ width: 20, height: 20, borderRadius: "50%", background: theme.secondary }} />
-                  <div style={{ width: 20, height: 20, borderRadius: "50%", background: theme.accent }} />
-                </div>
-                {theme.isCustom && (
-                  <span className="badge badge-default" style={{ fontSize: 10 }}>Custom</span>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {showCreate && (
-          <div className="mt-6 pt-4 border-t" style={{ borderColor: "var(--border)" }}>
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: "#ffffff", margin: "0 0 12px" }}>Create New Theme</h3>
-            <div className="space-y-4">
-              <input
-                placeholder="Theme name"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                className="input-field"
-              />
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12 }}>
-                <div>
-                  <label style={{ fontSize: 11, color: "#9c9c9d", marginBottom: 4, display: "block" }}>Primary</label>
-                  <input
-                    type="color"
-                    value={form.primary}
-                    onChange={(e) => setForm((f) => ({ ...f, primary: e.target.value }))}
-                    style={{ width: "100%", height: 36, border: "none", borderRadius: 6, cursor: "pointer", background: "none" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: 11, color: "#9c9c9d", marginBottom: 4, display: "block" }}>Secondary</label>
-                  <input
-                    type="color"
-                    value={form.secondary}
-                    onChange={(e) => setForm((f) => ({ ...f, secondary: e.target.value }))}
-                    style={{ width: "100%", height: 36, border: "none", borderRadius: 6, cursor: "pointer", background: "none" }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: 11, color: "#9c9c9d", marginBottom: 4, display: "block" }}>Accent</label>
-                  <input
-                    type="color"
-                    value={form.accent}
-                    onChange={(e) => setForm((f) => ({ ...f, accent: e.target.value }))}
-                    style={{ width: "100%", height: 36, border: "none", borderRadius: 6, cursor: "pointer", background: "none" }}
-                  />
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={createTheme} className="btn btn-primary">Create Theme</button>
-                <button onClick={() => setShowCreate(false)} className="btn btn-ghost">Cancel</button>
-              </div>
+        <h3 className="text-lg font-semibold text-white mb-4">Theme Variants</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { name: "Dark", description: "Dark theme with vibrant accent", theme: "dark" },
+            { name: "Light", description: "Light theme with modern palette", theme: "light" },
+            { name: "System", description: "Follow OS theme preference", theme: "system" },
+          ].map((theme) => (
+            <div key={theme.name} className="p-4 rounded-lg border border-hairline hover:border-primary/30 transition-colors cursor-pointer">
+              <div className="font-medium text-white mb-2">{theme.name}</div>
+              <div className="text-xs text-muted-foreground">{theme.description}</div>
             </div>
-          </div>
-        )}
+          ))}
+        </div>
       </div>
     </div>
   );

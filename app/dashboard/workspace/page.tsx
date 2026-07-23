@@ -276,26 +276,25 @@ export default function WorkspaceOverviewPage() {
             <h3 style={{ fontSize: 13, fontWeight: 600, color: "#ffffff" }}>Activity Summary</h3>
           </div>
           <div className="space-y-3">
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid var(--border)\" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #242728" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#59d499" }} />
                 <span style={{ fontSize: 12, color: "#ffffff" }}>New Members</span>
               </div>
               <span style={{ fontSize: 12, color: "#7b7e84" }}>12 today</span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid var(--border)\" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #242728" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#d8b36a" }} />
                 <span style={{ fontSize: 12, color: "#ffffff" }}>Active Sessions</span>
               </div>
               <span style={{ fontSize: 12, color: "#7b7e84" }}>128 total</span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0\" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#9c9c9d\" }} >
-                  <span style={{ fontSize: 12, color: "#ffffff" }}>Messages</span>
-                </div>
-                <span style={{ fontSize: 12, color: "#7b7e84" }}>47 today</span>
+                <div style={{ width: 12, height: 12, borderRadius: "50%", background: "#9c9c9d" }} />
+                <span style={{ fontSize: 12, color: "#ffffff" }}>Messages</span>
+                <span style={{ fontSize: 12, color: "#7b7e84", marginLeft: "auto" }}>47 today</span>
               </div>
             </div>
           </div>

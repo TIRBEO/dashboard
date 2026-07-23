@@ -1,404 +1,131 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Bell, Mail, Smartphone, Monitor, Clock, Calendar, Save, Plus, Trash2, Check } from "lucide-react";
+import { useState } from "react";
+import { Bell, CalendarDays, Moon, Monitor } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "https://api.tirbeo.app";
 
-type NotificationSettings = {
-  email: boolean;
-  push: boolean;
-  desktop: boolean;
-  sms: boolean;
-  digest: boolean;
-  digestFrequency: "hourly" | "daily" | "weekly";
-  quietHours: {
-    enabled: boolean;
-    start: string;
-    end: string;
-  };
-  emailDigest: boolean;
-  pushDigest: boolean;
-  desktopDigest: boolean;
-  customizable: boolean;
-};
-
 export default function NotificationsPage() {
-  const [settings, setSettings] = useState<NotificationSettings>({
-    email: true,
-    push: true,
-    desktop: true,
-    sms: false,
-    digest: true,
-    digestFrequency: "daily",
-    quietHours: { enabled: false, start: "22:00", end: "06:00" },
-    emailDigest: true,
-    pushDigest: true,
-    desktopDigest: true,
-    customizable: false,
-  });
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
-  const fetched = useRef(false);
+  const [markAllLoading, setMarkAllLoading] = useState(false);
 
-  useEffect(() => {
-    if (fetched.current) return;
-    fetched.current = true;
-
-    fetch(`${API}/api/preferences/notifications`, { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data) {
-          setSettings((s) => ({ ...s, ...data }));
-        }
+  const loadNotifications = () => {
+    setLoading(true);
+    fetch(`${API}/api/notifications?limit=50`, { credentials: "include" })
+      .then((r) => r.ok ? r.json() : { notifications: [], unread: 0 })
+      .then((d) => {
+        setNotifications(d.notifications || []);
+        setUnreadCount(d.unread || 0);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
-
-  const updateSettings = useCallback(<K extends keyof NotificationSettings>(key: K, value: NotificationSettings[K]) => {
-    setSettings((s) => ({ ...s, [key]: value }));
-  }, []);
-
-  const updateNested = <K extends keyof NotificationSettings, R extends keyof NotificationSettings[K]>(parentKey: K, childKey: R, value: NotificationSettings[K][R]) => {
-    setSettings((s) => ({
-      ...s,
-      [parentKey]: { ...s[parentKey], [childKey]: value },
-    }));
   };
 
-  const handleSave = useCallback(async () => {
-    setSaving(true);
+  const markAllRead = async () => {
+    setMarkAllLoading(true);
     try {
-      const res = await fetch(`${API}/api/preferences/notifications`, {
+      await fetch(`${API}/api/notifications`, {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings),
+        body: JSON.stringify({ markAll: true }),
       });
-      if (res.ok) {
-        setToast("Notification settings saved");
-        setTimeout(() => setToast(null), 3000);
-      } else {
-        setToast("Failed to save notification settings");
-        setTimeout(() => setToast(null), 3000);
-      }
-    } catch {
-      setToast("Connection error");
-      setTimeout(() => setToast(null), 3000);
-    }
-    setSaving(false);
-  }, [settings]);
+      setNotifications((n) => n.map((item) => ({ ...item, read: true })));
+      setUnreadCount(0);
+    } catch {}
+    setMarkAllLoading(false);
+  };
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="glass card-section animate-in">
-            <div className="skeleton" style={{ height: 80 }} />
-          </div>
-        ))}
-      </div>
-    );
-  }
+  const deleteNotification = async (id: string) => {
+    try {
+      await fetch(`${API}/api/notifications?id=${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      setNotifications((n) => n.filter((item) => item.id !== id));
+      const deleted = notifications.find((item) => item.id === id);
+      if (deleted && !deleted.read) {
+        setUnreadCount((c) => Math.max(0, c - 1));
+      }
+    } catch {}
+  };
 
   return (
-    <div className="space-y-6">
-      {toast && (
-        <div className="toast toast-success" style={{ position: "fixed", top: 20, right: 20, zIndex: 9999 }}>{toast}</div>
-      )}
-
-      <div className="section-header">
-        <h1>Notifications</h1>
-        <p>Manage how and when you receive notifications</p>
-      </div>
-
-      <div className="glass card-section">
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-          <Bell size={18} style={{ color: "#d8b36a" }} />
-          <h3 style={{ fontSize: 14, fontWeight: 600, color: "#ffffff", margin: 0 }}>Notification Channels</h3>
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Notifications</h1>
+          <p className="text-muted-foreground mt-1">Manage all your notifications and alerts</p>
         </div>
-
-        <div style={{ display: "grid", gap: 16 }}>
-          <div
-            className="table-row"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "12px 0",
-              borderBottom: "1px solid var(--border)",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ padding: "8px", borderRadius: 8, background: "rgba(87,212,153,0.1)" }}>
-                <Mail size={20} style={{ color: "#59d499" }} />
-              </div>
-              <div>
-                <span style={{ fontSize: 14, color: "#ffffff", fontWeight: 500 }}>Email Notifications</span>
-                <p style={{ fontSize: 12, color: "#7b7e84", margin: "2px 0 0" }}>Receive notifications via email</p>
-              </div>
-            </div>
-            <button
-              className={`toggle ${settings.email ? "active" : ""}`}
-              onClick={() => updateSettings("email", !settings.email)}
-            />
-          </div>
-
-          <div
-            className="table-row"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "12px 0",
-              borderBottom: "1px solid var(--border)",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ padding: "8px", borderRadius: 8, background: "rgba(87,212,153,0.1)" }}>
-                <Smartphone size={20} style={{ color: "#59d499" }} />
-              </div>
-              <div>
-                <span style={{ fontSize: 14, color: "#ffffff", fontWeight: 500 }}>Push Notifications</span>
-                <p style={{ fontSize: 12, color: "#7b7e84", margin: "2px 0 0" }}>Receive push notifications on web and mobile</p>
-              </div>
-            </div>
-            <button
-              className={`toggle ${settings.push ? "active" : ""}`}
-              onClick={() => updateSettings("push", !settings.push)}
-            />
-          </div>
-
-          <div
-            className="table-row"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "12px 0",
-              borderBottom: "1px solid var(--border)",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ padding: "8px", borderRadius: 8, background: "rgba(216,179,106,0.1)" }}>
-                <Monitor size={20} style={{ color: "#d8b36a" }} />
-              </div>
-              <div>
-                <span style={{ fontSize: 14, color: "#ffffff", fontWeight: 500 }}>Desktop Notifications</span>
-                <p style={{ fontSize: 12, color: "#7b7e84", margin: "2px 0 0" }}>Show desktop notification popups</p>
-              </div>
-            </div>
-            <button
-              className={`toggle ${settings.desktop ? "active" : ""}`}
-              onClick={() => updateSettings("desktop", !settings.desktop)}
-            />
-          </div>
-
-          <div
-            className="table-row"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "12px 0",
-              borderBottom: "1px solid var(--border)",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ padding: "8px", borderRadius: 8, background: "rgba(255,97,97,0.1)" }}>
-                <Bell size={20} style={{ color: "#ff6161" }} />
-              </div>
-              <div>
-                <span style={{ fontSize: 14, color: "#ffffff", fontWeight: 500 }}>SMS Notifications</span>
-                <p style={{ fontSize: 12, color: "#7b7e84", margin: "2px 0 0" }}>Receive important alerts via SMS</p>
-              </div>
-            </div>
-            <button
-              className={`toggle ${settings.sms ? "active" : ""}`}
-              onClick={() => updateSettings("sms", !settings.sms)}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="glass card-section">
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-          <Calendar size={18} style={{ color: "#d8b36a" }} />
-          <h3 style={{ fontSize: 14, fontWeight: 600, color: "#ffffff", margin: 0 }}>Digest Notifications</h3>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid var(--border)" }}>
-          <div>
-            <span style={{ fontSize: 14, color: "#ffffff", fontWeight: 500 }}>Daily Digest</span>
-            <p style={{ fontSize: 12, color: "#7b7e84", margin: "2px 0 0" }}>Receive a daily summary of activity</p>
-          </div>
+        {unreadCount > 0 && (
           <button
-            className={`toggle ${settings.digest ? "active" : ""}`}
-            onClick={() => updateSettings("digest", !settings.digest)}
-          />
-        </div>
-
-        {settings.digest && (
-          <div style={{ marginTop: 12, padding: "12px", background: "#162018", borderRadius: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-              <Calendar size={16} style={{ color: "#d8b36a" }} />
-              <span style={{ fontSize: 13, color: "#ffffff" }}>Frequency</span>
-            </div>
-            <div className="toggle-group">
-              {[
-                { value: "hourly", label: "Hourly" },
-                { value: "daily", label: "Daily" },
-                { value: "weekly", label: "Weekly" },
-              ].map((opt) => (
-                <button
-                  key={opt.value}
-                  className={`toggle-group-item ${settings.digestFrequency === opt.value ? "active" : ""}`}
-                  onClick={() => updateSettings("digestFrequency", opt.value as NotificationSettings["digestFrequency"])}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div style={{ marginTop: 20 }}>
-          <div
-            className="table-row"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "12px 0",
-              borderBottom: "1px solid var(--border)",
-            }}
+            onClick={markAllRead}
+            disabled={markAllLoading}
+            className="px-4 py-2 bg-surface-elevated text-white rounded-lg border border-hairline hover:border-primary/30 disabled:opacity-50"
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Mail size={16} style={{ color: "#7b7e84" }} />
-              <span style={{ fontSize: 14, color: "#ffffff" }}>Email Digests</span>
-            </div>
-            <button
-              className={`toggle ${settings.emailDigest ? "active" : ""}`}
-              onClick={() => updateSettings("emailDigest", !settings.emailDigest)}
-            />
-          </div>
-
-          <div
-            className="table-row"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "12px 0",
-              borderBottom: "1px solid var(--border)",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Smartphone size={16} style={{ color: "#7b7e84" }} />
-              <span style={{ fontSize: 14, color: "#ffffff" }}>Push Digests</span>
-            </div>
-            <button
-              className={`toggle ${settings.pushDigest ? "active" : ""}`}
-              onClick={() => updateSettings("pushDigest", !settings.pushDigest)}
-            />
-          </div>
-
-          <div
-            className="table-row"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "12px 0",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <Monitor size={16} style={{ color: "#7b7e84" }} />
-              <span style={{ fontSize: 14, color: "#ffffff" }}>Desktop Digests</span>
-            </div>
-            <button
-              className={`toggle ${settings.desktopDigest ? "active" : ""}`}
-              onClick={() => updateSettings("desktopDigest", !settings.desktopDigest)}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="glass card-section">
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-          <Clock size={18} style={{ color: "#d8b36a" }} />
-          <h3 style={{ fontSize: 14, fontWeight: 600, color: "#ffffff", margin: 0 }}>Quiet Hours</h3>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid var(--border)" }}>
-          <div>
-            <span style={{ fontSize: 14, color: "#ffffff", fontWeight: 500 }}>Enable Quiet Hours</span>
-            <p style={{ fontSize: 12, color: "#7b7e84", margin: "2px 0 0" }}>Mute notifications during specified hours</p>
-          </div>
-          <button
-            className={`toggle ${settings.quietHours.enabled ? "active" : ""}`}
-            onClick={() => updateSettings("quietHours", { ...settings.quietHours, enabled: !settings.quietHours.enabled })}
-          />
-        </div>
-
-        {settings.quietHours.enabled && (
-          <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <div>
-              <label style={{ fontSize: 12, color: "#9c9c9d", marginBottom: 8, display: "block" }}>Start Time</label>
-              <input
-                type="time"
-                value={settings.quietHours.start}
-                onChange={(e) => updateSettings("quietHours", { ...settings.quietHours, start: e.target.value })}
-                className="input-field"
-                style={{ height: 40 }}
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: 12, color: "#9c9c9d", marginBottom: 8, display: "block" }}>End Time</label>
-              <input
-                type="time"
-                value={settings.quietHours.end}
-                onChange={(e) => updateSettings("quietHours", { ...settings.quietHours, end: e.target.value })}
-                className="input-field"
-                style={{ height: 40 }}
-              />
-            </div>
-          </div>
+            {markAllLoading ? "Marking..." : `Mark All Read (${unreadCount})`}
+          </button>
         )}
       </div>
 
-      <div className="sticky bottom-0 left-0 right-0 p-4" style={{ background: "#0b0b0d", borderTop: "1px solid var(--border)", marginTop: 32, marginBottom: -32 }}>
-        <div style={{ maxWidth: "860px", margin: "0 auto", display: "flex", justifyContent: "flex-end", gap: 12 }}>
-          <button
-            onClick={() => setSettings({
-              email: true,
-              push: true,
-              desktop: true,
-              sms: false,
-              digest: true,
-              digestFrequency: "daily",
-              quietHours: { enabled: false, start: "22:00", end: "06:00" },
-              emailDigest: true,
-              pushDigest: true,
-              desktopDigest: true,
-              customizable: false,
-            })}
-            className="btn btn-ghost"
-            style={{ height: 40, padding: "0 16px", fontSize: 13 }}
-          >
-            Reset
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="btn btn-primary"
-            style={{ height: 40, padding: "0 20px", fontSize: 13, opacity: saving ? 0.7 : 1 }}
-          >
-            {saving ? "Saving..." : "Save Changes"}
-          </button>
-        </div>
+      <div className="glass card-section">
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : notifications.length === 0 ? (
+          <div className="text-center py-8">
+            <Bell size={48} className="mx-auto mb-4 text-muted-foreground" />
+            <h3 className="text-lg font-medium text-white mb-2">No notifications</h3>
+            <p className="text-muted-foreground">You're all caught up!</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {notifications.map((notif) => (
+              <div
+                key={notif.id}
+                className={`p-4 rounded-lg border transition-colors ${notif.read ? "bg-surface border-hairline" : "bg-primary/10 border-primary/30"
+                  }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      {!notif.read && (
+                        <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      )}
+                      <h3 className={`font-medium ${notif.read ? "text-muted-foreground" : "text-white"}`}>{notif.title}</h3>
+                      {notif.type && (
+                        <span className="px-2 py-0.5 rounded text-xs bg-surface-elevated text-muted-foreground">
+                          {notif.type}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                      {notif.body}
+                    </p>
+                    <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                      <span>{new Date(notif.createdAt).toLocaleString()}</span>
+                      {notif.link && (
+                        <a href={notif.link} className="text-primary hover:underline">
+                          View details
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => deleteNotification(notif.id)}
+                    className="text-muted-foreground hover:text-white ml-4"
+                    title="Delete notification"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
