@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import {
   User,
   Shield,
@@ -646,7 +645,6 @@ function AccountOverviewCard({ user }: { user: UserProfile }) {
 // ─── Page ──────────────────────────────────────────────────────
 
 export default function DashboardHome() {
-  const router = useRouter();
   const fetched = useRef(false);
 
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -683,12 +681,12 @@ export default function DashboardHome() {
       if (profileRes.status === "fulfilled" && profileRes.value) {
         var profile = profileRes.value;
         if (profile.error) {
-          router.replace("/login");
+          window.location.href = "https://accounts.tirbeo.app/login?redirect=" + encodeURIComponent(window.location.href);
           return;
         }
         setUser(profile);
       } else {
-        router.replace("/login");
+        window.location.href = "https://accounts.tirbeo.app/login?redirect=" + encodeURIComponent(window.location.href);
         return;
       }
 
@@ -704,7 +702,7 @@ export default function DashboardHome() {
 
       setLoading(false);
     });
-  }, [router]);
+  }, []);
 
   if (loading || !user) {
     return (

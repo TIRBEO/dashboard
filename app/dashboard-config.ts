@@ -125,8 +125,6 @@ export const SEARCH_INDEX: SearchEntry[] = SIDEBAR_GROUPS.flatMap(group =>
   { id: "search-password", title: "Change Password", description: "Update your account password", route: "/dashboard/security", category: "Security", icon: "Shield", keywords: ["password", "change", "update", "reset"] },
   { id: "search-2fa", title: "Enable Two-Factor Auth", description: "Add TOTP authenticator to your account", route: "/dashboard/security", category: "Security", icon: "Shield", keywords: ["2fa", "two-factor", "totp", "authenticator", "security"] },
   { id: "search-avatar", title: "Change Avatar", description: "Upload a new profile picture", route: "/dashboard/profile", category: "Profile", icon: "User", keywords: ["avatar", "photo", "picture", "image"] },
-  { id: "search-logout", title: "Sign Out", description: "Sign out of your account", route: "/logout", category: "Account", icon: "LogOut", keywords: ["logout", "sign out", "exit"] },
-  { id: "search-api-keys", title: "API Keys", description: "Manage developer API keys", route: "/dashboard/developer/api-keys", category: "Developer", icon: "Key", keywords: ["api", "keys", "token", "access"] },
   { id: "search-sessions", title: "Active Sessions", description: "View and manage signed-in devices", route: "/dashboard/sessions", category: "Security", icon: "Monitor", keywords: ["sessions", "devices", "signed in"] },
 ]);
 
