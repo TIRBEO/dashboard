@@ -620,7 +620,7 @@ CREATE TABLE IF NOT EXISTS passkey_challenges (
 CREATE INDEX IF NOT EXISTS idx_passkey_challenges_user ON passkey_challenges(user_id);
 CREATE INDEX IF NOT EXISTS idx_passkey_challenges_expires ON passkey_challenges(expires_at);
 
-- POST TAGS & HASHTAGS
+-- POST TAGS & HASHTAGS
 CREATE TABLE IF NOT EXISTS post_tags (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   name            TEXT NOT NULL UNIQUE,
@@ -1059,7 +1059,7 @@ CREATE TABLE IF NOT EXISTS timeline_entries (
 CREATE INDEX IF NOT EXISTS idx_timeline_user_id ON timeline_entries(user_id);
 CREATE INDEX IF NOT EXISTS idx_timeline_sort ON timeline_entries(sort_order);
 
-- TO-DO / TASKS
+-- TO-DO / TASKS
 CREATE TABLE IF NOT EXISTS tasks (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
