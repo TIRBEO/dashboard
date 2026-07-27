@@ -1,6 +1,10 @@
 -- ════════════════════════════════════════════════════════════
 -- TIRBEO PLATFORM — Complete Schema Migration
 -- Single source of truth. Replaces ALL previous migrations.
+--
+-- ORDER: Run this BEFORE 011_dashboard_settings_extend.sql
+-- If 011 already ran (user_settings exists), you can skip this file
+-- for dashboard-only work — 011 is self-contained.
 -- ════════════════════════════════════════════════════════════
 
 -- Drop ALL old tables first (both PascalCase and snake_case)
@@ -144,7 +148,7 @@ CREATE INDEX idx_user_passwords_user ON user_passwords(user_id);
 -- USER SETTINGS
 -- ════════════════════════════════════════════════════════════
 
-CREATE TABLE user_settings (
+CREATE TABLE IF NOT EXISTS user_settings (
   id                TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id           TEXT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
 
@@ -399,10 +403,10 @@ CREATE INDEX idx_api_keys_prefix ON api_keys(key_prefix);
 CREATE TABLE rate_limit_entries (
   id         TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   key        TEXT NOT NULL,
-  window     TEXT NOT NULL,
+  "window"   TEXT NOT NULL,
   count      INTEGER DEFAULT 1,
   expires_at TIMESTAMPTZ NOT NULL,
-  UNIQUE(key, window)
+  UNIQUE(key, "window")
 );
 
 CREATE INDEX idx_rate_limit_key ON rate_limit_entries(key);

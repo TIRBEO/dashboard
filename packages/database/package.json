@@ -30,6 +30,16 @@
       "types": "./dist/middleware-client.d.ts",
       "import": "./dist/middleware-client.mjs",
       "require": "./dist/middleware-client.js"
+    },
+    "./settings-schemas": {
+      "types": "./dist/settings-schemas.d.ts",
+      "import": "./dist/settings-schemas.mjs",
+      "require": "./dist/settings-schemas.js"
+    },
+    "./settings-service": {
+      "types": "./dist/settings-service.d.ts",
+      "import": "./dist/settings-service.mjs",
+      "require": "./dist/settings-service.js"
     }
   },
   "scripts": {

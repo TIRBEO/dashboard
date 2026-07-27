@@ -7,6 +7,8 @@ export default defineConfig({
     types: "src/types.ts",
     "server-client": "src/server-client.ts",
     "middleware-client": "src/middleware-client.ts",
+    "settings-schemas": "src/settings-schemas.ts",
+    "settings-service": "src/settings-service.ts",
   },
   format: ["cjs", "esm"],
   dts: true,
