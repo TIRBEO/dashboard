@@ -341,23 +341,7 @@ CREATE TABLE IF NOT EXISTS profile_views (
 CREATE INDEX IF NOT EXISTS idx_profile_views_profile ON profile_views(profile_id);
 CREATE INDEX IF NOT EXISTS idx_profile_views_viewer ON profile_views(viewer_id);
 
--- NOTIFICATIONS
-CREATE TABLE IF NOT EXISTS notifications (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    type TEXT NOT NULL,
-    title TEXT NOT NULL,
-    body TEXT,
-    link TEXT,
-    actor_id UUID REFERENCES auth.users(id),
-    entity_type TEXT,
-    entity_id TEXT,
-    is_read BOOLEAN DEFAULT FALSE,
-    read_at TIMESTAMPTZ,
-    created_at TIMESTAMPTZ DEFAULT now()
-);
-CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
-CREATE INDEX IF NOT EXISTS idx_notifications_unread ON notifications(user_id, is_read);
+-- Notifications table already exists from 010
 
 -- REPORTS
 CREATE TABLE IF NOT EXISTS reports (
@@ -764,7 +748,7 @@ BEGIN
     SELECT jsonb_build_object(
         'profile', jsonb_build_object('name', p.full_name, 'username', p.username, 'avatar_url', p.avatar_url),
         'stats', jsonb_build_object('projects_count', p.projects_count, 'posts_count', p.posts_count),
-        'unread_notifications', (SELECT COUNT(*) FROM notifications n WHERE n.user_id = p_user_id AND n.is_read = FALSE)
+        'unread_notifications', (SELECT COUNT(*) FROM notifications n WHERE n.user_id = p_user_id AND n.read = FALSE)
     ) INTO result
     FROM profiles p
     WHERE p.id = p_user_id;
