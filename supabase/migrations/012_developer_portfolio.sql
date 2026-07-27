@@ -3,9 +3,9 @@
 -- Supabase PostgreSQL - Run in SQL Editor or via migration pipeline
 -- 
 
--- -------------------------------------------------------------
+--  section
 -- ACHIEVEMENTS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS achievements (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -25,9 +25,9 @@ CREATE INDEX IF NOT EXISTS idx_achievements_user_id ON achievements(user_id);
 CREATE INDEX IF NOT EXISTS idx_achievements_type ON achievements(type);
 CREATE INDEX IF NOT EXISTS idx_achievements_earned_at ON achievements(earned_at DESC);
 
--- -------------------------------------------------------------
+--  section
 -- ACTIVITY LOG
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS activity_log (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -47,9 +47,9 @@ CREATE INDEX IF NOT EXISTS idx_activity_log_action ON activity_log(action);
 CREATE INDEX IF NOT EXISTS idx_activity_log_entity ON activity_log(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_activity_log_created_at ON activity_log(created_at DESC);
 
--- -------------------------------------------------------------
+--  section
 -- API KEYS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS api_keys (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -67,9 +67,9 @@ CREATE TABLE IF NOT EXISTS api_keys (
 CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON api_keys(user_id);
 CREATE INDEX IF NOT EXISTS idx_api_keys_prefix ON api_keys(prefix);
 
--- -------------------------------------------------------------
+--  section
 -- AUDIT LOGS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS audit_logs (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   actor_id        TEXT REFERENCES auth.users(id),
@@ -87,9 +87,9 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_entity ON audit_logs(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at DESC);
 
--- -------------------------------------------------------------
+--  section
 -- BADGES
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS badges (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   name            TEXT NOT NULL UNIQUE,
@@ -113,9 +113,9 @@ INSERT INTO badges (name, description, icon, color, xp_required, is_system) VALU
   ('Legend', 'Top 1% developer', '🏆', '#ffd60a', 10000, TRUE)
 ON CONFLICT (name) DO NOTHING;
 
--- -------------------------------------------------------------
+--  section
 -- BILLING
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS billing_subscriptions (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -133,9 +133,9 @@ CREATE TABLE IF NOT EXISTS billing_subscriptions (
 CREATE INDEX IF NOT EXISTS idx_billing_user_id ON billing_subscriptions(user_id);
 CREATE INDEX IF NOT EXISTS idx_billing_status ON billing_subscriptions(status);
 
--- -------------------------------------------------------------
+--  section
 -- BLOCKLIST
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS blocklist (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -149,9 +149,9 @@ CREATE TABLE IF NOT EXISTS blocklist (
 CREATE INDEX IF NOT EXISTS idx_blocklist_user ON blocklist(user_id);
 CREATE INDEX IF NOT EXISTS idx_blocklist_blocked ON blocklist(blocked_user_id);
 
--- -------------------------------------------------------------
+--  section
 -- BOOKMARKS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS bookmarks (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -165,9 +165,9 @@ CREATE TABLE IF NOT EXISTS bookmarks (
 CREATE INDEX IF NOT EXISTS idx_bookmarks_user_id ON bookmarks(user_id);
 CREATE INDEX IF NOT EXISTS idx_bookmarks_entity ON bookmarks(entity_type, entity_id);
 
--- -------------------------------------------------------------
+--  section
 -- COMMUNITIES
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS communities (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   slug            TEXT NOT NULL UNIQUE,
@@ -187,9 +187,9 @@ CREATE INDEX IF NOT EXISTS idx_communities_slug ON communities(slug);
 CREATE INDEX IF NOT EXISTS idx_communities_user_id ON communities(user_id);
 CREATE INDEX IF NOT EXISTS idx_communities_category ON communities(category);
 
--- -------------------------------------------------------------
+--  section
 -- COMMUNITY MEMBERS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS community_members (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   community_id    TEXT NOT NULL REFERENCES communities(id) ON DELETE CASCADE,
@@ -203,9 +203,9 @@ CREATE TABLE IF NOT EXISTS community_members (
 CREATE INDEX IF NOT EXISTS idx_community_members_community ON community_members(community_id);
 CREATE INDEX IF NOT EXISTS idx_community_members_user ON community_members(user_id);
 
--- -------------------------------------------------------------
+--  section
 -- COMMENTS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS comments (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   content         TEXT NOT NULL,
@@ -224,9 +224,9 @@ CREATE INDEX IF NOT EXISTS idx_comments_entity ON comments(entity_type, entity_i
 CREATE INDEX IF NOT EXISTS idx_comments_parent ON comments(parent_id);
 CREATE INDEX IF NOT EXISTS idx_comments_created_at ON comments(created_at DESC);
 
--- -------------------------------------------------------------
+--  section
 -- CONNECTED ACCOUNTS (OAuth)
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS connected_accounts (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -246,18 +246,18 @@ CREATE TABLE IF NOT EXISTS connected_accounts (
 CREATE INDEX IF NOT EXISTS idx_connected_accounts_user ON connected_accounts(user_id);
 CREATE INDEX IF NOT EXISTS idx_connected_accounts_provider ON connected_accounts(provider);
 
--- -------------------------------------------------------------
+--  section
 -- DISTRICTS (Nepal)
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS districts (
   id              SERIAL PRIMARY KEY,
   name            TEXT NOT NULL UNIQUE,
   province        INTEGER CHECK (province BETWEEN 1 AND 7)
 );
 
--- -------------------------------------------------------------
+--  section
 -- EVENTS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS events (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   title           TEXT NOT NULL,
@@ -280,9 +280,9 @@ CREATE INDEX IF NOT EXISTS idx_events_starts_at ON events(starts_at);
 CREATE INDEX IF NOT EXISTS idx_events_type ON events(event_type);
 CREATE INDEX IF NOT EXISTS idx_events_published ON events(is_published);
 
--- -------------------------------------------------------------
+--  section
 -- EVENT REGISTRATIONS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS event_registrations (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   event_id        TEXT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
@@ -295,9 +295,9 @@ CREATE TABLE IF NOT EXISTS event_registrations (
 CREATE INDEX IF NOT EXISTS idx_event_regs_event ON event_registrations(event_id);
 CREATE INDEX IF NOT EXISTS idx_event_regs_user ON event_registrations(user_id);
 
--- -------------------------------------------------------------
-- EXPERIENCE (Resume)
--- -------------------------------------------------------------
+--  section
+-- EXPERIENCE (Resume)
+--  section
 CREATE TABLE IF NOT EXISTS experiences (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -315,9 +315,9 @@ CREATE TABLE IF NOT EXISTS experiences (
 
 CREATE INDEX IF NOT EXISTS idx_experiences_user_id ON experiences(user_id);
 
--- -------------------------------------------------------------
+--  section
 -- EDUCATION (Resume)
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS education (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -335,9 +335,9 @@ CREATE TABLE IF NOT EXISTS education (
 
 CREATE INDEX IF NOT EXISTS idx_education_user_id ON education(user_id);
 
--- -------------------------------------------------------------
+--  section
 -- EXTERNAL ACCOUNTS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS external_accounts (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -353,9 +353,9 @@ CREATE TABLE IF NOT EXISTS external_accounts (
 CREATE INDEX IF NOT EXISTS idx_external_accounts_user ON external_accounts(user_id);
 CREATE INDEX IF NOT EXISTS idx_external_accounts_platform ON external_accounts(platform);
 
--- -------------------------------------------------------------
+--  section
 -- FOLLOWS (Social Graph)
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS follows (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   follower_id     TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -370,9 +370,9 @@ CREATE INDEX IF NOT EXISTS idx_follows_follower ON follows(follower_id);
 CREATE INDEX IF NOT EXISTS idx_follows_following ON follows(following_id);
 CREATE INDEX IF NOT EXISTS idx_follows_created_at ON follows(created_at DESC);
 
--- -------------------------------------------------------------
+--  section
 -- FEATURE REQUESTS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS feature_requests (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT REFERENCES auth.users(id),
@@ -388,9 +388,9 @@ CREATE TABLE IF NOT EXISTS feature_requests (
 CREATE INDEX IF NOT EXISTS idx_feature_requests_status ON feature_requests(status);
 CREATE INDEX IF NOT EXISTS idx_feature_requests_votes ON feature_requests(votes DESC);
 
--- -------------------------------------------------------------
+--  section
 - GOALS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS goals (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -410,9 +410,9 @@ CREATE TABLE IF NOT EXISTS goals (
 CREATE INDEX IF NOT EXISTS idx_goals_user_id ON goals(user_id);
 CREATE INDEX IF NOT EXISTS idx_goals_completed ON goals(is_completed);
 
--- -------------------------------------------------------------
+--  section
 -- HACKATHON PARTICIPATIONS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS hackathon_participations (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   hackathon_id    TEXT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
@@ -429,9 +429,9 @@ CREATE TABLE IF NOT EXISTS hackathon_participations (
 CREATE INDEX IF NOT EXISTS idx_hackathon_parts_event ON hackathon_participations(hackathon_id);
 CREATE INDEX IF NOT EXISTS idx_hackathon_parts_user ON hackathon_participations(user_id);
 
--- -------------------------------------------------------------
+--  section
 -- INTEGRATIONS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS integrations (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -446,9 +446,9 @@ CREATE TABLE IF NOT EXISTS integrations (
 CREATE INDEX IF NOT EXISTS idx_integrations_user_id ON integrations(user_id);
 CREATE INDEX IF NOT EXISTS idx_integrations_provider ON integrations(provider);
 
--- -------------------------------------------------------------
+--  section
 - INVITATIONS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS invitations (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   inviter_id      TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -467,9 +467,9 @@ CREATE TABLE IF NOT EXISTS invitations (
 CREATE INDEX IF NOT EXISTS idx_invitations_token ON invitations(token);
 CREATE INDEX IF NOT EXISTS idx_invitations_email ON invitations(invitee_email);
 
--- -------------------------------------------------------------
+--  section
 - INVITE ACCEPTANCES
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS invitation_acceptances (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   invitation_id   TEXT NOT NULL REFERENCES invitations(id) ON DELETE CASCADE,
@@ -479,9 +479,9 @@ CREATE TABLE IF NOT EXISTS invitation_acceptances (
   CONSTRAINT invitation_acceptances_unique UNIQUE (invitation_id, user_id)
 );
 
--- -------------------------------------------------------------
+--  section
 - LIKES
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS likes (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -495,9 +495,9 @@ CREATE TABLE IF NOT EXISTS likes (
 CREATE INDEX IF NOT EXISTS idx_likes_user_id ON likes(user_id);
 CREATE INDEX IF NOT EXISTS idx_likes_entity ON likes(entity_type, entity_id);
 
--- -------------------------------------------------------------
-- LANGUAGES (User Skills)
--- -------------------------------------------------------------
+--  section
+-- LANGUAGES (User Skills)
+--  section
 CREATE TABLE IF NOT EXISTS user_languages (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -509,9 +509,9 @@ CREATE TABLE IF NOT EXISTS user_languages (
 CREATE INDEX IF NOT EXISTS idx_user_languages_user_id ON user_languages(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_languages_language ON user_languages(language);
 
--- -------------------------------------------------------------
+--  section
 - LEARNING PATHS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS learning_paths (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -529,9 +529,9 @@ CREATE TABLE IF NOT EXISTS learning_paths (
 CREATE INDEX IF NOT EXISTS idx_learning_paths_user_id ON learning_paths(user_id);
 CREATE INDEX IF NOT EXISTS idx_learning_paths_progress ON learning_paths(progress DESC);
 
--- -------------------------------------------------------------
-- LINKS (User Social Links)
--- -------------------------------------------------------------
+--  section
+-- LINKS (User Social Links)
+--  section
 CREATE TABLE IF NOT EXISTS user_links (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -545,9 +545,9 @@ CREATE TABLE IF NOT EXISTS user_links (
 CREATE INDEX IF NOT EXISTS idx_user_links_user_id ON user_links(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_links_platform ON user_links(platform);
 
--- -------------------------------------------------------------
-- MESSAGES (Direct Messages)
--- -------------------------------------------------------------
+--  section
+-- MESSAGES (Direct Messages)
+--  section
 CREATE TABLE IF NOT EXISTS messages (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   conversation_id TEXT NOT NULL,
@@ -568,9 +568,9 @@ CREATE INDEX IF NOT EXISTS idx_messages_sender ON messages(sender_id);
 CREATE INDEX IF NOT EXISTS idx_messages_created_at ON messages(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_messages_read ON messages(is_read);
 
--- -------------------------------------------------------------
+--  section
 - MESSENGER CONVERSATIONS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS conversations (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   type            TEXT NOT NULL DEFAULT 'direct' CHECK (type IN ('direct','group')),
@@ -585,9 +585,9 @@ CREATE TABLE IF NOT EXISTS conversations (
 CREATE INDEX IF NOT EXISTS idx_conversations_type ON conversations(type);
 CREATE INDEX IF NOT EXISTS idx_conversations_last_message ON conversations(last_message_at DESC);
 
--- -------------------------------------------------------------
+--  section
 - CONVERSATION MEMBERS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS conversation_members (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
@@ -602,9 +602,9 @@ CREATE TABLE IF NOT EXISTS conversation_members (
 CREATE INDEX IF NOT EXISTS idx_conversation_members_conversation ON conversation_members(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_conversation_members_user ON conversation_members(user_id);
 
--- -------------------------------------------------------------
+--  section
 - NOTIFICATIONS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS notifications (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -625,9 +625,9 @@ CREATE INDEX IF NOT EXISTS idx_notifications_unread ON notifications(user_id, is
 CREATE INDEX IF NOT EXISTS idx_notifications_type ON notifications(type);
 CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at DESC);
 
--- -------------------------------------------------------------
+--  section
 - NOTIFICATION PREFERENCES
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS notification_preferences (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -644,9 +644,9 @@ CREATE TABLE IF NOT EXISTS notification_preferences (
   updated_at      TIMESTAMPTZ DEFAULT now()
 );
 
--- -------------------------------------------------------------
+--  section
 - ONLINE PRESENCE
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS online_presence (
   user_id         TEXT PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   status          TEXT NOT NULL DEFAULT 'online' CHECK (status IN ('online','away','busy','offline')),
@@ -656,9 +656,9 @@ CREATE TABLE IF NOT EXISTS online_presence (
   updated_at      TIMESTAMPTZ DEFAULT now()
 );
 
--- -------------------------------------------------------------
+--  section
 - PASSKEYS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS passkeys (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -677,9 +677,9 @@ CREATE TABLE IF NOT EXISTS passkeys (
 
 CREATE INDEX IF NOT EXISTS idx_passkeys_user_id ON passkeys(user_id);
 
--- -------------------------------------------------------------
-- PASSKEY CHALLENGES (for WebAuthn flow)
--- -------------------------------------------------------------
+--  section
+-- PASSKEY CHALLENGES (for WebAuthn flow)
+--  section
 CREATE TABLE IF NOT EXISTS passkey_challenges (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -694,9 +694,9 @@ CREATE TABLE IF NOT EXISTS passkey_challenges (
 CREATE INDEX IF NOT EXISTS idx_passkey_challenges_user ON passkey_challenges(user_id);
 CREATE INDEX IF NOT EXISTS idx_passkey_challenges_expires ON passkey_challenges(expires_at);
 
--- -------------------------------------------------------------
+--  section
 - POST TAGS & HASHTAGS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS post_tags (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   name            TEXT NOT NULL UNIQUE,
@@ -716,9 +716,9 @@ CREATE TABLE IF NOT EXISTS post_hashtags (
 CREATE INDEX IF NOT EXISTS idx_post_hashtags_post ON post_hashtags(post_id);
 CREATE INDEX IF NOT EXISTS idx_post_hashtags_tag ON post_hashtags(tag_id);
 
--- -------------------------------------------------------------
+--  section
 - PROJECTS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS projects (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   title           TEXT NOT NULL,
@@ -747,9 +747,9 @@ CREATE INDEX IF NOT EXISTS idx_projects_stars ON projects(star_count DESC);
 CREATE INDEX IF NOT EXISTS idx_projects_views ON projects(view_count DESC);
 CREATE INDEX IF NOT EXISTS idx_projects_created_at ON projects(created_at DESC);
 
--- -------------------------------------------------------------
+--  section
 - PROJECT TAGS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS project_tags (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   name            TEXT NOT NULL,
@@ -761,9 +761,9 @@ CREATE TABLE IF NOT EXISTS project_tags (
 CREATE INDEX IF NOT EXISTS idx_project_tags_project ON project_tags(project_id);
 CREATE INDEX IF NOT EXISTS idx_project_tags_name ON project_tags(name);
 
--- -------------------------------------------------------------
-- PROFILE VIEWS (Analytics)
--- -------------------------------------------------------------
+--  section
+-- PROFILE VIEWS (Analytics)
+--  section
 CREATE TABLE IF NOT EXISTS profile_views (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   viewer_id       TEXT REFERENCES auth.users(id) ON DELETE SET NULL,
@@ -778,9 +778,9 @@ CREATE INDEX IF NOT EXISTS idx_profile_views_profile ON profile_views(profile_id
 CREATE INDEX IF NOT EXISTS idx_profile_views_viewer ON profile_views(viewer_id);
 CREATE INDEX IF NOT EXISTS idx_profile_views_created_at ON profile_views(created_at DESC);
 
--- -------------------------------------------------------------
-- PROFILES (Extended User Profile)
--- -------------------------------------------------------------
+--  section
+-- PROFILES (Extended User Profile)
+--  section
 CREATE TABLE IF NOT EXISTS profiles (
   id              TEXT PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   username        TEXT UNIQUE,
@@ -832,9 +832,9 @@ CREATE INDEX IF NOT EXISTS idx_profiles_username ON profiles(username) WHERE use
 CREATE INDEX IF NOT EXISTS idx_profiles_xp ON profiles(xp DESC);
 CREATE INDEX IF NOT EXISTS idx_proviews_karma ON profiles(karma_points DESC);
 
--- -------------------------------------------------------------
-- PROFILE ACHIEVEMENTS (Many-to-Many)
--- -------------------------------------------------------------
+--  section
+-- PROFILE ACHIEVEMENTS (Many-to-Many)
+--  section
 CREATE TABLE IF NOT EXISTS profile_achievements (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   profile_id      TEXT NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
@@ -847,9 +847,9 @@ CREATE TABLE IF NOT EXISTS profile_achievements (
 CREATE INDEX IF NOT EXISTS idx_profile_achievements_profile ON profile_achievements(profile_id);
 CREATE INDEX IF NOT EXISTS idx_profile_achievements_achievement ON profile_achievements(achievement_id);
 
--- -------------------------------------------------------------
+--  section
 - PROJECT MEMBERS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS project_members (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   project_id      TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
@@ -864,9 +864,9 @@ CREATE TABLE IF NOT EXISTS project_members (
 CREATE INDEX IF NOT EXISTS idx_project_members_project ON project_members(project_id);
 CREATE INDEX IF NOT EXISTS idx_project_members_user ON project_members(user_id);
 
--- -------------------------------------------------------------
-- PROJECT COLLABORATIONS (for real-time collab app)
--- -------------------------------------------------------------
+--  section
+-- PROJECT COLLABORATIONS (for real-time collab app)
+--  section
 CREATE TABLE IF NOT EXISTS project_collaborations (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   project_id      TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
@@ -882,9 +882,9 @@ CREATE INDEX IF NOT EXISTS idx_project_collab_project ON project_collaborations(
 CREATE INDEX IF NOT EXISTS idx_project_collab_user ON project_collaborations(user_id);
 CREATE INDEX IF NOT EXISTS idx_project_collab_last_activity ON project_collaborations(last_activity DESC);
 
--- -------------------------------------------------------------
-- REPORTS (Content Moderation)
--- -------------------------------------------------------------
+--  section
+-- REPORTS (Content Moderation)
+--  section
 CREATE TABLE IF NOT EXISTS reports (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   reporter_id     TEXT NOT NULL REFERENCES auth.users(id),
@@ -900,9 +900,9 @@ CREATE TABLE IF NOT EXISTS reports (
 CREATE INDEX IF NOT EXISTS idx_reports_status ON reports(status);
 CREATE INDEX IF NOT EXISTS idx_reports_entity ON reports(entity_type, entity_id);
 
--- -------------------------------------------------------------
+--  section
 - RESUMES
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS resumes (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -922,9 +922,9 @@ CREATE TABLE IF NOT EXISTS resumes (
 CREATE INDEX IF NOT EXISTS idx_resumes_user_id ON resumes(user_id);
 CREATE INDEX IF NOT EXISTS idx_resumes_slug ON resumes(slug);
 
--- -------------------------------------------------------------
+--  section
 - ROLES
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS roles (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   name            TEXT NOT NULL UNIQUE,
@@ -936,9 +936,9 @@ CREATE TABLE IF NOT EXISTS roles (
   created_at      TIMESTAMPTZ DEFAULT now()
 );
 
--- -------------------------------------------------------------
+--  section
 - ROLE ASSIGNMENTS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS role_assignments (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -952,9 +952,9 @@ CREATE TABLE IF NOT EXISTS role_assignments (
 CREATE INDEX IF NOT EXISTS idx_role_assignments_user ON role_assignments(user_id);
 CREATE INDEX IF NOT EXISTS idx_role_assignments_role ON role_assignments(role_id);
 
--- -------------------------------------------------------------
-- SEARCH INDEX (Materialized View for full-text search)
--- -------------------------------------------------------------
+--  section
+-- SEARCH INDEX (Materialized View for full-text search)
+--  section
 CREATE TABLE IF NOT EXISTS search_index (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   entity_type     TEXT NOT NULL,
@@ -971,9 +971,9 @@ CREATE INDEX IF NOT EXISTS idx_search_index_entity ON search_index(entity_type, 
 CREATE INDEX IF NOT EXISTS idx_search_index_title ON search_index USING gin(to_tsvector('english', coalesce(title, '')));
 CREATE INDEX IF NOT EXISTS idx_search_index_keywords ON search_index USING gin(unnest(keywords));
 
--- -------------------------------------------------------------
+--  section
 - SESSIONS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS sessions (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -991,9 +991,9 @@ CREATE TABLE IF NOT EXISTS sessions (
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
 
--- -------------------------------------------------------------
+--  section
 - SKILLS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS skills (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   name            TEXT NOT NULL UNIQUE,
@@ -1006,9 +1006,9 @@ CREATE TABLE IF NOT EXISTS skills (
 CREATE INDEX IF NOT EXISTS idx_skills_category ON skills(category);
 CREATE INDEX IF NOT EXISTS idx_skills_popularity ON skills(popularity DESC);
 
--- -------------------------------------------------------------
-- SKILL RATINGS (User proficiency per skill)
--- -------------------------------------------------------------
+--  section
+-- SKILL RATINGS (User proficiency per skill)
+--  section
 CREATE TABLE IF NOT EXISTS skill_ratings (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -1025,9 +1025,9 @@ CREATE INDEX IF NOT EXISTS idx_skill_ratings_user ON skill_ratings(user_id);
 CREATE INDEX IF NOT EXISTS idx_skill_ratings_skill ON skill_ratings(skill_id);
 CREATE INDEX IF NOT EXISTS idx_skill_ratings_level ON skill_ratings(level DESC);
 
--- -------------------------------------------------------------
+--  section
 - STARTUPS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS startups (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   name            TEXT NOT NULL,
@@ -1049,9 +1049,9 @@ CREATE INDEX IF NOT EXISTS idx_startups_user_id ON startups(user_id);
 CREATE INDEX IF NOT EXISTS idx_startups_stage ON startups(stage);
 CREATE INDEX IF NOT EXISTS idx_startups_slug ON startups(slug);
 
--- -------------------------------------------------------------
+--  section
 - STARTUP MEMBERS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS startup_members (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   startup_id      TEXT NOT NULL REFERENCES startups(id) ON DELETE CASCADE,
@@ -1065,9 +1065,9 @@ CREATE TABLE IF NOT EXISTS startup_members (
 CREATE INDEX IF NOT EXISTS idx_startup_members_startup ON startup_members(startup_id);
 CREATE INDEX IF NOT EXISTS idx_startup_members_user ON startup_members(user_id);
 
--- -------------------------------------------------------------
-- SUBSCRIPTIONS (Billing)
--- -------------------------------------------------------------
+--  section
+-- SUBSCRIPTIONS (Billing)
+--  section
 CREATE TABLE IF NOT EXISTS subscriptions (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -1088,9 +1088,9 @@ CREATE TABLE IF NOT EXISTS subscriptions (
 CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON subscriptions(user_id);
 CREATE INDEX IF NOT EXISTS idx_subscriptions_status ON subscriptions(status);
 
--- -------------------------------------------------------------
-- SUPPORT TICKETS (Admin Chat)
--- -------------------------------------------------------------
+--  section
+-- SUPPORT TICKETS (Admin Chat)
+--  section
 CREATE TABLE IF NOT EXISTS support_tickets (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT REFERENCES auth.users(id) ON DELETE SET NULL,
@@ -1110,9 +1110,9 @@ CREATE INDEX IF NOT EXISTS idx_support_tickets_priority ON support_tickets(prior
 CREATE INDEX IF NOT EXISTS idx_support_tickets_assigned ON support_tickets(assigned_to);
 CREATE INDEX IF NOT EXISTS idx_support_tickets_user ON support_tickets(user_id);
 
--- -------------------------------------------------------------
-- TICKET MESSAGES (Admin Chat)
--- -------------------------------------------------------------
+--  section
+-- TICKET MESSAGES (Admin Chat)
+--  section
 CREATE TABLE IF NOT EXISTS ticket_messages (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   ticket_id       TEXT NOT NULL REFERENCES support_tickets(id) ON DELETE CASCADE,
@@ -1128,9 +1128,9 @@ CREATE INDEX IF NOT EXISTS idx_ticket_messages_ticket ON ticket_messages(ticket_
 CREATE INDEX IF NOT EXISTS idx_ticket_messages_sender ON ticket_messages(sender_id);
 CREATE INDEX IF NOT EXISTS idx_ticket_messages_created_at ON ticket_messages(created_at DESC);
 
--- -------------------------------------------------------------
-- TAGS (Project/Post Tags)
--- -------------------------------------------------------------
+--  section
+-- TAGS (Project/Post Tags)
+--  section
 CREATE TABLE IF NOT EXISTS tags (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   name            TEXT NOT NULL UNIQUE,
@@ -1143,9 +1143,9 @@ CREATE TABLE IF NOT EXISTS tags (
 CREATE INDEX IF NOT EXISTS idx_tags_slug ON tags(slug);
 CREATE INDEX IF NOT EXISTS idx_tags_category ON tags(category);
 
--- -------------------------------------------------------------
-- TEAM_MEMBERS (Workspace)
--- -------------------------------------------------------------
+--  section
+-- TEAM_MEMBERS (Workspace)
+--  section
 CREATE TABLE IF NOT EXISTS team_members (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   workspace_id    TEXT NOT NULL,
@@ -1159,9 +1159,9 @@ CREATE TABLE IF NOT EXISTS team_members (
 CREATE INDEX IF NOT EXISTS idx_team_members_workspace ON team_members(workspace_id);
 CREATE INDEX IF NOT EXISTS idx_team_members_user ON team_members(user_id);
 
--- -------------------------------------------------------------
+--  section
 - TIMELINE ENTRIES
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS timeline_entries (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -1181,9 +1181,9 @@ CREATE TABLE IF NOT EXISTS timeline_entries (
 CREATE INDEX IF NOT EXISTS idx_timeline_user_id ON timeline_entries(user_id);
 CREATE INDEX IF NOT EXISTS idx_timeline_sort ON timeline_entries(sort_order);
 
--- -------------------------------------------------------------
+--  section
 - TO-DO / TASKS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS tasks (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -1203,9 +1203,9 @@ CREATE INDEX IF NOT EXISTS idx_tasks_user_id ON tasks(user_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
 CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
 
--- -------------------------------------------------------------
-- TRANSACTIONS (Billing)
--- -------------------------------------------------------------
+--  section
+-- TRANSACTIONS (Billing)
+--  section
 CREATE TABLE IF NOT EXISTS transactions (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -1223,9 +1223,9 @@ CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON transactions(user_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_stripe ON transactions(stripe_payment_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_created_at ON transactions(created_at DESC);
 
--- -------------------------------------------------------------
-- THEMES (User preferences)
--- -------------------------------------------------------------
+--  section
+-- THEMES (User preferences)
+--  section
 CREATE TABLE IF NOT EXISTS themes (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   name            TEXT NOT NULL UNIQUE,
@@ -1241,9 +1241,9 @@ INSERT INTO themes (name, display_name, mode, config, is_default) VALUES
   ('tirbeo-light', 'Tirbeo Light', 'light', '{"bg":"#ffffff","surface":"#fafafa","accent":"#0a0a0a"}', FALSE)
 ON CONFLICT (name) DO NOTHING;
 
--- -------------------------------------------------------------
+--  section
 - TIMELINE OF USER ACTIVITY TRACKER
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS user_activity_timeline (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -1259,9 +1259,9 @@ CREATE INDEX IF NOT EXISTS idx_user_activity_timeline_user ON user_activity_time
 CREATE INDEX IF NOT EXISTS idx_user_activity_timeline_type ON user_activity_timeline(activity_type);
 CREATE INDEX IF NOT EXISTS idx_user_activity_timeline_created_at ON user_activity_timeline(created_at DESC);
 
--- -------------------------------------------------------------
+--  section
 - USAGE METRICS
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS usage_metrics (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -1279,9 +1279,9 @@ CREATE INDEX IF NOT EXISTS idx_usage_metrics_user ON usage_metrics(user_id);
 CREATE INDEX IF NOT EXISTS idx_usage_metrics_feature ON usage_metrics(feature);
 CREATE INDEX IF NOT EXISTS idx_usage_metrics_period ON usage_metrics(period_start, period_end);
 
--- -------------------------------------------------------------
+--  section
 - USER BLOCKLIST
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS user_blocklist (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   blocker_id      TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -1295,9 +1295,9 @@ CREATE TABLE IF NOT EXISTS user_blocklist (
 CREATE INDEX IF NOT EXISTS idx_user_blocklist_blocker ON user_blocklist(blocker_id);
 CREATE INDEX IF NOT EXISTS idx_user_blocklist_blocked ON user_blocklist(blocked_id);
 
--- -------------------------------------------------------------
-- USER ROLES (RBAC)
--- -------------------------------------------------------------
+--  section
+-- USER ROLES (RBAC)
+--  section
 CREATE TABLE IF NOT EXISTS user_roles (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -1311,9 +1311,9 @@ CREATE TABLE IF NOT EXISTS user_roles (
 CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON user_roles(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_roles_role ON user_roles(role);
 
--- -------------------------------------------------------------
-- VERIFICATIONS (Email, Phone, Identity)
--- -------------------------------------------------------------
+--  section
+-- VERIFICATIONS (Email, Phone, Identity)
+--  section
 CREATE TABLE IF NOT EXISTS verifications (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -1333,9 +1333,9 @@ CREATE INDEX IF NOT EXISTS idx_verifications_token ON verifications(token);
 CREATE INDEX IF NOT EXISTS idx_verifications_user_type ON verifications(user_id, type);
 CREATE INDEX IF NOT EXISTS idx_verifications_expires ON verifications(expires_at);
 
--- -------------------------------------------------------------
-- VIEWS (Content View Analytics)
--- -------------------------------------------------------------
+--  section
+-- VIEWS (Content View Analytics)
+--  section
 CREATE TABLE IF NOT EXISTS views (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT REFERENCES auth.users(id) ON DELETE SET NULL,
@@ -1351,9 +1351,9 @@ CREATE INDEX IF NOT EXISTS idx_views_entity ON views(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_views_user ON views(user_id);
 CREATE INDEX IF NOT EXISTS idx_views_created_at ON views(created_at DESC);
 
--- -------------------------------------------------------------
-- VOTES (Polls / Community Voting)
--- -------------------------------------------------------------
+--  section
+-- VOTES (Polls / Community Voting)
+--  section
 CREATE TABLE IF NOT EXISTS votes (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -1369,9 +1369,9 @@ CREATE TABLE IF NOT EXISTS votes (
 CREATE INDEX IF NOT EXISTS idx_votes_user_id ON votes(user_id);
 CREATE INDEX IF NOT EXISTS idx_votes_entity ON votes(entity_type, entity_id);
 
--- -------------------------------------------------------------
+--  section
 - WORKSPACES
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS workspaces (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   name            TEXT NOT NULL,
@@ -1389,9 +1389,9 @@ CREATE TABLE IF NOT EXISTS workspaces (
 CREATE INDEX IF NOT EXISTS idx_workspaces_owner ON workspaces(owner_id);
 CREATE INDEX IF NOT EXISTS idx_workspaces_slug ON workspaces(slug);
 
--- -------------------------------------------------------------
-- XP LEDGER (Points History)
--- -------------------------------------------------------------
+--  section
+-- XP LEDGER (Points History)
+--  section
 CREATE TABLE IF NOT EXISTS xp_ledger (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -1405,9 +1405,9 @@ CREATE TABLE IF NOT EXISTS xp_ledger (
 CREATE INDEX IF NOT EXISTS idx_xp_ledger_user_id ON xp_ledger(user_id);
 CREATE INDEX IF NOT EXISTS idx_xp_ledger_created_at ON xp_ledger(created_at DESC);
 
--- -------------------------------------------------------------
+--  section
 - YEARLY MILESTONES
--- -------------------------------------------------------------
+--  section
 CREATE TABLE IF NOT EXISTS yearly_milestones (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -1428,9 +1428,9 @@ CREATE TABLE IF NOT EXISTS yearly_milestones (
 CREATE INDEX IF NOT EXISTS idx_yearly_milestones_user ON yearly_milestones(user_id);
 CREATE INDEX IF NOT EXISTS idx_yearly_milestones_year ON yearly_milestones(year DESC);
 
--- -------------------------------------------------------------
-- ZIPPER (Compressed Profile Data for Export)
--- -------------------------------------------------------------
+--  section
+-- ZIPPER (Compressed Profile Data for Export)
+--  section
 CREATE TABLE IF NOT EXISTS data_exports (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   user_id         TEXT NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -1447,9 +1447,9 @@ CREATE TABLE IF NOT EXISTS data_exports (
 CREATE INDEX IF NOT EXISTS idx_data_exports_user_id ON data_exports(user_id);
 CREATE INDEX IF NOT EXISTS idx_data_exports_status ON data_exports(status);
 
--- -------------------------------------------------------------
-- Z-INDEX CACHE (Performance)
--- -------------------------------------------------------------
+--  section
+-- Z-INDEX CACHE (Performance)
+--  section
 CREATE TABLE IF NOT EXISTS zindex_cache (
   id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
   cache_key       TEXT NOT NULL UNIQUE,
