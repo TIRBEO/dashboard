@@ -1,0 +1,407 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "SF Pro Display", "SF Pro Text", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+
+  /* Surface Ladder */
+  --color-canvas: #07080a;
+  --color-surface: #0d0d0d;
+  --color-surface-elevated: #101111;
+  --color-surface-card: #121212;
+
+  /* Text Hierarchy */
+  --color-ink: #f4f4f6;
+  --color-body: #cdcdcd;
+  --color-mute: #9c9c9d;
+  --color-ash: #6a6b6c;
+  --color-stone: #434345;
+  --color-on-dark: #ffffff;
+
+  /* Brand & CTA */
+  --color-brand: #ffffff;
+  --color-primary: #ffffff;
+  --color-primary-pressed: #e8e8e8;
+  --color-on-primary: #000000;
+
+  /* Borders */
+  --color-hairline: #242728;
+  --color-hairline-soft: rgba(255, 255, 255, 0.08);
+  --color-hairline-strong: rgba(255, 255, 255, 0.16);
+
+  /* Semantic Accents */
+  --color-accent-blue: #57c1ff;
+  --color-accent-red: #ff6161;
+  --color-accent-green: #59d499;
+  --color-accent-yellow: #ffc533;
+
+  /* Hero Stripe */
+  --color-hero-stripe-start: #ff5757;
+  --color-hero-stripe-end: #a1131a;
+
+  /* Radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+}
+
+:root {
+  --background: #0c0c0c;
+  --foreground: #FFFFFF;
+  --accent: #FFFFFF;
+  --glass-bg: rgba(12, 12, 12, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --text-secondary: rgba(255, 255, 255, 0.6);
+}
+
+html,
+body {
+  font-family: var(--font-sans);
+  font-feature-settings: "calt", "kern", "liga", "ss03";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background);
+  color: var(--foreground);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+html {
+  font-size: 105%;
+  scroll-padding-top: 80px;
+}
+
+/* ─── Reveal entrance (CSS-only, always ends visible) ─── */
+.reveal {
+  animation: revealIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes revealIn {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.reveal {
+  background: rgba(7, 7, 7, 0.20);
+  border-radius: 35px;
+}
+
+/* Keep the gradient-clip heading from flickering */
+.hero-rise {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+::selection {
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Minimal scrollbar (macOS-like) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* ─── macOS Tahoe Liquid Glass (landing page) ─── */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    inset 0 1px rgba(255, 255, 255, 0.25);
+}
+
+.glass-card {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+}
+
+/* Mobile menu panel — expanded with a heavier glass blur */
+.menu-panel {
+  background: rgba(12, 12, 12, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  backdrop-filter: blur(22px) saturate(160%);
+}
+
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.22),
+    0 2px 6px rgba(0, 0, 0, 0.1),
+    inset 0 1px rgba(255, 255, 255, 0.18);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.1) 20%,
+      rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0) 60%,
+      rgba(255, 255, 255, 0.1) 80%, rgba(255, 255, 255, 0.35) 100%);
+  -webkit-mask: linear-gradient(#FFFFFF 0 0) content-box, linear-gradient(#FFFFFF 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Glass pill button (macOS) */
+.glass-pill {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset;
+  transition: all 0.2s ease;
+}
+
+.glass-pill:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  transform: translateY(-1px);
+}
+
+.glass-pill.no-border {
+  border: none;
+  box-shadow: none;
+}
+
+/* Frosted OLED CTA — transparent silver glass, nothing reads as solid fill. */
+.glass-cta {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  color: #FFFFFF;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.18) inset,
+    0 10px 30px rgba(0, 0, 0, 0.35);
+  transition: transform 0.25s var(--ease-spring, cubic-bezier(0.16, 1, 0.3, 1)),
+    border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.glass-cta:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  transform: translateY(-1px);
+}
+
+.glass-cta:active {
+  transform: scale(0.98);
+}
+
+/* Glass chat bubble (sent messages) */
+.glass-bubble {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #FFFFFF;
+}
+
+/* ─── Tirbeo UI Components (dashboard/admin) ─── */
+.tirbeo-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-lg);
+}
+
+.tirbeo-card-elevated {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-lg);
+}
+
+.tirbeo-command-palette {
+  background: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.tirbeo-pill {
+  background: transparent;
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-full);
+  color: var(--color-body);
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0.2px;
+  transition: all 0.15s ease;
+}
+
+.tirbeo-pill:hover {
+  border-color: var(--color-hairline-strong);
+  color: var(--color-on-dark);
+}
+
+.tirbeo-pill-active {
+  background: var(--color-surface-elevated);
+  border-color: var(--color-hairline-strong);
+  color: var(--color-on-dark);
+}
+
+.tirbeo-cta {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0.2px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+}
+
+.tirbeo-cta:hover {
+  background: var(--color-primary-pressed);
+}
+
+.tirbeo-ghost {
+  background: transparent;
+  color: var(--color-on-dark);
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0.2px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+}
+
+.tirbeo-ghost:hover {
+  background: var(--color-surface-elevated);
+}
+
+.tirbeo-input {
+  background: var(--color-surface-elevated);
+  color: var(--color-on-dark);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  font-size: 16px;
+  line-height: 1.6;
+  transition: border-color 0.15s ease;
+}
+
+.tirbeo-input:focus {
+  outline: none;
+  border-color: var(--color-hairline-strong);
+}
+
+.tirbeo-input::placeholder {
+  color: var(--color-ash);
+}
+
+/* Shiny headline animation */
+@keyframes shiny {
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.animate-shiny {
+  animation: shiny 6s linear infinite;
+}
+
+/* Silver gradient heading for portfolio-derived sections (OLED-consistent) */
+.silver-heading {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, #FFFFFF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Auto-scrolling marquee for testimonial quotes */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-rev {
+  from {
+    transform: translateX(-50%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+.marquee-wrap:hover .marquee-row {
+  animation-play-state: paused;
+}
+
+.chat-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chat-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 99px;
+}
+
+.chat-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}

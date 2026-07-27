@@ -1,0 +1,15 @@
+node_modules
+dist
+
+dist-ssr
+*.local
+.DS_Store
+.env
+.env.*
+!.env.example
+tsconfig.tsbuildinfo
+tsconfig.node.tsbuildinfo
+vite.config.d.ts
+vite.config.js
+*.timestamp-*.mjs
+.server

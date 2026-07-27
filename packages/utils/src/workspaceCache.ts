@@ -1,0 +1,24 @@
+import { getCache, setCache } from './redis';
+import prisma from '@tirbeo/database';
+
+const prismaClient = prisma as unknown as {
+  workspace?: {
+    findUnique?: (args: { where: { slug: string } }) => Promise<unknown | null>;
+  };
+};
+
+const WORKSPACE_CACHE_TTL = 300; // seconds
+
+export async function getWorkspaceBySlug(slug: string) {
+  const cacheKey = `workspace:${slug}`;
+  const cached = await getCache(cacheKey);
+  if (cached) {
+    return JSON.parse(cached);
+  }
+
+  const ws = await (prismaClient as { workspace?: { findUnique?: (args: { where: { slug: string } }) => Promise<unknown | null> } }).workspace?.findUnique?.({ where: { slug } });
+  if (ws) {
+    await setCache(cacheKey, JSON.stringify(ws), WORKSPACE_CACHE_TTL);
+  }
+  return ws;
+}
