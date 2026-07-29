@@ -1,10 +1,6 @@
 -- ════════════════════════════════════════════════════════════
 -- TIRBEO PLATFORM — Complete Schema Migration
 -- Single source of truth. Replaces ALL previous migrations.
---
--- ORDER: Run this BEFORE 011_dashboard_settings_extend.sql
--- If 011 already ran (user_settings exists), you can skip this file
--- for dashboard-only work — 011 is self-contained.
 -- ════════════════════════════════════════════════════════════
 
 -- Drop ALL old tables first (both PascalCase and snake_case)
@@ -447,98 +443,82 @@ CREATE TABLE audit_events (
 );
 
 CREATE INDEX idx_audit_events_action ON audit_events(action);
-CREATE INDEX idx_audit_events_actor ON audit_events(actor_id);
-CREATE INDEX idx_audit_events_target ON audit_events(target_type, target_id);
-CREATE INDEX idx_audit_events_severity ON audit_events(severity);
-CREATE INDEX idx_audit_events_created ON audit_events(created_at);
 
 CREATE TABLE security_events (
-  id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
-  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  type        TEXT NOT NULL,
-  description TEXT NOT NULL,
-  ip_address  TEXT,
-  user_agent  TEXT,
-  location    TEXT,
-  metadata    JSONB DEFAULT '{}',
-  severity    severity_level DEFAULT 'info',
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+  id         TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+  user_id    TEXT REFERENCES users(id) ON DELETE SET NULL,
+  event_type TEXT NOT NULL,
+  severity   severity_level DEFAULT 'info',
+  ip_address TEXT,
+  user_agent TEXT,
+  metadata   JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE INDEX idx_security_events_user ON security_events(user_id);
-CREATE INDEX idx_security_events_type ON security_events(type);
-CREATE INDEX idx_security_events_severity ON security_events(severity);
+CREATE INDEX idx_security_events_type ON security_events(event_type);
 CREATE INDEX idx_security_events_created ON security_events(created_at);
+
+-- ════════════════════════════════════════════════════════════
+-- BLOCKLIST
+-- ════════════════════════════════════════════════════════════
 
 CREATE TABLE blocklist (
   id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
-  type        TEXT NOT NULL DEFAULT 'ip',
-  value       TEXT NOT NULL,
+  target_type TEXT NOT NULL,
+  target_id   TEXT NOT NULL,
   reason      TEXT,
-  added_by_id TEXT REFERENCES users(id),
-  expires_at  TIMESTAMPTZ,
+  blocked_by  TEXT REFERENCES users(id),
   is_active   BOOLEAN DEFAULT true,
+  expires_at  TIMESTAMPTZ,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE(type, value)
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE(target_type, target_id)
 );
 
-CREATE INDEX idx_blocklist_type ON blocklist(type);
-CREATE INDEX idx_blocklist_value ON blocklist(value);
-CREATE INDEX idx_blocklist_expires ON blocklist(expires_at);
+CREATE INDEX idx_blocklist_type ON blocklist(target_type);
+CREATE INDEX idx_blocklist_active ON blocklist(is_active);
 
 -- ════════════════════════════════════════════════════════════
 -- NOTIFICATIONS
 -- ════════════════════════════════════════════════════════════
 
 CREATE TABLE notifications (
-  id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
-  user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  type        TEXT NOT NULL,
-  title       TEXT NOT NULL,
-  body        TEXT,
-  link        TEXT,
-  icon        TEXT,
-  priority    TEXT DEFAULT 'normal',
-  read        BOOLEAN DEFAULT false,
-  read_at     TIMESTAMPTZ,
-  email_sent  BOOLEAN DEFAULT false,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+  id         TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+  user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type       TEXT NOT NULL,
+  title      TEXT NOT NULL,
+  body       TEXT,
+  icon       TEXT,
+  link       TEXT,
+  is_read    BOOLEAN DEFAULT false,
+  metadata   JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_notifications_user_read ON notifications(user_id, read);
-CREATE INDEX idx_notifications_created ON notifications(created_at);
-CREATE INDEX idx_notifications_type ON notifications(type);
+CREATE INDEX idx_notifications_user ON notifications(user_id);
+CREATE INDEX idx_notifications_read ON notifications(is_read);
+CREATE INDEX idx_notifications_created ON notifications(created_at DESC);
 
 CREATE TABLE notification_preferences (
-  id              TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
-  user_id         TEXT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
-  email_digest    TEXT DEFAULT 'daily',
-  digest_time     TEXT DEFAULT '08:00',
-  mention         BOOLEAN DEFAULT true,
-  comment         BOOLEAN DEFAULT true,
-  report          BOOLEAN DEFAULT true,
-  system          BOOLEAN DEFAULT true,
-  marketing       BOOLEAN DEFAULT false,
-  security        BOOLEAN DEFAULT true,
-  product         BOOLEAN DEFAULT true,
-  updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+  id         TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+  user_id    TEXT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  type       TEXT NOT NULL DEFAULT 'all',
+  email      BOOLEAN DEFAULT true,
+  push       BOOLEAN DEFAULT true,
+  in_app     BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- ════════════════════════════════════════════════════════════
--- EMAIL SYSTEM
+-- EMAIL CONFIGURATION
 -- ════════════════════════════════════════════════════════════
 
 CREATE TABLE email_configs (
   id         TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
-  provider   TEXT DEFAULT 'resend',
-  api_key    TEXT,
-  smtp_host  TEXT,
-  smtp_port  INTEGER,
-  smtp_user  TEXT,
-  smtp_pass  TEXT,
-  from_email TEXT DEFAULT 'noreply@tirbeo.app',
-  from_name  TEXT DEFAULT 'Tirbeo',
-  enabled    BOOLEAN DEFAULT true,
+  key        TEXT NOT NULL UNIQUE,
+  value      TEXT NOT NULL,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -549,90 +529,76 @@ CREATE TABLE email_templates (
   subject    TEXT NOT NULL,
   html_body  TEXT NOT NULL,
   variables  JSONB DEFAULT '[]',
-  from_email TEXT,
-  from_name  TEXT,
-  is_active  BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE email_logs (
-  id          TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
-  template_id TEXT,
-  to_email    TEXT NOT NULL,
-  from_email  TEXT NOT NULL,
-  subject     TEXT NOT NULL,
-  status      TEXT DEFAULT 'queued',
-  provider_id TEXT,
-  error       TEXT,
-  metadata    JSONB DEFAULT '{}',
-  sent_at     TIMESTAMPTZ,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+  id         TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+  to_email   TEXT NOT NULL,
+  subject    TEXT NOT NULL,
+  template   TEXT,
+  status     TEXT DEFAULT 'sent',
+  opened_at  TIMESTAMPTZ,
+  clicked_at TIMESTAMPTZ,
+  error      TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_email_logs_to ON email_logs(to_email);
-CREATE INDEX idx_email_logs_status ON email_logs(status);
 CREATE INDEX idx_email_logs_created ON email_logs(created_at);
+CREATE INDEX idx_email_logs_status ON email_logs(status);
 
 -- ════════════════════════════════════════════════════════════
--- CONTENT MODERATION
+-- CONTENT REPORTS
 -- ════════════════════════════════════════════════════════════
 
 CREATE TABLE content_reports (
-  id             TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
-  reporter_id    TEXT NOT NULL REFERENCES users(id),
-  target_type    TEXT NOT NULL,
-  target_id      TEXT NOT NULL,
-  reason         TEXT NOT NULL,
-  description    TEXT,
-  status         report_status DEFAULT 'pending',
-  priority       TEXT DEFAULT 'normal',
-  reviewed_by_id TEXT REFERENCES users(id),
-  reviewed_at    TIMESTAMPTZ,
-  action         TEXT,
-  notes          TEXT,
-  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+  id            TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+  reporter_id   TEXT NOT NULL REFERENCES users(id),
+  target_type   TEXT NOT NULL,
+  target_id     TEXT NOT NULL,
+  reason        TEXT NOT NULL,
+  description   TEXT,
+  status        report_status DEFAULT 'pending',
+  reviewed_by   TEXT REFERENCES users(id),
+  reviewed_at   TIMESTAMPTZ,
+  action_taken  TEXT,
+  notes         TEXT,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE INDEX idx_content_reports_status ON content_reports(status);
+CREATE INDEX idx_content_reports_reporter ON content_reports(reporter_id);
 CREATE INDEX idx_content_reports_target ON content_reports(target_type, target_id);
-CREATE INDEX idx_content_reports_created ON content_reports(created_at);
 
 -- ════════════════════════════════════════════════════════════
--- MEDIA LIBRARY
+-- MEDIA
 -- ════════════════════════════════════════════════════════════
 
 CREATE TABLE media (
-  id             TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
-  file_name      TEXT NOT NULL,
-  original_name  TEXT,
-  file_size      INTEGER NOT NULL,
-  mime_type      TEXT NOT NULL,
-  url            TEXT NOT NULL,
-  storage_path   TEXT,
-  thumbnail      TEXT,
-  alt_text       TEXT,
-  caption        TEXT,
-  width          INTEGER,
-  height         INTEGER,
-  duration       INTEGER,
-  uploaded_by    TEXT NOT NULL REFERENCES users(id),
-  folder         TEXT DEFAULT 'general',
-  tags           JSONB DEFAULT '[]',
-  is_public      BOOLEAN DEFAULT true,
-  metadata       JSONB DEFAULT '{}',
-  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+  id           TEXT PRIMARY KEY DEFAULT gen_random_uuid()::TEXT,
+  uploaded_by  TEXT NOT NULL REFERENCES users(id),
+  url          TEXT NOT NULL,
+  filename     TEXT,
+  mime_type    TEXT,
+  size_bytes   BIGINT,
+  width        INTEGER,
+  height       INTEGER,
+  duration     FLOAT,
+  alt_text     TEXT,
+  is_public    BOOLEAN DEFAULT true,
+  metadata     JSONB DEFAULT '{}',
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_media_folder ON media(folder);
+CREATE INDEX idx_media_uploader ON media(uploaded_by);
+CREATE INDEX idx_media_public ON media(is_public);
 CREATE INDEX idx_media_mime ON media(mime_type);
-CREATE INDEX idx_media_uploaded ON media(uploaded_by);
-CREATE INDEX idx_media_created ON media(created_at);
 
 -- ════════════════════════════════════════════════════════════
--- INTEGRATIONS & WEBHOOKS
+-- INTEGRATIONS
 -- ════════════════════════════════════════════════════════════
 
 CREATE TABLE integrations (
@@ -909,6 +875,118 @@ CREATE TABLE daily_stats (
 CREATE INDEX idx_daily_stats_date ON daily_stats(date);
 
 -- ════════════════════════════════════════════════════════════
+-- DASHBOARD: Subscriptions, Invoices, Verification, Login History, Email Prefs, Payment Methods
+-- ════════════════════════════════════════════════════════════
+
+CREATE TABLE subscriptions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    plan TEXT NOT NULL DEFAULT 'free' CHECK (plan IN ('free', 'pro', 'business', 'enterprise')),
+    status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'canceled', 'past_due', 'trialing', 'incomplete')),
+    billing_cycle TEXT NOT NULL DEFAULT 'monthly' CHECK (billing_cycle IN ('monthly', 'yearly')),
+    current_period_start TIMESTAMPTZ NOT NULL DEFAULT now(),
+    current_period_end TIMESTAMPTZ NOT NULL DEFAULT (now() + interval '1 month'),
+    canceled_at TIMESTAMPTZ,
+    trial_end TIMESTAMPTZ,
+    stripe_subscription_id TEXT,
+    stripe_customer_id TEXT,
+    metadata JSONB DEFAULT '{}',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_subscriptions_user_id ON subscriptions(user_id);
+CREATE INDEX idx_subscriptions_status ON subscriptions(status);
+CREATE INDEX idx_subscriptions_plan ON subscriptions(plan);
+
+CREATE TABLE invoices (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    subscription_id UUID REFERENCES subscriptions(id) ON DELETE SET NULL,
+    stripe_invoice_id TEXT,
+    invoice_number TEXT NOT NULL,
+    amount INTEGER NOT NULL,
+    currency TEXT NOT NULL DEFAULT 'usd',
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('draft', 'open', 'paid', 'uncollectible', 'void')),
+    description TEXT,
+    period_start TIMESTAMPTZ,
+    period_end TIMESTAMPTZ,
+    paid_at TIMESTAMPTZ,
+    invoice_pdf TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_invoices_user_id ON invoices(user_id);
+CREATE INDEX idx_invoices_status ON invoices(status);
+CREATE INDEX idx_invoices_created_at ON invoices(created_at DESC);
+
+CREATE TABLE verification_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'under_review', 'approved', 'rejected', 'expired')),
+    full_name TEXT NOT NULL,
+    description TEXT,
+    document_urls JSONB DEFAULT '[]',
+    notes TEXT,
+    reviewed_by TEXT REFERENCES users(id),
+    reviewed_at TIMESTAMPTZ,
+    rejection_reason TEXT,
+    submitted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_verification_requests_user_id ON verification_requests(user_id);
+CREATE INDEX idx_verification_requests_status ON verification_requests(status);
+
+CREATE TABLE login_history (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    ip_address TEXT,
+    user_agent TEXT,
+    device_name TEXT,
+    browser TEXT,
+    os TEXT,
+    location TEXT,
+    country TEXT,
+    status TEXT NOT NULL DEFAULT 'successful' CHECK (status IN ('successful', 'failed', 'suspicious', 'blocked')),
+    failure_reason TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_login_history_user_id ON login_history(user_id);
+CREATE INDEX idx_login_history_created_at ON login_history(created_at DESC);
+CREATE INDEX idx_login_history_status ON login_history(status);
+
+CREATE TABLE email_preferences (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+    security_alerts BOOLEAN NOT NULL DEFAULT true,
+    billing_reminders BOOLEAN NOT NULL DEFAULT true,
+    product_updates BOOLEAN NOT NULL DEFAULT true,
+    new_features BOOLEAN NOT NULL DEFAULT false,
+    monthly_newsletter BOOLEAN NOT NULL DEFAULT true,
+    tips_and_tricks BOOLEAN NOT NULL DEFAULT false,
+    digest_frequency TEXT NOT NULL DEFAULT 'never' CHECK (digest_frequency IN ('daily', 'weekly', 'monthly', 'never')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE payment_methods (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    stripe_payment_method_id TEXT,
+    brand TEXT NOT NULL,
+    last_four TEXT NOT NULL,
+    exp_month INTEGER NOT NULL,
+    exp_year INTEGER NOT NULL,
+    is_default BOOLEAN NOT NULL DEFAULT false,
+    billing_details JSONB DEFAULT '{}',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_payment_methods_user_id ON payment_methods(user_id);
+
+-- ════════════════════════════════════════════════════════════
 -- ROW LEVEL SECURITY (RLS)
 -- ════════════════════════════════════════════════════════════
 
@@ -928,6 +1006,12 @@ ALTER TABLE integrations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activity_streaks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE verification_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE login_history ENABLE ROW LEVEL SECURITY;
+ALTER TABLE email_preferences ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payment_methods ENABLE ROW LEVEL SECURITY;
 
 -- Users: public read, own writes
 CREATE POLICY "users_select_public" ON users FOR SELECT USING (true);
@@ -995,6 +1079,49 @@ CREATE POLICY "activity_streaks_own" ON activity_streaks FOR ALL USING (user_id 
 
 -- User settings: own only
 CREATE POLICY "user_settings_own" ON user_settings FOR ALL USING (user_id = auth.uid()::TEXT);
+
+-- Subscriptions: own + admin
+CREATE POLICY "subscriptions_user_select" ON subscriptions FOR SELECT USING (auth.uid()::TEXT = user_id);
+CREATE POLICY "subscriptions_user_insert" ON subscriptions FOR INSERT WITH CHECK (auth.uid()::TEXT = user_id);
+CREATE POLICY "subscriptions_user_update" ON subscriptions FOR UPDATE USING (auth.uid()::TEXT = user_id);
+CREATE POLICY "subscriptions_admin_all" ON subscriptions FOR ALL USING (
+    EXISTS (SELECT 1 FROM users WHERE id = auth.uid()::TEXT AND admin_role IS NOT NULL)
+);
+
+-- Invoices: own + admin
+CREATE POLICY "invoices_user_select" ON invoices FOR SELECT USING (auth.uid()::TEXT = user_id);
+CREATE POLICY "invoices_admin_select" ON invoices FOR SELECT USING (
+    EXISTS (SELECT 1 FROM users WHERE id = auth.uid()::TEXT AND admin_role IS NOT NULL)
+);
+
+-- Verification requests: own + admin
+CREATE POLICY "verification_requests_user_select" ON verification_requests FOR SELECT USING (auth.uid()::TEXT = user_id);
+CREATE POLICY "verification_requests_user_insert" ON verification_requests FOR INSERT WITH CHECK (auth.uid()::TEXT = user_id);
+CREATE POLICY "verification_requests_user_update" ON verification_requests FOR UPDATE USING (auth.uid()::TEXT = user_id);
+CREATE POLICY "verification_requests_admin_all" ON verification_requests FOR ALL USING (
+    EXISTS (SELECT 1 FROM users WHERE id = auth.uid()::TEXT AND admin_role = 'super_admin')
+);
+
+-- Login history: own + admin
+CREATE POLICY "login_history_user_select" ON login_history FOR SELECT USING (auth.uid()::TEXT = user_id);
+CREATE POLICY "login_history_user_insert" ON login_history FOR INSERT WITH CHECK (auth.uid()::TEXT = user_id);
+CREATE POLICY "login_history_admin_all" ON login_history FOR ALL USING (
+    EXISTS (SELECT 1 FROM users WHERE id = auth.uid()::TEXT AND admin_role IS NOT NULL)
+);
+
+-- Email preferences: own + admin
+CREATE POLICY "email_preferences_user_select" ON email_preferences FOR SELECT USING (auth.uid()::TEXT = user_id);
+CREATE POLICY "email_preferences_user_insert" ON email_preferences FOR INSERT WITH CHECK (auth.uid()::TEXT = user_id);
+CREATE POLICY "email_preferences_user_update" ON email_preferences FOR UPDATE USING (auth.uid()::TEXT = user_id);
+CREATE POLICY "email_preferences_admin_all" ON email_preferences FOR ALL USING (
+    EXISTS (SELECT 1 FROM users WHERE id = auth.uid()::TEXT AND admin_role = 'super_admin')
+);
+
+-- Payment methods: own + admin
+CREATE POLICY "payment_methods_user_select" ON payment_methods FOR SELECT USING (auth.uid()::TEXT = user_id);
+CREATE POLICY "payment_methods_user_insert" ON payment_methods FOR INSERT WITH CHECK (auth.uid()::TEXT = user_id);
+CREATE POLICY "payment_methods_user_update" ON payment_methods FOR UPDATE USING (auth.uid()::TEXT = user_id);
+CREATE POLICY "payment_methods_user_delete" ON payment_methods FOR DELETE USING (auth.uid()::TEXT = user_id);
 
 -- ════════════════════════════════════════════════════════════
 -- SEED DATA
@@ -1090,4 +1217,6 @@ CREATE TRIGGER tr_scheduled_tasks_updated BEFORE UPDATE ON scheduled_tasks FOR E
 CREATE TRIGGER tr_user_passwords_updated BEFORE UPDATE ON user_passwords FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER tr_user_settings_updated BEFORE UPDATE ON user_settings FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER tr_workspace_invites_updated BEFORE UPDATE ON workspace_invites FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-CREATE TRIGGER tr_activity_streaks_updated BEFORE UPDATE ON activity_streaks FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER tr_subscriptions_updated BEFORE UPDATE ON subscriptions FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER tr_verification_requests_updated BEFORE UPDATE ON verification_requests FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER tr_email_preferences_updated BEFORE UPDATE ON email_preferences FOR EACH ROW EXECUTE FUNCTION update_updated_at();
