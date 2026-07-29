@@ -3,23 +3,32 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-tirbeo-crimson-400 focus:ring-offset-2",
+  "inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-tirbeo-blue-500 focus:ring-offset-2",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-tirbeo-crimson-600 text-white shadow hover:bg-tirbeo-crimson-700",
+          "bg-tirbeo-blue-100 text-tirbeo-blue-700",
         secondary:
-          "border-transparent bg-tirbeo-dark-100 text-tirbeo-dark-900 hover:bg-tirbeo-dark-200",
+          "bg-tirbeo-neutral-100 text-tirbeo-neutral-700",
+        success:
+          "bg-tirbeo-green-50 text-tirbeo-green-700",
+        warning:
+          "bg-tirbeo-yellow-50 text-tirbeo-yellow-600",
         destructive:
-          "border-transparent bg-red-600 text-white shadow hover:bg-red-700",
-        outline: "text-tirbeo-dark-950",
-        gold:
-          "border-transparent bg-tirbeo-gold-500 text-white shadow hover:bg-tirbeo-gold-600",
+          "bg-tirbeo-red-50 text-tirbeo-red-600",
+        outline:
+          "border border-tirbeo-neutral-300 text-tirbeo-neutral-700",
+      },
+      size: {
+        default: "px-2.5 py-0.5 text-xs",
+        sm: "px-2 py-0.5 text-[10px]",
+        lg: "px-3 py-1 text-sm",
       },
     },
     defaultVariants: {
       variant: "default",
+      size: "default",
     },
   },
 );
@@ -28,9 +37,9 @@ export interface BadgeProps
   extends HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof badgeVariants> {}
 
-function Badge({ className, variant, ...props }: BadgeProps) {
+function Badge({ className, variant, size, ...props }: BadgeProps) {
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <div className={cn(badgeVariants({ variant, size }), className)} {...props} />
   );
 }
 

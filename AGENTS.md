@@ -86,5 +86,35 @@ pnpm --filter @tirbeo/api seed:defaults # Seed plans, flags, settings
 - Added seed script for default free plan + feature flags + settings
 - Created `apps/api/lib/contentHandlers.ts` — Blog, Page, Settings, FeatureFlags, Plans, Apps, Incidents, Jobs handlers
 - Created `apps/api/lib/supportHandlers.ts` — Ticket CRUD, messages, assign, close, reopen, queues
-- Wired all new routes into `apps/api/app/api/[...slug]/route.ts` (imports, methodMap, matchRoute, handler switch)
-- `api` app compiles successfully (TypeScript errors ignored per config)
+- Wired all new routes into `apps/api/app/api/[...slug]/route.ts`
+- `api` app compiles successfully
+- Created `apps/api/lib/jobs.ts` — job processor (createJob, processNextJob, completeJob, failJob, retryJob, processQueue)
+- Created `apps/api/lib/health.ts` — public health check + admin detailed health (DB, Redis, queue, incidents)
+- Added per-route rate limit configuration in `apps/api/lib/auth/rate-limit.ts`
+- Wired health + job endpoints into API router
+- All apps compile successfully
+
+## Dashboard Rebuild (2026-07-29)
+- PRD v1 119-section Dashboard specification delivered
+- Full rebuild: removed old 4700-line CSS monolith, 27 old pages, mock data
+- Google-inspired productivity UI with Tirbeo branding
+- Foundation: Tailwind v4 + CSS custom properties design tokens (light/dark)
+- Auth: `lib/auth.ts` — cookie-based session, auto-redirect to accounts.tirbeo.app
+- API client: `lib/api-client.ts` — typed fetch wrapper with CSRF
+- Layout: Responsive sidebar + header shell with mobile drawer
+- 17 new pages rebuilt:
+  - Dashboard home (greeting, quick access, activity, notifications)
+  - Apps page (dynamic from API registry)
+  - Activity timeline (grouped by date)
+  - Notifications (read/unread, grouped Today/Yesterday/Earlier)
+  - Forms page (entry point)
+  - Settings hub (7 categories)
+  - Account (email, username)
+  - Profile (avatar, display name, bio)
+  - Security (password, 2FA, active sessions)
+  - Privacy (data export, account deletion)
+  - Preferences (theme: light/dark/system, language, timezone)
+  - Notification preferences (channels + topics toggles)
+  - Connected apps page
+  - Help center (search, popular topics, contact)
+- All 17 pages compile successfully
