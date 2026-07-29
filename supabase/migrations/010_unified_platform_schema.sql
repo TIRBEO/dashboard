@@ -1056,7 +1056,7 @@ CREATE POLICY "notif_pref_own" ON notification_preferences FOR ALL USING (user_i
 -- Content reports: own reports + admin read all
 CREATE POLICY "reports_select_own_or_admin" ON content_reports FOR SELECT USING (
   reporter_id = auth.uid()::TEXT
-  OR reviewed_by_id = auth.uid()::TEXT
+  OR reviewed_by = auth.uid()::TEXT
   OR EXISTS (SELECT 1 FROM users WHERE id = auth.uid()::TEXT AND admin_role IS NOT NULL)
 );
 CREATE POLICY "reports_insert_own" ON content_reports FOR INSERT WITH CHECK (reporter_id = auth.uid()::TEXT);
