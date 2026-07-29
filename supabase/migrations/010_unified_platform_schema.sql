@@ -14,12 +14,26 @@ BEGIN
               'SiteConfig','AppRole','UserRole','Otp','SignupOtp','EmailConfig',
               'EmailTemplate','Notification','NotificationPreference','ContentReport',
               'Media','AuditEvent','RecoveryCode','Subscriber','Integration',
-              'ThemeConfig','SavedTheme','users','workspaces','memberships','sessions',
+              'ThemeConfig','SavedTheme','ApiKey','RateLimitEntry','ConnectedAccount',
+              'PasswordResetToken','SecurityEvent','EmailLog','UserFeatureFlag',
+              'SystemConfig','Webhook','WebhookDelivery','FeatureFlag','ActivityStreak',
+              'ScheduledTask','DailyStat','ApiUsageLog','UserPassword','UserSetting',
+              'WorkspaceInvite','Subscription','Invoice','VerificationRequest',
+              'LoginHistory','EmailPreference','PaymentMethod',
+              'users','workspaces','memberships','sessions',
               'routes','logs','blocklist','site_configs','app_roles','user_roles','otps',
               'signup_otps','email_configs','email_templates','notifications',
               'notification_preferences','content_reports','media','audit_events',
               'recovery_codes','subscribers','integrations','theme_configs',
-              'districts','profiles','admin_users','audit_logs'
+              'districts','profiles','admin_users','audit_logs',
+              'api_keys','rate_limit_entries','connected_accounts',
+              'password_reset_tokens','security_events','email_logs',
+              'user_feature_flags','system_configs','saved_themes',
+              'webhooks','webhook_deliveries','feature_flags',
+              'activity_streaks','scheduled_tasks','daily_stats',
+              'api_usage_logs','user_passwords','user_settings',
+              'workspace_invites','subscriptions','invoices',
+              'verification_requests','login_history','email_preferences','payment_methods'
             )) LOOP
     EXECUTE 'DROP TABLE IF EXISTS public."' || r.tablename || '" CASCADE';
   END LOOP;
