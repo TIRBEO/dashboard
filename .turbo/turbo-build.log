@@ -1,0 +1,43 @@
+
+> @tirbeo/dashboard@0.0.1 build C:\Users\gwbis\Downloads\Tirbeo-All\apps\dashboard
+> next build
+
+▲ Next.js 16.2.12 (Turbopack)
+- Environments: .env
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 59s
+  Running TypeScript ...
+  Finished TypeScript in 43s ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/3) ...
+✓ Generating static pages using 15 workers (3/3) in 3.9s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/health
+├ ƒ /dashboard
+├ ƒ /dashboard/activity
+├ ƒ /dashboard/apps
+├ ƒ /dashboard/forms
+├ ƒ /dashboard/help
+├ ƒ /dashboard/notifications
+├ ƒ /dashboard/settings
+├ ƒ /dashboard/settings/account
+├ ƒ /dashboard/settings/apps
+├ ƒ /dashboard/settings/notifications
+├ ƒ /dashboard/settings/preferences
+├ ƒ /dashboard/settings/privacy
+├ ƒ /dashboard/settings/privacy/delete
+├ ƒ /dashboard/settings/profile
+└ ƒ /dashboard/settings/security
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

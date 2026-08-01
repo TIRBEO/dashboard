@@ -1,0 +1,8 @@
+{
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm --filter @tirbeo/dashboard build",
+  "outputDirectory": ".next",
+  "env": {
+    "VERCEL_BUILD_TRACE": "false"
+  }
+}
