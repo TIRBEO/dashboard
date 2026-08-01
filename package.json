@@ -1,0 +1,40 @@
+{
+  "name": "tirbeo",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "db:generate": "pnpm --filter @tirbeo/api db:generate && node scripts/prisma-generate-root.mjs",
+    "postinstall": "node scripts/prisma-generate-root.mjs",
+    "db:push": "pnpm --filter @tirbeo/api db:push",
+    "db:seed": "pnpm --filter @tirbeo/api seed",
+    "ui:build": "pnpm --filter @tirbeo/ui build",
+    "charts:build": "pnpm --filter @tirbeo/charts build",
+    "icons:build": "pnpm --filter @tirbeo/icons build",
+    "packages:build": "pnpm --filter './packages/*' build"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.2",
+    "@typescript-eslint/eslint-plugin": "^8.65.0",
+    "@typescript-eslint/parser": "^8.65.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "prettier": "^3.9.6",
+    "turbo": "^2.10.8",
+    "typescript": "6.0.3"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "pnpm": {
+    "overrides": {
+      "tsup>esbuild": "^0.28.1",
+      "vite": "8.2.0",
+      "postcss": "^8.5.18",
+      "minimatch@3.1.5>brace-expansion": "^1.1.16"
+    }
+  },
+  "packageManager": "pnpm@9.15.0"
+}
