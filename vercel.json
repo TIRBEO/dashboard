@@ -3,6 +3,7 @@
   "buildCommand": "pnpm --filter @tirbeo/dashboard build",
   "outputDirectory": ".next",
   "env": {
-    "VERCEL_BUILD_TRACE": "false"
+    "VERCEL_BUILD_TRACE": "false",
+    "NEXT_PUBLIC_API_URL": "https://api.tirbeo.app"
   }
 }
