@@ -29,6 +29,7 @@ export default function DashboardHome() {
   const [apps, setApps] = useState<any[]>([]);
   const [activity, setActivity] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [support, setSupport] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [loading, setLoading] = useState(true);
 
@@ -51,6 +52,9 @@ export default function DashboardHome() {
       setNotifications(notifData);
       setLoading(false);
     }).catch(() => setLoading(false));
+    api.get('/api/public/app-config?app=dashboard')
+      .then((d: any) => { if (d?.config?.support) setSupport(d.config.support); })
+      .catch(() => {});
   }, []);
 
   const hour = new Date().getHours();
@@ -172,6 +176,29 @@ export default function DashboardHome() {
               )}
             </div>
           </section>
+
+          {support?.enabled && (
+            <section>
+              <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-primary-surface)]/50 p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <h2 className="text-base font-semibold text-[var(--color-text)]">{support.title || 'Need help?'}</h2>
+                    <p className="text-sm text-[var(--color-text-secondary)] mt-1">
+                      {support.description || 'Get support from our team or browse the help center.'}
+                    </p>
+                  </div>
+                  {support.link && (
+                    <a href={support.link} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex shrink-0 items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--color-primary)] text-white text-sm font-medium hover:opacity-90 transition-opacity">
+                      <MessageSquare className="w-4 h-4" />
+                      {support.linkLabel || 'Get support'}
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
         </div>
       )}
 
