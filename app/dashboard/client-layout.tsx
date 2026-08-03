@@ -48,6 +48,7 @@ export default function DashboardClientLayout({ children }: { children: React.Re
   const [config, setConfig] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [apps, setApps] = useState<AppLink[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -57,6 +58,22 @@ export default function DashboardClientLayout({ children }: { children: React.Re
       setUser(u);
       setLoading(false);
     });
+  }, []);
+
+  useEffect(() => {
+    api.get<{ notifications?: any[] }>('/api/notifications?limit=8')
+      .then(d => {
+        const list = (d?.notifications || []).map((n: any) => ({
+          id: n.id,
+          title: n.title || n.message || 'Notification',
+          body: n.body || '',
+          time: n.createdAt ? new Date(n.createdAt).toLocaleDateString() : '',
+          unread: !n.read,
+          href: n.href || '/dashboard/notifications',
+        }));
+        setNotifications(list);
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -103,7 +120,18 @@ export default function DashboardClientLayout({ children }: { children: React.Re
       onLogout={() => { window.location.href = '/logout'; }}
       onNavigate={href => router.push(href)}
       currentPath={pathname}
-      onSearch={() => {}}
+      onSearch={query => {
+        if (query.trim()) router.push(`/dashboard/activity?q=${encodeURIComponent(query)}`);
+      }}
+      searchPlaceholder="Search apps, settings, activity..."
+      searchGroups={NAV_SECTIONS.map(section => ({
+        label: section.label,
+        items: section.items.map(item => ({ label: item.label, href: item.href, icon: item.icon })),
+      }))}
+      notifications={notifications}
+      onMarkAllRead={() => {
+        setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
+      }}
     >
       {children}
     </DashboardShell>

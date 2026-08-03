@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getCurrentUser, User } from '../../lib/auth';
 import { api } from '../../lib/api-client';
+import { KpiCard } from '@tirbeo/charts';
 import { FileText, Grid3X3, Bell, Clock, ExternalLink, Activity, MessageSquare } from 'lucide-react';
 
 type Tab = 'overview' | 'apps' | 'activity' | 'notifications';
@@ -68,6 +69,13 @@ export default function DashboardHome() {
     { label: 'Recent Activity', value: activity.length.toLocaleString(), sub: 'last 30 days', icon: Activity },
   ];
 
+  const kpiItems = kpis.map(kpi => ({
+    label: kpi.label,
+    value: kpi.value,
+    subtitle: kpi.sub,
+    icon: <kpi.icon className="w-4 h-4" />,
+  }));
+
   const handleTabChange = (tab: Tab) => {
     setActiveTab(tab);
     const url = new URL(window.location.href);
@@ -116,17 +124,8 @@ export default function DashboardHome() {
       {activeTab === 'overview' && (
         <div className="space-y-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {kpis.map(kpi => (
-              <div key={kpi.label} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-sm">
-                <div className="flex items-start justify-between mb-3">
-                  <p className="text-sm font-medium text-[var(--color-text-secondary)]">{kpi.label}</p>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--color-primary-surface)] text-[var(--color-primary)]">
-                    <kpi.icon className="w-4 h-4" />
-                  </div>
-                </div>
-                <p className="text-2xl font-semibold text-[var(--color-text)]">{kpi.value}</p>
-                <p className="text-sm text-[var(--color-text-secondary)] mt-2">{kpi.sub}</p>
-              </div>
+            {kpiItems.map(kpi => (
+              <KpiCard key={kpi.label} {...kpi} />
             ))}
           </div>
 
