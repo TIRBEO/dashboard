@@ -3,11 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { DashboardShell, type NavSection, type AppLink } from '@tirbeo/ui';
-import { getCurrentUser, getLoginUrl, User } from '../../lib/auth';
+import { useThemeToggle } from '@tirbeo/theme';
+import { getCurrentUser, getLoginUrl, accountsUrl, User } from '../../lib/auth';
 import { api } from '../../lib/api-client';
 import {
   LayoutDashboard, Grid3X3, Activity, Bell, FileText,
   Settings, HelpCircle, UserCircle, Shield, Lock, SlidersHorizontal,
+  Key, Fingerprint, Monitor,
+  Sun, Moon,
 } from 'lucide-react';
 
 const NAV_SECTIONS: NavSection[] = [
@@ -31,7 +34,11 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/dashboard/settings', label: 'All Settings', icon: Settings },
       { href: '/dashboard/settings/account', label: 'Account', icon: UserCircle },
+      { href: '/dashboard/settings/profile', label: 'Profile', icon: UserCircle },
       { href: '/dashboard/settings/security', label: 'Security', icon: Shield },
+      { href: '/dashboard/settings/sessions', label: 'Sessions', icon: Monitor },
+      { href: '/dashboard/settings/passkeys', label: 'Passkeys', icon: Fingerprint },
+      { href: '/dashboard/settings/mfa', label: '2-Step Verification', icon: Key },
       { href: '/dashboard/settings/privacy', label: 'Privacy', icon: Lock },
       { href: '/dashboard/settings/preferences', label: 'Preferences', icon: SlidersHorizontal },
     ],
@@ -51,6 +58,7 @@ export default function DashboardClientLayout({ children }: { children: React.Re
   const [notifications, setNotifications] = useState<any[]>([]);
   const router = useRouter();
   const pathname = usePathname();
+  const { isDark, toggle } = useThemeToggle();
 
   useEffect(() => {
     getCurrentUser().then(u => {
@@ -111,29 +119,39 @@ export default function DashboardClientLayout({ children }: { children: React.Re
   }
 
   return (
-    <DashboardShell
-      navSections={NAV_SECTIONS}
-      footerLinks={FOOTER_LINKS}
-      apps={apps}
-      brand={config.brand}
-      user={user}
-      onLogout={() => { window.location.href = '/logout'; }}
-      onNavigate={href => router.push(href)}
-      currentPath={pathname}
-      onSearch={query => {
-        if (query.trim()) router.push(`/dashboard/activity?q=${encodeURIComponent(query)}`);
-      }}
-      searchPlaceholder="Search apps, settings, activity..."
-      searchGroups={NAV_SECTIONS.map(section => ({
-        label: section.label,
-        items: section.items.map(item => ({ label: item.label, href: item.href, icon: item.icon })),
-      }))}
-      notifications={notifications}
-      onMarkAllRead={() => {
-        setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
-      }}
-    >
-      {children}
-    </DashboardShell>
+    <>
+      {/* Theme Toggle */}
+      <button
+        onClick={toggle}
+        className="theme-toggle"
+        aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
+      >
+        {isDark ? <Sun className="h-5 w-5" strokeWidth={2} /> : <Moon className="h-5 w-5" strokeWidth={2} />}
+      </button>
+      <DashboardShell
+        navSections={NAV_SECTIONS}
+        footerLinks={FOOTER_LINKS}
+        apps={apps}
+        brand={config.brand}
+        user={user}
+        onLogout={() => { window.location.href = accountsUrl('/logout'); }}
+        onNavigate={href => router.push(href)}
+        currentPath={pathname}
+        onSearch={query => {
+          if (query.trim()) router.push(`/dashboard/activity?q=${encodeURIComponent(query)}`);
+        }}
+        searchPlaceholder="Search apps, settings, activity..."
+        searchGroups={NAV_SECTIONS.map(section => ({
+          label: section.label,
+          items: section.items.map(item => ({ label: item.label, href: item.href, icon: item.icon })),
+        }))}
+        notifications={notifications}
+        onMarkAllRead={() => {
+          setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
+        }}
+      >
+        {children}
+      </DashboardShell>
+    </>
   );
 }

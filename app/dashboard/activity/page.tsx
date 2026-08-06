@@ -23,7 +23,7 @@ export default function ActivityPage() {
       <h1 className="text-3xl font-semibold text-[var(--color-text)] mb-1">Activity</h1>
       <p className="text-[var(--color-text-secondary)] mb-8">Your recent account activity</p>
       {Object.keys(grouped).length === 0 ? (
-        <div className="p-12 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-center">
+        <div className="p-12  bg-[var(--color-surface)] border-2 border-[var(--color-border)] text-center">
           <Clock className="w-10 h-10 mx-auto mb-3 text-[var(--color-text-secondary)]" />
           <p className="text-[var(--color-text-secondary)]">No activity yet.</p>
         </div>

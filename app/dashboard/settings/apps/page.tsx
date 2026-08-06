@@ -61,26 +61,26 @@ export default function ConnectedAppsPage() {
       <section className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-medium text-[var(--color-text)]">Quick access apps</h2>
-          <button onClick={() => setAdding(true)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--color-primary)] text-white text-sm font-medium hover:bg-[var(--color-primary-hover)] transition-colors">
+          <button onClick={() => setAdding(true)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--color-accent)] text-[var(--color-on-accent)] text-sm font-medium hover:bg-[var(--color-accent-hover)] transition-colors">
             <Plus className="w-4 h-4" /> Add app
           </button>
         </div>
 
         {adding && (
-          <div className="p-4 mb-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)]">
+          <div className="p-4 mb-4  bg-[var(--color-surface)] border-2 border-[var(--color-border)]">
             <div className="grid sm:grid-cols-2 gap-4 mb-3">
-              <input type="text" value={newName} onChange={e => setNewName(e.target.value)} placeholder="App name" className="p-3 rounded-lg bg-[var(--color-surface-muted)] border border-[var(--color-border)] text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-primary)]" />
-              <input type="url" value={newUrl} onChange={e => setNewUrl(e.target.value)} placeholder="https://..." className="p-3 rounded-lg bg-[var(--color-surface-muted)] border border-[var(--color-border)] text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-primary)]" />
+              <input type="text" value={newName} onChange={e => setNewName(e.target.value)} placeholder="App name" className="p-3 rounded-lg bg-[var(--color-surface-muted)] border-2 border-[var(--color-border)] text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-primary)]" />
+              <input type="url" value={newUrl} onChange={e => setNewUrl(e.target.value)} placeholder="https://..." className="p-3 rounded-lg bg-[var(--color-surface-muted)] border-2 border-[var(--color-border)] text-sm text-[var(--color-text)] outline-none focus:border-[var(--color-primary)]" />
             </div>
             <div className="flex gap-2">
-              <button onClick={addApp} className="px-4 py-2 rounded-lg bg-[var(--color-primary)] text-white text-sm font-medium hover:bg-[var(--color-primary-hover)]">Save</button>
-              <button onClick={() => setAdding(false)} className="px-4 py-2 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-muted)]">Cancel</button>
+              <button onClick={addApp} className="px-4 py-2 rounded-lg bg-[var(--color-accent)] text-[var(--color-on-accent)] text-sm font-medium hover:bg-[var(--color-accent-hover)]">Save</button>
+              <button onClick={() => setAdding(false)} className="px-4 py-2 rounded-lg border-2 border-[var(--color-border)] text-sm text-[var(--color-text)] hover:bg-[var(--color-surface-muted)]">Cancel</button>
             </div>
           </div>
         )}
 
         {apps.length === 0 && !adding && (
-          <div className="p-12 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-center">
+          <div className="p-12  bg-[var(--color-surface)] border-2 border-[var(--color-border)] text-center">
             <Globe className="w-10 h-10 mx-auto mb-3 text-[var(--color-text-secondary)]" />
             <p className="text-[var(--color-text-secondary)]">No quick access apps yet.</p>
             <p className="text-sm text-[var(--color-text-secondary)] mt-1">Add your frequently used apps for quick access.</p>
@@ -89,7 +89,7 @@ export default function ConnectedAppsPage() {
 
         <div className="space-y-2">
           {apps.map(app => (
-            <div key={app.id} className="flex items-center justify-between p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)]">
+            <div key={app.id} className="flex items-center justify-between p-4  bg-[var(--color-surface)] border-2 border-[var(--color-border)]">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-[var(--color-primary-surface)] flex items-center justify-center">
                   <span className="text-[var(--color-primary)] font-semibold text-sm">{app.name.charAt(0)}</span>
@@ -115,14 +115,14 @@ export default function ConnectedAppsPage() {
       <section>
         <h2 className="text-lg font-medium text-[var(--color-text)] mb-4">OAuth integrations</h2>
         {integrations.length === 0 ? (
-          <div className="p-12 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-center">
+          <div className="p-12  bg-[var(--color-surface)] border-2 border-[var(--color-border)] text-center">
             <Link className="w-10 h-10 mx-auto mb-3 text-[var(--color-text-secondary)]" />
             <p className="text-[var(--color-text-secondary)]">No connected applications yet.</p>
           </div>
         ) : (
           <div className="space-y-2">
             {integrations.map(int => (
-              <div key={int.id} className="flex items-center justify-between p-4 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)]">
+              <div key={int.id} className="flex items-center justify-between p-4  bg-[var(--color-surface)] border-2 border-[var(--color-border)]">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-[var(--color-primary-surface)] flex items-center justify-center">
                     <Link className="w-4 h-4 text-[var(--color-primary)]" />
@@ -132,7 +132,7 @@ export default function ConnectedAppsPage() {
                     <p className="text-xs text-[var(--color-success)]">Connected</p>
                   </div>
                 </div>
-                <button onClick={() => removeIntegration(int.provider)} className="px-3 py-1.5 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-error)] hover:border-[var(--color-error)] transition-colors">
+                <button onClick={() => removeIntegration(int.provider)} className="px-3 py-1.5 rounded-lg border-2 border-[var(--color-border)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-error)] hover:border-[var(--color-error)] transition-colors">
                   Disconnect
                 </button>
               </div>

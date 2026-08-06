@@ -32,7 +32,7 @@ export default function NotificationsPage() {
     <div className="p-6 lg:p-8 max-w-4xl mx-auto">
       <h1 className="text-3xl font-semibold text-[var(--color-text)] mb-6">Notifications</h1>
       {Object.keys(groups).length === 0 ? (
-        <div className="p-12 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-center">
+        <div className="p-12  bg-[var(--color-surface)] border-2 border-[var(--color-border)] text-center">
           <Bell className="w-10 h-10 mx-auto mb-3 text-[var(--color-text-secondary)]" />
           <p className="text-[var(--color-text-secondary)]">No notifications yet.</p>
         </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { getCurrentUser, User } from '../../lib/auth';
 import { api } from '../../lib/api-client';
 import { KpiCard } from '@tirbeo/charts';
@@ -24,7 +24,6 @@ const TABS: { id: Tab; label: string; icon: typeof Grid3X3 }[] = [
 ];
 
 export default function DashboardHome() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [user, setUser] = useState<User | null>(null);
   const [apps, setApps] = useState<any[]>([]);
@@ -139,7 +138,7 @@ export default function DashboardHome() {
                 { label: 'My forms', href: '/dashboard/forms' },
               ].map(action => (
                 <a key={action.label} href={action.href}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-surface-muted)] transition-colors shadow-sm">
+                  className="inline-flex items-center gap-2 border-2 border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-2.5 text-sm font-semibold text-[var(--color-text)] shadow-[var(--shadow-card)] transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_0_var(--color-border)]">
                   {action.label}
                 </a>
               ))}
@@ -151,25 +150,25 @@ export default function DashboardHome() {
               <h2 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">Your applications</h2>
               <button onClick={() => handleTabChange('apps')} className="text-sm font-medium text-[var(--color-primary)] hover:underline">View all</button>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
               {apps.length === 0 ? (
                 <>
                   {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 text-center hover:shadow-sm transition-shadow">
-                      <div className="w-10 h-10 rounded-lg bg-[var(--color-surface-muted)] mx-auto mb-3" />
-                      <div className="h-4 w-20 bg-[var(--color-surface-muted)] rounded mx-auto" />
+                    <div key={i} className="border-2 border-[var(--color-border)] bg-[var(--color-surface)] p-5 text-center shadow-[var(--shadow-card)]">
+                      <div className="mx-auto mb-3 h-10 w-10 border-2 border-[var(--color-border-muted)] bg-[var(--color-surface-muted)]" />
+                      <div className="mx-auto h-4 w-20 bg-[var(--color-surface-muted)]" />
                     </div>
                   ))}
                 </>
               ) : (
                 apps.slice(0, 4).map((app: any) => (
                   <a key={app.id} href={app.url || '#'}
-                    className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 text-center hover:shadow-sm transition-shadow group">
-                    <div className="w-10 h-10 rounded-lg bg-[var(--color-primary-surface)] flex items-center justify-center mx-auto mb-3">
-                      <span className="text-[var(--color-primary)] font-semibold">{app.name?.charAt(0)}</span>
+                    className="group border-2 border-[var(--color-border)] bg-[var(--color-surface)] p-5 text-center shadow-[var(--shadow-card)] transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_0_var(--color-border)]">
+                    <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center border-2 border-[var(--color-border)] bg-[var(--color-accent)]">
+                      <span className="font-bold text-[var(--color-on-accent)]">{app.name?.charAt(0)}</span>
                     </div>
-                    <p className="text-sm font-medium text-[var(--color-text)]">{app.name}</p>
-                    <ExternalLink className="w-3 h-3 text-[var(--color-text-secondary)] mx-auto mt-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <p className="text-sm font-semibold text-[var(--color-text)]">{app.name}</p>
+                    <ExternalLink className="mx-auto mt-1 h-3 w-3 text-[var(--color-text-secondary)] opacity-0 transition-opacity group-hover:opacity-100" />
                   </a>
                 ))
               )}
@@ -178,17 +177,17 @@ export default function DashboardHome() {
 
           {support?.enabled && (
             <section>
-              <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-primary-surface)]/50 p-6">
+              <div className="border-2 border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-[var(--shadow-card)]">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
-                    <h2 className="text-base font-semibold text-[var(--color-text)]">{support.title || 'Need help?'}</h2>
-                    <p className="text-sm text-[var(--color-text-secondary)] mt-1">
+                    <h2 className="text-base font-bold text-[var(--color-text)]">{support.title || 'Need help?'}</h2>
+                    <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
                       {support.description || 'Get support from our team or browse the help center.'}
                     </p>
                   </div>
                   {support.link && (
                     <a href={support.link} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex shrink-0 items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--color-primary)] text-white text-sm font-medium hover:opacity-90 transition-opacity">
+                      className="inline-flex shrink-0 items-center gap-2 border-2 border-[var(--color-border)] bg-[var(--color-accent)] px-5 py-2.5 text-sm font-bold text-[var(--color-on-accent)] shadow-[2px_2px_0_0_var(--color-border)] transition-all hover:-translate-x-[2px] hover:-translate-y-[2px]">
                       <MessageSquare className="w-4 h-4" />
                       {support.linkLabel || 'Get support'}
                       <ExternalLink className="w-3 h-3" />
@@ -211,12 +210,12 @@ export default function DashboardHome() {
             ) : (
               apps.map((app: any) => (
                 <a key={app.id} href={app.url || '#'}
-                  className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 text-center hover:shadow-sm transition-shadow group">
-                  <div className="w-12 h-12 rounded-lg bg-[var(--color-primary-surface)] flex items-center justify-center mx-auto mb-3">
-                    <span className="text-[var(--color-primary)] font-semibold text-lg">{app.name?.charAt(0)}</span>
+                  className="group border-2 border-[var(--color-border)] bg-[var(--color-surface)] p-5 text-center shadow-[var(--shadow-card)] transition-all hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[6px_6px_0_0_var(--color-border)]">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center border-2 border-[var(--color-border)] bg-[var(--color-accent)]">
+                    <span className="text-lg font-bold text-[var(--color-on-accent)]">{app.name?.charAt(0)}</span>
                   </div>
-                  <p className="text-sm font-medium text-[var(--color-text)]">{app.name}</p>
-                  <p className="text-xs text-[var(--color-text-secondary)] mt-1">{app.description || 'Application'}</p>
+                  <p className="text-sm font-semibold text-[var(--color-text)]">{app.name}</p>
+                  <p className="mt-1 text-xs text-[var(--color-text-secondary)]">{app.description || 'Application'}</p>
                 </a>
               ))
             )}
@@ -229,18 +228,18 @@ export default function DashboardHome() {
         <div>
           <h2 className="text-lg font-semibold text-[var(--color-text)] mb-4">Recent Activity</h2>
           {activity.length === 0 ? (
-            <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center">
-              <Clock className="w-8 h-8 mx-auto mb-3 text-[var(--color-text-secondary)]" />
+            <div className="border-2 border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center shadow-[var(--shadow-card)]">
+              <Clock className="mx-auto mb-3 h-8 w-8 text-[var(--color-text-secondary)]" />
               <p className="text-sm text-[var(--color-text-secondary)]">No recent activity</p>
             </div>
           ) : (
-            <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] divide-y divide-[var(--color-border)]">
+            <div className="divide-y-2 divide-[var(--color-border)] border-2 border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
               {activity.map((a: any) => (
-                <div key={a.id} className="flex items-center gap-4 p-4 hover:bg-[var(--color-surface-muted)] transition-colors">
-                  <div className="w-2 h-2 rounded-full bg-[var(--color-primary)] flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[var(--color-text)] truncate">{a.event_type || a.title || 'Activity'}</p>
-                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+                <div key={a.id} className="flex items-center gap-4 p-4 transition-colors hover:bg-[var(--color-surface-muted)]">
+                  <div className="h-2 w-2 flex-shrink-0 border-2 border-[var(--color-border)] bg-[var(--color-accent)]" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-[var(--color-text)]">{a.event_type || a.title || 'Activity'}</p>
+                    <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">
                       {a.createdAt ? new Date(a.createdAt).toLocaleDateString() : ''}
                     </p>
                   </div>
@@ -259,18 +258,18 @@ export default function DashboardHome() {
             <button className="text-sm font-medium text-[var(--color-primary)] hover:underline">Mark all as read</button>
           </div>
           {notifications.length === 0 ? (
-            <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center">
-              <Bell className="w-8 h-8 mx-auto mb-3 text-[var(--color-text-secondary)]" />
+            <div className="border-2 border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center shadow-[var(--shadow-card)]">
+              <Bell className="mx-auto mb-3 h-8 w-8 text-[var(--color-text-secondary)]" />
               <p className="text-sm text-[var(--color-text-secondary)]">You&apos;re all caught up</p>
             </div>
           ) : (
-            <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] divide-y divide-[var(--color-border)]">
+            <div className="divide-y-2 divide-[var(--color-border)] border-2 border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-card)]">
               {notifications.map((n: any) => (
-                <div key={n.id} className={`flex items-start gap-4 p-4 transition-colors ${n.read ? '' : 'bg-[var(--color-primary-surface)]'}`}>
-                  <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${n.read ? 'bg-transparent' : 'bg-[var(--color-primary)]'}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[var(--color-text)]">{n.title || n.message}</p>
-                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+                <div key={n.id} className={`flex items-start gap-4 p-4 transition-colors ${n.read ? '' : 'bg-[color-mix(in_srgb,var(--color-accent)_12%,transparent)]'}`}>
+                  <div className={`mt-1.5 h-2 w-2 flex-shrink-0 border-2 border-[var(--color-border)] ${n.read ? 'bg-transparent' : 'bg-[var(--color-accent)]'}`} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-[var(--color-text)]">{n.title || n.message}</p>
+                    <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">
                       {n.createdAt ? new Date(n.createdAt).toLocaleDateString() : ''}
                     </p>
                   </div>

@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest) {
 
   const host = request.headers.get('host') || '';
   const isLocalhost = host.startsWith('localhost') || host.startsWith('127.0.0.1');
-  const accountsHost = isLocalhost ? 'localhost:3001' : 'accounts.tirbeo.app';
+  const accountsHost = isLocalhost ? 'localhost:3002' : 'accounts.tirbeo.app';
   const protocol = isLocalhost ? 'http' : 'https';
   const dashUrl = `${protocol}://${host}${request.nextUrl.pathname}${request.nextUrl.search}`;
   const loginUrl = new URL(`${protocol}://${accountsHost}/login`);

@@ -1,28 +1,9 @@
 @import "tailwindcss";
+@import "@tirbeo/theme/styles.css";
 
 @layer base {
-  :root {
-    --color-bg: #f8f9fa;
-    --color-surface: #ffffff;
-    --color-surface-muted: #f3f4f6;
-    --color-surface-raised: #e5e7eb;
-    --color-text: #111827;
-    --color-text-secondary: #6b7280;
-    --color-text-tertiary: #9ca3af;
-    --color-border: #e5e7eb;
-    --color-sidebar: #ffffff;
-    --color-sidebar-hover: #f3f4f6;
-    --color-sidebar-active: #eff6ff;
-    --color-header: #ffffff;
-    --color-primary: #2563eb;
-    --color-primary-hover: #1d4ed8;
-    --color-primary-surface: #eff6ff;
-    --color-success: #059669;
-    --color-error: #dc2626;
-  }
-
   body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
 }
@@ -53,3 +34,210 @@
 .border-\[var\(--color-primary-surface\)\] { border-color: var(--color-primary-surface); }
 .border-\[var\(--color-text-secondary\)\] { border-color: var(--color-text-secondary); }
 .border-\[var\(--color-error\)\] { border-color: var(--color-error); }
+
+/* ═══════════════════════════════════════════════════════════
+   TIRBEO PAPER/INK NEOBRUTALIST THEME (landing + accounts)
+   Warm paper + ink palette, square corners, 2px ink borders,
+   hard offset shadows, flat accent (nb-yellow). Mirrors the
+   accounts + landing design language exactly.
+   ═══════════════════════════════════════════════════════════ */
+
+:root,
+[data-theme="dark"] {
+  --bg: #17150f;
+  --bg-surface: #1d1a11;
+  --bg-elevated: #262216;
+  --bg-hover: #221f15;
+  --bg-inset: #121009;
+  --text: #f6f3ea;
+  --text-secondary: #d4cdb8;
+  --text-muted: #8a8371;
+  --text-tertiary: #6b6557;
+  --border: #f6f3ea;
+  --border-hover: #ffffff;
+  --border-muted: #8a8371;
+  --border-subtle: #3a3527;
+  --surface: #1d1a11;
+  --surface-hover: #262216;
+  --surface-active: #2a251a;
+  --primary: #f6f3ea;
+  --primary-hover: #17150f;
+  --primary-surface: #1d1a11;
+  --success: #4ade80;
+  --success-surface: rgba(74, 222, 128, 0.1);
+  --error: #e5484d;
+  --error-surface: rgba(229, 72, 77, 0.12);
+  --warning: #ffd93d;
+  --warning-surface: rgba(255, 217, 61, 0.12);
+  --info: #4d96ff;
+  --info-surface: rgba(77, 150, 255, 0.12);
+  --accent: #ffd93d;
+  --accent-hover: #ffc700;
+  --on-accent: #17150f;
+
+  /* Semantic tokens (@tirbeo/ui + DashboardShell) pinned to paper/ink */
+  --color-bg: #17150f;
+  --color-bg-surface: #1d1a11;
+  --color-bg-elevated: #262216;
+  --color-surface-default: #1d1a11;
+  --color-surface-muted: #262216;
+  --color-surface-raised: #262216;
+  --color-surface-page: #17150f;
+  --color-surface-subtle: #1d1a11;
+  --color-text: #f6f3ea;
+  --color-text-primary: #f6f3ea;
+  --color-text-secondary: #d4cdb8;
+  --color-text-muted: #8a8371;
+  --color-border: #f6f3ea;
+  --color-border-default: #f6f3ea;
+  --color-border-strong: #f6f3ea;
+  --color-border-muted: #8a8371;
+  --color-border-subtle: #3a3527;
+  --color-brand-default: #ffd93d;
+  --color-brand-hover: #ffc700;
+  --color-brand-subtle: #2a251a;
+  --color-accent: #ffd93d;
+  --color-accent-hover: #ffc700;
+  --color-on-accent: #17150f;
+  --color-primary: #f6f3ea;
+  --color-primary-hover: #17150f;
+  --color-primary-surface: #1d1a11;
+  --color-error-default: #e5484d;
+  --color-error: #e5484d;
+  --color-danger-default: #e5484d;
+  --color-warning-default: #ffd93d;
+  --color-success-default: #4ade80;
+  --color-info-default: #4d96ff;
+  --color-error-subtle: #1d1a11;
+  --color-warning-subtle: #1d1a11;
+  --color-success-subtle: #1d1a11;
+  --color-info-subtle: #1d1a11;
+
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius: 0px;
+  --shadow-card: 4px 4px 0 0 #f6f3ea;
+  --shadow-popover: 4px 4px 0 0 #f6f3ea;
+}
+
+[data-theme="light"] {
+  --bg: #f6f3ea;
+  --bg-surface: #ffffff;
+  --bg-elevated: #fffdf5;
+  --bg-hover: #efe9d9;
+  --bg-inset: #e9e3d3;
+  --text: #17150f;
+  --text-secondary: #4b4639;
+  --text-muted: #6b6557;
+  --text-tertiary: #8a8371;
+  --border: #17150f;
+  --border-hover: #17150f;
+  --border-muted: #8a8371;
+  --border-subtle: #d8d1bd;
+  --surface: #ffffff;
+  --surface-hover: #f0ead9;
+  --surface-active: #e9e3d3;
+  --primary: #17150f;
+  --primary-hover: #ffffff;
+  --primary-surface: #ffffff;
+  --success: #16a34a;
+  --success-surface: rgba(22, 163, 74, 0.1);
+  --error: #e5484d;
+  --error-surface: rgba(229, 72, 77, 0.1);
+  --warning: #b45309;
+  --warning-surface: rgba(180, 83, 9, 0.1);
+  --info: #2563eb;
+  --info-surface: rgba(37, 99, 235, 0.1);
+  --accent: #ffd93d;
+  --accent-hover: #ffc700;
+  --on-accent: #17150f;
+
+  --color-bg: #f6f3ea;
+  --color-bg-surface: #ffffff;
+  --color-bg-elevated: #fffdf5;
+  --color-surface-default: #ffffff;
+  --color-surface-muted: #efe9d9;
+  --color-surface-raised: #ffffff;
+  --color-surface-page: #f6f3ea;
+  --color-surface-subtle: #ffffff;
+  --color-text: #17150f;
+  --color-text-primary: #17150f;
+  --color-text-secondary: #4b4639;
+  --color-text-muted: #6b6557;
+  --color-border: #17150f;
+  --color-border-default: #17150f;
+  --color-border-strong: #17150f;
+  --color-border-muted: #8a8371;
+  --color-border-subtle: #d8d1bd;
+  --color-brand-default: #17150f;
+  --color-brand-hover: #17150f;
+  --color-brand-subtle: #fff8d6;
+  --color-accent: #ffd93d;
+  --color-accent-hover: #ffc700;
+  --color-on-accent: #17150f;
+  --color-primary: #17150f;
+  --color-primary-hover: #ffffff;
+  --color-primary-surface: #ffffff;
+  --color-error-default: #e5484d;
+  --color-error: #e5484d;
+  --color-danger-default: #e5484d;
+  --color-warning-default: #b45309;
+  --color-success-default: #16a34a;
+  --color-info-default: #2563eb;
+  --color-error-subtle: #ffffff;
+  --color-warning-subtle: #ffffff;
+  --color-success-subtle: #ffffff;
+  --color-info-subtle: #ffffff;
+
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius: 0px;
+  --shadow-card: 4px 4px 0 0 #17150f;
+  --shadow-popover: 4px 4px 0 0 #17150f;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Square corners everywhere — brutalist enforcement */
+.rounded-sm, .rounded, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl {
+  border-radius: 0 !important;
+}
+
+/* Hard offset shadows for cards */
+.shadow-card, .shadow-lg, .shadow-md {
+  box-shadow: var(--shadow-card) !important;
+}
+
+/* ─── Theme toggle — brutalist square, fixed bottom-right ───
+   Bottom-right avoids the DashboardShell's sticky topbar. */
+.theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: 4px 4px 0 0 var(--border);
+  transition: all 200ms ease;
+}
+
+.theme-toggle:hover {
+  color: var(--on-accent);
+  background: var(--accent);
+  border-color: var(--border);
+  box-shadow: 5px 5px 0 0 var(--border);
+  transform: translate(-2px, -2px);
+}
