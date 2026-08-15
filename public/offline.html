@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+  <title>Offline - Tirbeo</title>
+  <link rel="icon" href="logo.png" type="image/png">
+</head>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #0a0a0a;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon svg {
+      width: 40px;
+      height: 40px;
+      color: #666;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      font-size: 14px;
+      color: #888;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: #ffffff;
+      color: #000000;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .button:hover {
+      background: #e5e5e5;
+    }
+
+    .button:active {
+      background: #d4d4d4;
+    }
+
+    .button svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .status {
+      margin-top: 32px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 13px;
+    }
+
+    .status-item:not(:last-child) {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .status-label {
+      color: #888;
+    }
+
+    .status-value {
+      font-weight: 500;
+    }
+
+    .status-value.online {
+      color: #22c55e;
+    }
+
+    .status-value.offline {
+      color: #ef4444;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="1" y1="1" x2="23" y2="23"></line>
+        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+        <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+        <path d="M10.71 5.05A16 16 0 0 1 22.56 9"></path>
+        <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+        <line x1="12" y1="20" x2="12.01" y2="20"></line>
+      </svg>
+    </div>
+    
+    <h1>You're offline</h1>
+    <p>Please check your internet connection and try again. Some features may still be available from your local cache.</p>
+    
+    <button class="button" onclick="window.location.reload()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+      Try again
+    </button>
+
+    <div class="status">
+      <div class="status-item">
+        <span class="status-label">Connection</span>
+        <span class="status-value offline" id="connection-status">Offline</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Last synced</span>
+        <span class="status-value" id="last-synced">Never</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">Pending syncs</span>
+        <span class="status-value" id="pending-syncs">0</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Update connection status
+    function updateStatus() {
+      const statusEl = document.getElementById('connection-status');
+      const lastSyncedEl = document.getElementById('last-synced');
+      const pendingSyncsEl = document.getElementById('pending-syncs');
+
+      if (navigator.onLine) {
+        statusEl.textContent = 'Online';
+        statusEl.className = 'status-value online';
+      } else {
+        statusEl.textContent = 'Offline';
+        statusEl.className = 'status-value offline pulse';
+      }
+
+      // Get last synced time from localStorage
+      const lastSynced = localStorage.getItem('tirbeo-last-synced');
+      if (lastSynced) {
+        const date = new Date(parseInt(lastSynced));
+        lastSyncedEl.textContent = date.toLocaleString();
+      }
+
+      // Get pending syncs from localStorage
+      const pendingSyncs = localStorage.getItem('tirbeo-pending-syncs');
+      if (pendingSyncs) {
+        pendingSyncsEl.textContent = pendingSyncs;
+      }
+    }
+
+    // Listen for online/offline events
+    window.addEventListener('online', () => {
+      updateStatus();
+      // Auto-reload when back online
+      setTimeout(() => window.location.reload(), 1000);
+    });
+
+    window.addEventListener('offline', updateStatus);
+
+    // Initial update
+    updateStatus();
+
+    // Update periodically
+    setInterval(updateStatus, 5000);
+  </script>
+</body>
+</html>

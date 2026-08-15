@@ -1,0 +1,618 @@
+"use client";
+
+import { useEffect, useRef, useState, useCallback, type ReactNode } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useThemeToggle } from "@tirbeo/theme";
+import {
+  AlertTriangle, Bell, Building, Calendar, ChevronDown,
+  Clock, Eye, Home, Info, LifeBuoy, Monitor,
+  Lock, LogOut, Mail, Menu, Moon, Search,
+  Settings, Sliders, Sun, User, X,
+} from "lucide-react";
+import { MonthCalendar } from "@/components/ui/MonthCalendar";
+import {
+  getCurrentUser, isUnauthorizedError, listNotifications,
+  listTickets, logout, markAllNotificationsRead,
+  formatDate, formatDayMonth,
+  type NotificationItem, type Profile, type Ticket,
+} from "@/lib/api";
+import { onDirtyChange, setDirtyGlobal } from "@/lib/unsaved";
+import { useI18n, type I18nT, translateNotifText } from "@/lib/i18n";
+
+/* ── Tooltip wrapper ── */
+function Tooltip({ label, children }: { label: string; children: React.ReactNode }) {
+  const [show, setShow] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const enter = () => { timer.current = setTimeout(() => setShow(true), 400); };
+  const leave = () => { if (timer.current) clearTimeout(timer.current); setShow(false); };
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+  return (
+    <div
+      onMouseEnter={enter}
+      onMouseLeave={leave}
+      onFocus={enter}
+      onBlur={leave}
+      style={{ position: "relative", display: "inline-flex" }}
+    >
+      {children}
+      {show && (
+        <span style={{
+          position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)",
+          padding: "4px 8px", borderRadius: 6, fontSize: 11, fontWeight: 500, whiteSpace: "nowrap",
+          background: "var(--tb-surface-3)", color: "var(--tb-text-primary)", border: "1px solid var(--tb-border)",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.3)", zIndex: 100, pointerEvents: "none",
+          animation: "fadeIn 120ms ease",
+        }}>
+          {label}
+        </span>
+      )}
+    </div>
+  );
+}
+
+interface NavItem { label: string; href: string; icon: ReactNode; badge?: number }
+interface NavSection { section: string; items: NavItem[] }
+
+function personalNav(badgeCounts: Record<string, number>, t: I18nT): NavSection[] {
+  return [
+    { section: t("nav.workspace"), items: [
+      { label: t("nav.getStarted"), href: "/overview", icon: <Home size={16} /> },
+      { label: t("nav.inbox"), href: "/account/inbox", icon: <Mail size={16} /> },
+    ]},
+    { section: t("nav.account"), items: [
+      { label: t("nav.profile"), href: "/account/profile", icon: <User size={16} /> },
+      { label: t("nav.preferences"), href: "/account/preferences", icon: <Sliders size={16} /> },
+      { label: t("nav.notifications"), href: "/account/notifications", icon: <Bell size={16} /> },
+      { label: t("nav.connectedApps"), href: "/account/apps", icon: <Building size={16} /> },
+      { label: t("nav.security"), href: "/account/security", icon: <Lock size={16} /> },
+      { label: t("nav.privacy"), href: "/account/privacy", icon: <Eye size={16} /> },
+      { label: t("nav.sessions"), href: "/account/sessions", icon: <Monitor size={16} /> },
+      { label: t("nav.history"), href: "/activity/history", icon: <Clock size={16} /> },
+    ]},
+    { section: t("nav.support"), items: [
+      { label: t("nav.tickets"), href: "/support/tickets", icon: <LifeBuoy size={16} />, badge: badgeCounts.tickets },
+    ]},
+  ];
+}
+
+function initialsOf(name: string | null | undefined): string {
+  if (!name) return "?";
+  const p = name.trim().split(/\s+/);
+  return p.length === 1 ? p[0].slice(0, 2).toUpperCase() : (p[0][0] + p[p.length - 1][0]).toUpperCase();
+}
+
+function translateText(t: I18nT, text?: string, lang?: string) {
+  if (!text) return text || "";
+  if (lang) return translateNotifText(text, lang);
+  const translated = t(`notifTexts.${text}`);
+  if (translated !== `notifTexts.${text}`) return translated;
+  const m = text.match(/^Your recovery email \(([^)]+)\) has been confirmed\.$/);
+  if (m) return t("notifTexts.recoveryEmailBody", { email: m[1] });
+  return text;
+}
+
+export function AppShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { t, lang } = useI18n();
+  const { isDark, toggle } = useThemeToggle();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [user, setUser] = useState<Profile | null>(null);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const notificationsRef = useRef<NotificationItem[]>([]);
+  const [unread, setUnread] = useState(0);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [notifTotal, setNotifTotal] = useState(0);
+  const [notifHasMore, setNotifHasMore] = useState(false);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const [calOpen, setCalOpen] = useState(false);
+  const calRef = useRef<HTMLDivElement>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [sessionExpired, setSessionExpired] = useState(false);
+  const [unsavedWarn, setUnsavedWarn] = useState(false);
+  const warnTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const unsavedRef = useRef(false);
+  const prevUnread = useRef(0);
+  const pollTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pulseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const calTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [badgePulse, setBadgePulse] = useState(false);
+
+  // Cleanup timers
+  useEffect(() => {
+    return () => {
+      if (warnTimer.current) clearTimeout(warnTimer.current);
+      if (pollTimer.current) clearInterval(pollTimer.current);
+      if (pulseTimer.current) clearTimeout(pulseTimer.current);
+      if (calTimer.current) clearTimeout(calTimer.current);
+    };
+  }, []);
+
+  // Sync dirty state
+  useEffect(() => onDirtyChange((d) => { unsavedRef.current = d; }), []);
+
+  const triggerUnsavedWarn = useCallback(() => {
+    if (navigator.vibrate) { try { navigator.vibrate(180); } catch {} }
+    setUnsavedWarn(true);
+    if (warnTimer.current) clearTimeout(warnTimer.current);
+    warnTimer.current = setTimeout(() => setUnsavedWarn(false), 4000);
+  }, []);
+
+  // Block nav while dirty
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (!unsavedRef.current) return;
+      const target = e.target as HTMLElement | null;
+      const link = target?.closest('a[href], .sidebar-item, .menu-item') as HTMLElement | null;
+      if (!link) return;
+      e.preventDefault();
+      e.stopPropagation();
+      triggerUnsavedWarn();
+    };
+    document.addEventListener("click", handler, true);
+    return () => document.removeEventListener("click", handler, true);
+  }, [triggerUnsavedWarn]);
+
+  // Warn on tab close
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => { if (unsavedRef.current) { e.preventDefault(); e.returnValue = ""; } };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, []);
+
+  // Close mobile on nav
+  useEffect(() => { setMobileOpen(false); setNotifOpen(false); }, [pathname]);
+
+  // ⌘K search
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") { e.preventDefault(); setSearchOpen(p => !p); }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, []);
+
+  // Click outside to close popups
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) setUserMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // Escape closes popups
+  useEffect(() => {
+    if (!calOpen && !notifOpen && !userMenuOpen && !mobileOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setCalOpen(false); setNotifOpen(false); setUserMenuOpen(false); setMobileOpen(false);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [calOpen, notifOpen, userMenuOpen, mobileOpen]);
+
+  // Notification data
+  const NOTIF_PAGE = 20;
+  const applyRetention = (items: NotificationItem[]) => {
+    const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    return items.filter((n) => new Date(n.createdAt).getTime() >= cutoff);
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const r = await listNotifications(NOTIF_PAGE, 0);
+      const seen = applyRetention(r.notifications);
+      setNotifications(seen);
+      notificationsRef.current = seen;
+      setUnread(r.unread);
+      setNotifTotal(r.total);
+      setNotifHasMore(seen.length < r.total);
+    } catch { /* silent */ }
+  };
+
+  const loadMoreNotifications = async () => {
+    if (notifLoading || !notifHasMore) return;
+    setNotifLoading(true);
+    try {
+      const r = await listNotifications(NOTIF_PAGE, notifications.length);
+      const incoming = applyRetention(r.notifications);
+      setNotifications((prev) => { const merged = [...prev, ...incoming]; notificationsRef.current = merged; return merged; });
+      setNotifTotal(r.total);
+      setNotifHasMore(notifications.length + incoming.length < r.total && incoming.length > 0);
+    } catch { /* silent */ } finally { setNotifLoading(false); }
+  };
+
+  const fetchTickets = async () => {
+    try { const r = await listTickets({ limit: 10 }); setTickets(r.data); } catch { /* silent */ }
+  };
+
+  useEffect(() => {
+    let alive = true;
+    getCurrentUser()
+      .then((u) => { if (alive) setUser(u); })
+      .catch((e) => { if (alive && isUnauthorizedError(e)) setSessionExpired(true); });
+    fetchNotifications();
+    fetchTickets();
+    pollTimer.current = setInterval(() => { if (document.visibilityState === "visible") fetchNotifications(); }, 30_000);
+    const onVisibility = () => { if (document.visibilityState === "visible") fetchNotifications(); };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => { alive = false; if (pollTimer.current) clearInterval(pollTimer.current); document.removeEventListener("visibilitychange", onVisibility); };
+  }, [pathname]);
+
+  const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
+
+  useEffect(() => {
+    if (unread > prevUnread.current) {
+      setBadgePulse(true);
+      if (pulseTimer.current) clearTimeout(pulseTimer.current);
+      pulseTimer.current = setTimeout(() => setBadgePulse(false), 700);
+    }
+    prevUnread.current = unread;
+  }, [unread]);
+
+  useEffect(() => {
+    if (!notifOpen) return;
+    const node = loadMoreRef.current;
+    if (!node || !notifHasMore || notifLoading) return;
+    const parent = node.parentElement;
+    if (!parent) return;
+    const obs = new IntersectionObserver((entries) => { if (entries[0].isIntersecting) void loadMoreNotifications(); }, { root: parent, threshold: 0.6, rootMargin: "120px" });
+    obs.observe(node);
+    return () => obs.disconnect();
+  }, [notifOpen, notifHasMore, notifLoading]);
+
+  const badgeCounts = { inbox: unread, notifications: unread, tickets: tickets.filter((tk) => tk.status === "open").length };
+  const navSections = personalNav(badgeCounts, t);
+
+  const markAllRead = async () => {
+    await markAllNotificationsRead().catch(() => {});
+    const updated = notificationsRef.current.map((n) => ({ ...n, read: true }));
+    setNotifications(updated);
+    notificationsRef.current = updated;
+    setUnread(0);
+  };
+
+  const signOut = async () => {
+    await logout();
+    window.location.href = `${process.env.NEXT_PUBLIC_ACCOUNTS_URL || "http://localhost:3002"}/login`;
+  };
+
+  const now = new Date();
+  const dateLabel = formatDate(now.toISOString(), lang);
+
+  /* ── Calendar hover handlers ── */
+  const calEnter = () => {
+    if (calTimer.current) clearTimeout(calTimer.current);
+    setCalOpen(true);
+  };
+  const calLeave = () => {
+    calTimer.current = setTimeout(() => setCalOpen(false), 250);
+  };
+
+  return (
+    <div className="dashboard-layout">
+      {mobileOpen && <div className="notification-sidebar-backdrop" onClick={() => setMobileOpen(false)} />}
+
+      {unsavedWarn && (
+        <div className="tb-unsaved-banner" role="alert">
+          <AlertTriangle size={16} />
+          <span>{t("common.unsavedWarn")}</span>
+          <button type="button" onClick={() => setUnsavedWarn(false)} aria-label={t("common.close")} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tb-text-muted)', padding: 4 }}>
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
+      {/* ═══ SIDEBAR ═══ */}
+      <aside className={`dashboard-sidebar ${mobileOpen ? "open" : ""}`}>
+        <div className="sidebar-brand">
+          <Link href="/overview" className="sidebar-brand-link">
+            <div className="sidebar-brand-mark">
+              <img src="../../logo.png" alt="Tirbeo" style={{ width: 20, height: 20 }} />
+            </div>
+            <span className="sidebar-brand-name">Tirbeo</span>
+          </Link>
+        </div>
+
+        <nav className="sidebar-nav">
+          {navSections.map((section) => (
+            <div key={section.section} className="sidebar-section">
+              <div className="sidebar-label">{section.section}</div>
+              {section.items.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`sidebar-item ${active ? "active" : ""}`}
+                    aria-current={active ? "page" : undefined}
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    {item.icon}
+                    <span className="sidebar-item-text" style={{ flex: 1 }}>{item.label}</span>
+                    {item.badge && item.badge > 0 && (
+                      <span className={`sidebar-item-badge sidebar-badge ${badgePulse && item.href === "/account/inbox" ? "pulse" : ""}`}>
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
+        </nav>
+
+        <div className="sidebar-footer">
+          <div className="sidebar-user-row">
+            <div className="sidebar-user-avatar">
+              {user?.photoUrl ? <img src={user.photoUrl} alt="" /> : initialsOf(user?.name ?? user?.email)}
+            </div>
+            <div className="sidebar-user-info" style={{ flex: 1, minWidth: 0 }}>
+              <div className="sidebar-user-name">{user?.name ?? t("header.user")}</div>
+              <div className="sidebar-user-email">{user?.email}</div>
+            </div>
+            <div className="sidebar-user-actions">
+              <Tooltip label={t("header.signOut")}>
+                <button type="button" className="header-control" onClick={signOut} aria-label={t("header.signOut")} style={{ width: 28, height: 28 }}>
+                  <LogOut size={15} />
+                </button>
+              </Tooltip>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* ═══ MAIN ═══ */}
+      <div className="dashboard-main">
+        <header className="dashboard-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button type="button" className="tb-mobile-menu-btn header-control" onClick={() => setMobileOpen(!mobileOpen)} aria-label={t("header.menu")}>
+              {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+            {/* Search trigger */}
+            <button type="button" className="header-search" onClick={() => setSearchOpen(true)} aria-label={t("header.searchPlaceholder")}>
+              <Search size={14} style={{ flexShrink: 0 }} />
+              <span className="tb-search-placeholder">{t("header.searchPlaceholder")}</span>
+              <span className="header-search-kbd">⌘K</span>
+            </button>
+          </div>
+
+          <div className="header-right-controls">
+            {/* Notifications */}
+            <Tooltip label={t("header.notifications")}>
+              <button
+                type="button"
+                className="header-control"
+                onClick={() => { setNotifOpen(!notifOpen); setUserMenuOpen(false); setCalOpen(false); }}
+                aria-label={t("header.notifications")}
+              >
+                <Bell size={16} />
+                {unread > 0 && <span className="header-notif-dot" />}
+              </button>
+            </Tooltip>
+
+            {/* Theme toggle */}
+            <Tooltip label={isDark ? t("header.switchToLight") : t("header.switchToDark")}>
+              <button
+                type="button"
+                className="header-control tb-theme-btn"
+                onClick={() => toggle()}
+                aria-label={isDark ? t("header.switchToLight") : t("header.switchToDark")}
+              >
+                {isDark ? <Sun size={16} /> : <Moon size={16} />}
+              </button>
+            </Tooltip>
+
+            {/* Date picker — hover on desktop, click on mobile */}
+            <div
+              ref={calRef}
+              className="relative"
+              onMouseEnter={calEnter}
+              onMouseLeave={calLeave}
+            >
+              <Tooltip label={t("header.calendar")}>
+                <button
+                  type="button"
+                  className="tb-date-btn"
+                  onClick={() => setCalOpen(!calOpen)}
+                  aria-label={t("header.calendar")}
+                >
+                  <Calendar size={14} />
+                  <span className="tb-date-btn-label">{dateLabel}</span>
+                  <ChevronDown size={12} style={{ color: "var(--tb-text-muted)", transform: calOpen ? "rotate(180deg)" : "rotate(0)", transition: "transform 120ms" }} />
+                </button>
+              </Tooltip>
+              {/* Hover bridge */}
+              {calOpen && <div className="calendar-hover-bridge" />}
+              {calOpen && <MonthCalendar onClose={() => setCalOpen(false)} />}
+            </div>
+
+            {/* User menu */}
+            <div ref={userMenuRef} className="relative">
+              <Tooltip label={t("header.account")}>
+                <button
+                  type="button"
+                  className="header-btn-link"
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  aria-label={t("header.account")}
+                >
+                  <div className="header-avatar">
+                    {user?.photoUrl ? <img src={user.photoUrl} alt="" /> : initialsOf(user?.name ?? user?.email)}
+                  </div>
+                </button>
+              </Tooltip>
+              {userMenuOpen && (
+                <>
+                  <div style={{ position: 'fixed', inset: 0, zIndex: 59 }} onClick={() => setUserMenuOpen(false)} />
+                  <div className="header-popover" role="menu">
+                    <div style={{ padding: 12 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 4px 12px', borderBottom: '1px solid var(--tb-border)' }}>
+                        <div className="sidebar-user-avatar" style={{ width: 40, height: 40 }}>
+                          {user?.photoUrl ? <img src={user.photoUrl} alt="" /> : initialsOf(user?.name ?? user?.email)}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--tb-text-primary)' }}>{user?.name ?? t("header.user")}</div>
+                          <div style={{ fontSize: 12, color: 'var(--tb-text-muted)' }}>{user?.email ?? ""}</div>
+                        </div>
+
+                      </div>
+                      <div style={{ paddingTop: 8 }}>
+                        <button type="button" role="menuitem" className="menu-item" onClick={() => { setUserMenuOpen(false); router.push("/account/profile"); }}>
+                          <User size={15} /> <span style={{ flex: 1 }}>{t("nav.profile")}</span>
+                        </button>
+                        <button type="button" role="menuitem" className="menu-item" onClick={() => { setUserMenuOpen(false); router.push("/account/security"); }}>
+                          <Lock size={15} /> <span style={{ flex: 1 }}>{t("nav.security")}</span>
+                        </button>
+                        <div className="menu-divider" />
+                        <button type="button" role="menuitem" className="menu-item" onClick={() => { setUserMenuOpen(false); router.push("/account/preferences"); }}>
+                          <Settings size={15} /> <span style={{ flex: 1 }}>{t("nav.preferences")}</span>
+                        </button>
+                        <div className="menu-divider" />
+                        <button type="button" role="menuitem" className="menu-item danger" onClick={() => { setUserMenuOpen(false); signOut(); }}>
+                          <LogOut size={15} /> <span style={{ flex: 1 }}>{t("header.signOut")}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* ═══ NOTIFICATION SIDEBAR ═══ */}
+        {notifOpen && (
+          <>
+            <div className="notification-sidebar-backdrop" onClick={() => setNotifOpen(false)} />
+            <div className="notification-sidebar open" role="dialog" aria-label={t("header.notifications")}>
+              <div className="notif-sidebar-header">
+                <span className="notif-sidebar-title">{t("notif.title")}</span>
+                <div className="notif-sidebar-actions">
+                  {unread > 0 && <button type="button" className="btn btn-ghost btn-sm" onClick={markAllRead}>{t("common.markRead")}</button>}
+                  <button type="button" className="header-control" onClick={() => setNotifOpen(false)} aria-label={t("common.close")} style={{ width: 28, height: 28 }}>
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="notif-retention-alert">
+                <Info size={14} />
+                <span>{t("notif.retention")}</span>
+              </div>
+
+              <div style={{ flex: 1, overflow: 'auto' }}>
+                {notifications.length === 0 ? (
+                  <div className="notif-sidebar-empty">{t("notif.empty")}</div>
+                ) : notifications.map((n) => (
+                  <div key={n.id} className={`notif-sidebar-item ${n.link ? "clickable" : ""}`} onClick={() => { if (n.link) { setNotifOpen(false); router.push(n.link); } }}>
+                    <div className={`notif-sidebar-dot ${n.read ? "read" : "unread"}`} />
+                    <div className="notif-sidebar-body">
+                      <div className={`notif-sidebar-title-text ${n.read ? "read" : "unread"}`}>{translateText(t, n.title, lang)}</div>
+                      {n.body && <div className="notif-sidebar-subtitle">{translateText(t, n.body, lang)}</div>}
+                    </div>
+                    <span className="notif-sidebar-time">{formatDayMonth(n.createdAt, lang)}</span>
+                  </div>
+                ))}
+                {notifHasMore && (
+                  <div ref={loadMoreRef} className="notif-load-more">
+                    {notifLoading ? t("common.loading") : t("common.loadMore")}
+                  </div>
+                )}
+              </div>
+              {notifTotal > 0 && <div className="notif-sidebar-footer">{notifTotal} {t("notif.total")}</div>}
+            </div>
+          </>
+        )}
+
+        {/* ═══ SEARCH OVERLAY ═══ */}
+        {searchOpen && (
+          <div className="tb-search-overlay" onClick={() => setSearchOpen(false)}>
+            <div className="tb-search-panel" onClick={e => e.stopPropagation()}>
+              <div className="tb-search-input-row">
+                <Search size={16} />
+                <input
+                  type="text"
+                  placeholder={t("search.placeholder")}
+                  autoFocus
+                  onKeyDown={e => {
+                    if (e.key === "Escape") setSearchOpen(false);
+                    if (e.key === "Enter") {
+                      const val = (e.target as HTMLInputElement).value.toLowerCase();
+                      setSearchOpen(false);
+                      const pages: Array<[string, string]> = [
+                        [t("nav.profile"), "/account/profile"],
+                        [t("nav.preferences"), "/account/preferences"],
+                        [t("nav.notifications"), "/account/notifications"],
+                        [t("nav.security"), "/account/security"],
+                        [t("nav.privacy"), "/account/privacy"],
+                        [t("nav.sessions"), "/account/sessions"],
+                        [t("nav.inbox"), "/account/inbox"],
+                        [t("nav.tickets"), "/support/tickets"],
+                        [t("nav.history"), "/activity/history"],
+                        [t("nav.connectedApps"), "/account/apps"],
+                        [t("search.overview"), "/overview"],
+                        [t("search.notificationsSettings"), "/account/notifications"],
+                        [t("search.activityHistory"), "/activity/history"],
+                        [t("search.supportTickets"), "/support/tickets"],
+                      ];
+                      for (const [k, v] of pages) {
+                        if (val.includes(k.toLowerCase())) { router.push(v); return; }
+                      }
+                    }
+                  }}
+                />
+                <span className="tb-search-kbd">ESC</span>
+              </div>
+              <div className="tb-search-body">
+                <div className="tb-search-group-wrap">
+                  <div className="tb-search-group">{t("search.pages")}</div>
+                  {[
+                    { title: t("search.overview"), sub: "/overview", href: "/overview" },
+                    { title: t("nav.inbox"), sub: "/account/inbox", href: "/account/inbox" },
+                    { title: t("nav.profile"), sub: "/account/profile", href: "/account/profile" },
+                    { title: t("nav.preferences"), sub: "/account/preferences", href: "/account/preferences" },
+                    { title: t("search.notificationsSettings"), sub: "/account/notifications", href: "/account/notifications" },
+                    { title: t("nav.connectedApps"), sub: "/account/apps", href: "/account/apps" },
+                    { title: t("nav.security"), sub: "/account/security", href: "/account/security" },
+                    { title: t("nav.privacy"), sub: "/account/privacy", href: "/account/privacy" },
+                    { title: t("nav.sessions"), sub: "/account/sessions", href: "/account/sessions" },
+                    { title: t("search.activityHistory"), sub: "/activity/history", href: "/activity/history" },
+                    { title: t("search.supportTickets"), sub: "/support/tickets", href: "/support/tickets" },
+                  ].map(item => (
+                    <button key={item.href} className="tb-search-item" onClick={() => { setSearchOpen(false); router.push(item.href); }}>
+                      <div className="tb-search-item-body">
+                        <span className="tb-search-item-title">{item.title}</span>
+                        <span className="tb-search-item-sub">{item.sub}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="tb-search-footer">
+                <span>↑↓ {t("search.navigate")}</span><span>↵ {t("search.open")}</span><span>ESC {t("search.close")}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="dashboard-content">
+          {sessionExpired && (
+            <div className="session-expired-bar">
+              <AlertTriangle size={16} />
+              <span className="session-expired-text">{t("session.expired")}</span>
+              <button type="button" className="session-expired-btn" onClick={signOut}>{t("session.signInAgain")}</button>
+            </div>
+          )}
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
