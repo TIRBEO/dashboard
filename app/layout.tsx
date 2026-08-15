@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { TirbeoThemeProvider } from '@tirbeo/theme';
 import './globals.css';
 
@@ -44,6 +46,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <TirbeoThemeProvider>
           {children}
         </TirbeoThemeProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

@@ -19,6 +19,8 @@
     "@tirbeo/icons": "^1.0.5",
     "@tirbeo/theme": "^1.0.6",
     "@tirbeo/ui": "^1.0.5",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "date-fns": "4.4.0",
     "lucide-react": "1.28.0",
     "motion": "12.43.0",
