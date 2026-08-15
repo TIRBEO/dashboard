@@ -121,6 +121,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pulseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const calTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [badgePulse, setBadgePulse] = useState(false);
+  const [authState, setAuthState] = useState<"loading" | "authed" | "offline">("loading");
 
   // Cleanup timers
   useEffect(() => {
@@ -234,8 +235,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     let alive = true;
     getCurrentUser()
-      .then((u) => { if (alive) setUser(u); })
-      .catch((e) => { if (alive && isUnauthorizedError(e)) redirectToAccounts(); });
+      .then((u) => { if (alive) { setUser(u); setAuthState("authed"); } })
+      .catch((e) => {
+        if (!alive) return;
+        if (isUnauthorizedError(e)) {
+          redirectToAccounts();
+          return;
+        }
+        setAuthState("offline");
+      });
     fetchNotifications();
     fetchTickets();
     pollTimer.current = setInterval(() => { if (document.visibilityState === "visible") fetchNotifications(); }, 30_000);
@@ -297,6 +305,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const calLeave = () => {
     calTimer.current = setTimeout(() => setCalOpen(false), 250);
   };
+
+  if (authState === "loading") {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: "var(--tb-bg)", color: "var(--tb-text-muted)" }}>
+        <div style={{ width: 28, height: 28, border: "3px solid var(--tb-border)", borderTopColor: "var(--tb-accent)", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-layout">
