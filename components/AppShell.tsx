@@ -316,7 +316,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="dashboard-layout">
-      {mobileOpen && <div className="notification-sidebar-backdrop" onClick={() => setMobileOpen(false)} />}
+      {mobileOpen && <div className="dashboard-sidebar-backdrop" onClick={() => setMobileOpen(false)} />}
 
       {unsavedWarn && (
         <div className="tb-unsaved-banner" role="alert">

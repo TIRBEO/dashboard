@@ -151,14 +151,14 @@ export default function NotificationsSettingsPage() {
         <h3 className="section-title">{t("notif.perCategory")}</h3>
         <p className="section-desc">{t("notif.perCategoryDesc")}</p>
         {/* Header row */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px 90px 90px', gap: 0, padding: '10px 0', borderBottom: '1px solid var(--tb-border)', marginBottom: 4 }}>
+        <div className="notif-per-row" style={{ padding: '10px 0', borderBottom: '1px solid var(--tb-border)', marginBottom: 4 }}>
           <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--tb-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t("notif.colCategory")}</div>
           <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--tb-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center' }}>{t("notif.colEmail")}</div>
           <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--tb-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center' }}>{t("notif.colPush")}</div>
           <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--tb-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center' }}>{t("notif.colInApp")}</div>
         </div>
         {CATEGORIES.map((cat, idx) => (
-          <div key={cat.key} style={{ display: 'grid', gridTemplateColumns: '1fr 90px 90px 90px', gap: 0, padding: '14px 0', borderBottom: idx < CATEGORIES.length - 1 ? '1px solid var(--tb-border)' : 'none', alignItems: 'center' }}>
+          <div key={cat.key} className="notif-per-row" style={{ padding: '14px 0', borderBottom: idx < CATEGORIES.length - 1 ? '1px solid var(--tb-border)' : 'none' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ color: 'var(--tb-text-muted)' }}>{cat.icon}</span>
               <div>

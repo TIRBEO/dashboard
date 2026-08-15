@@ -104,7 +104,7 @@ export default function NewTicketPage() {
         </div>
 
         {/* Category + Priority side by side */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+        <div className="tb-grid-2" style={{ gap: 12, marginBottom: 12 }}>
           {/* Category */}
           <div className="dashboard-card">
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>

@@ -247,7 +247,7 @@ export default function OverviewPage() {
 
       {/* ── Stats Row ── */}
       {loading ? (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+        <div className="tb-grid-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="dashboard-card" style={{ padding: "14px 16px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -261,7 +261,7 @@ export default function OverviewPage() {
           ))}
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+        <div className="tb-grid-3">
           {[
             {
               icon: <Mail size={15} />,
@@ -450,7 +450,7 @@ export default function OverviewPage() {
       </div>
 
       {/* ── Recent Notifications + Tickets ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="tb-grid-2">
         {/* Recent notifications */}
         <div
           className="dashboard-card"

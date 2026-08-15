@@ -212,6 +212,7 @@ export default function TicketsPage() {
                   {getStatusLabel(tk.status, t)}
                 </span>
                 <span
+                  className="tb-row-date"
                   style={{
                     fontSize: 12,
                     color: "var(--tb-text-muted)",
@@ -273,12 +274,8 @@ export default function TicketsPage() {
                 />
               </div>
               <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 12,
-                  marginBottom: 14,
-                }}
+                className="tb-grid-2"
+                style={{ gap: 12, marginBottom: 14 }}
               >
                 <div>
                   <label className="form-label">{t("tickets.category")}</label>
