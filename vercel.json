@@ -4,6 +4,7 @@
   "outputDirectory": ".next",
   "env": {
     "NEXT_PUBLIC_API_URL": "https://api.tirbeo.app",
+    "NEXT_PUBLIC_ACCOUNTS_URL": "https://accounts.tirbeo.app",
     "NEXT_PUBLIC_APP_DOMAIN": "tirbeo.app",
     "NEXT_PUBLIC_COOKIE_DOMAIN": "tirbeo.app",
     "NEXT_PUBLIC_LOGO_URL": "",

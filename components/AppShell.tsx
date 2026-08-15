@@ -113,7 +113,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [calOpen, setCalOpen] = useState(false);
   const calRef = useRef<HTMLDivElement>(null);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [sessionExpired, setSessionExpired] = useState(false);
   const [unsavedWarn, setUnsavedWarn] = useState(false);
   const warnTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const unsavedRef = useRef(false);
@@ -213,7 +212,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       setUnread(r.unread);
       setNotifTotal(r.total);
       setNotifHasMore(seen.length < r.total);
-    } catch { /* silent */ }
+    } catch (e) { if (isUnauthorizedError(e)) redirectToAccounts(); }
   };
 
   const loadMoreNotifications = async () => {
@@ -225,18 +224,18 @@ export function AppShell({ children }: { children: ReactNode }) {
       setNotifications((prev) => { const merged = [...prev, ...incoming]; notificationsRef.current = merged; return merged; });
       setNotifTotal(r.total);
       setNotifHasMore(notifications.length + incoming.length < r.total && incoming.length > 0);
-    } catch { /* silent */ } finally { setNotifLoading(false); }
+    } catch (e) { if (isUnauthorizedError(e)) redirectToAccounts(); } finally { setNotifLoading(false); }
   };
 
   const fetchTickets = async () => {
-    try { const r = await listTickets({ limit: 10 }); setTickets(r.data); } catch { /* silent */ }
+    try { const r = await listTickets({ limit: 10 }); setTickets(r.data); } catch (e) { if (isUnauthorizedError(e)) redirectToAccounts(); }
   };
 
   useEffect(() => {
     let alive = true;
     getCurrentUser()
       .then((u) => { if (alive) setUser(u); })
-      .catch((e) => { if (alive && isUnauthorizedError(e)) setSessionExpired(true); });
+      .catch((e) => { if (alive && isUnauthorizedError(e)) redirectToAccounts(); });
     fetchNotifications();
     fetchTickets();
     pollTimer.current = setInterval(() => { if (document.visibilityState === "visible") fetchNotifications(); }, 30_000);
@@ -278,9 +277,13 @@ export function AppShell({ children }: { children: ReactNode }) {
     setUnread(0);
   };
 
+  const redirectToAccounts = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_ACCOUNTS_URL || "https://accounts.tirbeo.app"}/login`;
+  };
+
   const signOut = async () => {
     await logout();
-    window.location.href = `${process.env.NEXT_PUBLIC_ACCOUNTS_URL || "http://localhost:3002"}/login`;
+    redirectToAccounts();
   };
 
   const now = new Date();
@@ -603,13 +606,6 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         {/* Content */}
         <div className="dashboard-content">
-          {sessionExpired && (
-            <div className="session-expired-bar">
-              <AlertTriangle size={16} />
-              <span className="session-expired-text">{t("session.expired")}</span>
-              <button type="button" className="session-expired-btn" onClick={signOut}>{t("session.signInAgain")}</button>
-            </div>
-          )}
           {children}
         </div>
       </div>
