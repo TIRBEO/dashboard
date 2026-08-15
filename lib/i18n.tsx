@@ -272,6 +272,20 @@ export interface Dict {
     googleDesc: string;
     githubDesc: string;
     discordDesc: string;
+    connected: string;
+    notConnected: string;
+    connectedOn: string;
+    disconnectConfirm: string;
+    disconnectDesc: string;
+    mergeTitle: string;
+    mergeDesc: string;
+    mergeEmail: string;
+    mergeButton: string;
+    cancelButton: string;
+    mergeSuccess: string;
+    mergeCancelled: string;
+    noProviders: string;
+    providerEmail: string;
   };
   security: {
     title: string;
@@ -641,6 +655,18 @@ const en: Dict = {
     available: "Available apps", disconnect: "Disconnect", connect: "Connect",
     googleDesc: "Sync contacts, calendar, and Gmail.", githubDesc: "Sync repositories and activity.",
     discordDesc: "Get notifications in Discord.",
+    connected: "Connected", notConnected: "Not connected", connectedOn: "Connected on",
+    disconnectConfirm: "Disconnect provider?",
+    disconnectDesc: "Are you sure you want to disconnect this provider? You can reconnect it later.",
+    mergeTitle: "Merge accounts?",
+    mergeDesc: "This provider's email is already linked to another account. Merging will transfer the provider to your current account.",
+    mergeEmail: "Email",
+    mergeButton: "Merge accounts",
+    cancelButton: "Cancel",
+    mergeSuccess: "Accounts merged successfully!",
+    mergeCancelled: "Merge cancelled.",
+    noProviders: "No providers configured.",
+    providerEmail: "Email",
   },
   security: {
     title: "Security", subtitle: "Protect your account with strong security.",
@@ -857,6 +883,18 @@ const es: Dict = {
     available: "Aplicaciones disponibles", disconnect: "Desconectar", connect: "Conectar",
     googleDesc: "Sincroniza contactos, calendario y Gmail.", githubDesc: "Sincroniza repositorios y actividad.",
     discordDesc: "Recibe notificaciones en Discord.",
+    connected: "Conectado", notConnected: "No conectado", connectedOn: "Conectado el",
+    disconnectConfirm: "¿Desconectar proveedor?",
+    disconnectDesc: "¿Estás seguro de que quieres desconectar este proveedor? Puedes reconectarlo después.",
+    mergeTitle: "¿Fusionar cuentas?",
+    mergeDesc: "El email de este proveedor ya está vinculado a otra cuenta. Fusionar transferirá el proveedor a tu cuenta actual.",
+    mergeEmail: "Email",
+    mergeButton: "Fusionar cuentas",
+    cancelButton: "Cancelar",
+    mergeSuccess: "¡Cuentas fusionadas con éxito!",
+    mergeCancelled: "Fusión cancelada.",
+    noProviders: "No hay proveedores configurados.",
+    providerEmail: "Email",
   },
   security: {
     title: "Seguridad", subtitle: "Protege tu cuenta con una seguridad sólida.",
@@ -1073,6 +1111,18 @@ const fr: Dict = {
     available: "Applications disponibles", disconnect: "Déconnecter", connect: "Connecter",
     googleDesc: "Synchronisez contacts, calendrier et Gmail.", githubDesc: "Synchronisez dépôts et activité.",
     discordDesc: "Recevez des notifications sur Discord.",
+    connected: "Connecté", notConnected: "Non connecté", connectedOn: "Connecté le",
+    disconnectConfirm: "Déconnecter le fournisseur ?",
+    disconnectDesc: "Êtes-vous sûr de vouloir déconnecter ce fournisseur ? Vous pouvez le reconnecter plus tard.",
+    mergeTitle: "Fusionner les comptes ?",
+    mergeDesc: "L'e-mail de ce fournisseur est déjà lié à un autre compte. La fusion transférera le fournisseur à votre compte actuel.",
+    mergeEmail: "E-mail",
+    mergeButton: "Fusionner les comptes",
+    cancelButton: "Annuler",
+    mergeSuccess: "Comptes fusionnés avec succès !",
+    mergeCancelled: "Fusion annulée.",
+    noProviders: "Aucun fournisseur configuré.",
+    providerEmail: "E-mail",
   },
   security: {
     title: "Sécurité", subtitle: "Protégez votre compte avec une sécurité renforcée.",
@@ -1289,6 +1339,18 @@ const de: Dict = {
     available: "Verfügbare Apps", disconnect: "Trennen", connect: "Verbinden",
     googleDesc: "Synchronisieren Sie Kontakte, Kalender und Gmail.", githubDesc: "Synchronisieren Sie Repositorien und Aktivität.",
     discordDesc: "Erhalten Sie Benachrichtigungen in Discord.",
+    connected: "Verbunden", notConnected: "Nicht verbunden", connectedOn: "Verbunden am",
+    disconnectConfirm: "Anbieter trennen?",
+    disconnectDesc: "Möchten Sie diesen Anbieter wirklich trennen? Sie können ihn später wieder verbinden.",
+    mergeTitle: "Konten zusammenführen?",
+    mergeDesc: "Die E-Mail dieses Anbieters ist bereits mit einem anderen Konto verknüpft. Das Zusammenführen überträgt den Anbieter auf Ihr aktuelles Konto.",
+    mergeEmail: "E-Mail",
+    mergeButton: "Konten zusammenführen",
+    cancelButton: "Abbrechen",
+    mergeSuccess: "Konten erfolgreich zusammengeführt!",
+    mergeCancelled: "Zusammenführung abgebrochen.",
+    noProviders: "Keine Anbieter konfiguriert.",
+    providerEmail: "E-Mail",
   },
   security: {
     title: "Sicherheit", subtitle: "Schützen Sie Ihr Konto mit starker Sicherheit.",
@@ -1505,6 +1567,18 @@ const ja: Dict = {
     available: "利用可能なアプリ", disconnect: "連携解除", connect: "連携",
     googleDesc: "連絡先、カレンダー、Gmailを同期します。", githubDesc: "リポジトリとアクティビティを同期します。",
     discordDesc: "Discordで通知を受け取ります。",
+    connected: "接続済み", notConnected: "未接続", connectedOn: "接続日",
+    disconnectConfirm: "プロバイダーを切断しますか？",
+    disconnectDesc: "このプロバイダーを切断してもよろしいですか？後で再接続できます。",
+    mergeTitle: "アカウントを統合しますか？",
+    mergeDesc: "このプロバイダーのメールは既に別のアカウントにリンクされています。統合すると、現在のアカウントにプロバイダーが移動します。",
+    mergeEmail: "メール",
+    mergeButton: "アカウントを統合",
+    cancelButton: "キャンセル",
+    mergeSuccess: "アカウントの統合が完了しました！",
+    mergeCancelled: "統合がキャンセルされました。",
+    noProviders: "プロバイダーが設定されていません。",
+    providerEmail: "メール",
   },
   security: {
     title: "セキュリティ", subtitle: "強力なセキュリティでアカウントを保護します。",
@@ -1721,6 +1795,18 @@ const ko: Dict = {
     available: "사용 가능한 앱", disconnect: "연결 해제", connect: "연결",
     googleDesc: "연락처, 캘린더, Gmail을 동기화합니다.", githubDesc: "저장소와 활동을 동기화합니다.",
     discordDesc: "Discord에서 알림을 받습니다.",
+    connected: "연결됨", notConnected: "연결 안 됨", connectedOn: "연결일",
+    disconnectConfirm: "공급자를 연결 해제하시겠습니까?",
+    disconnectDesc: "이 공급자의 연결을 해제하시겠습니까? 나중에 다시 연결할 수 있습니다.",
+    mergeTitle: "계정을 병합하시겠습니까?",
+    mergeDesc: "이 공급자의 이메일이 이미 다른 계정에 연결되어 있습니다. 병합하면 현재 계정으로 공급자가 이동합니다.",
+    mergeEmail: "이메일",
+    mergeButton: "계정 병합",
+    cancelButton: "취소",
+    mergeSuccess: "계정이 성공적으로 병합되었습니다!",
+    mergeCancelled: "병합이 취소되었습니다.",
+    noProviders: "구성된 공급자가 없습니다.",
+    providerEmail: "이메일",
   },
   security: {
     title: "보안", subtitle: "강력한 보안으로 계정을 보호하세요.",
@@ -1937,6 +2023,18 @@ const zh: Dict = {
     available: "可用应用", disconnect: "断开连接", connect: "连接",
     googleDesc: "同步联系人、日历和 Gmail。", githubDesc: "同步代码仓库和活动。",
     discordDesc: "在 Discord 中接收通知。",
+    connected: "已连接", notConnected: "未连接", connectedOn: "连接日期",
+    disconnectConfirm: "断开提供者连接？",
+    disconnectDesc: "确定要断开此提供者的连接吗？您可以稍后重新连接。",
+    mergeTitle: "合并账户？",
+    mergeDesc: "此提供者的邮箱已链接到另一个账户。合并将把提供者转移到您当前的账户。",
+    mergeEmail: "邮箱",
+    mergeButton: "合并账户",
+    cancelButton: "取消",
+    mergeSuccess: "账户合并成功！",
+    mergeCancelled: "合并已取消。",
+    noProviders: "未配置提供者。",
+    providerEmail: "邮箱",
   },
   security: {
     title: "安全", subtitle: "以强大的安全措施保护您的账户。",
@@ -2153,6 +2251,18 @@ const hi: Dict = {
     available: "उपलब्ध ऐप्स", disconnect: "डिस्कनेक्ट", connect: "कनेक्ट",
     googleDesc: "संपर्क, कैलेंडर और Gmail सिंक करें।", githubDesc: "रिपॉजिटरी और गतिविधि सिंक करें।",
     discordDesc: "Discord में सूचनाएं प्राप्त करें।",
+    connected: "जुड़ा हुआ", notConnected: "जुड़ा नहीं", connectedOn: "जुड़ने की तिथि",
+    disconnectConfirm: "प्रदाता डिस्कनेक्ट करें?",
+    disconnectDesc: "क्या आप वाकई इस प्रदाता को डिस्कनेक्ट करना चाहते हैं? आप इसे बाद में फिर से जोड़ सकते हैं।",
+    mergeTitle: "खाते मर्ज करें?",
+    mergeDesc: "इस प्रदाता का ईमेल पहले से किसी अन्य खाते से जुड़ा है। मर्ज करने से प्रदाता आपके वर्तमान खाते में स्थानांतरित हो जाएगा।",
+    mergeEmail: "ईमेल",
+    mergeButton: "खाते मर्ज करें",
+    cancelButton: "रद्द करें",
+    mergeSuccess: "खाते सफलतापूर्वक मर्ज हो गए!",
+    mergeCancelled: "मर्ज रद्द कर दिया गया।",
+    noProviders: "कोई प्रदाता कॉन्फ़िगर नहीं।",
+    providerEmail: "ईमेल",
   },
   security: {
     title: "सुरक्षा", subtitle: "मजबूत सुरक्षा से अपने खाते की रक्षा करें।",
@@ -2369,6 +2479,18 @@ const ne: Dict = {
     available: "उपलब्ध एपहरू", disconnect: "विच्छेद", connect: "जडान",
     googleDesc: "सम्पर्क, पात्रो र Gmail सिङ्क गर्नुहोस्।", githubDesc: "रेपोजिटरीहरू र गतिविधि सिङ्क गर्नुहोस्।",
     discordDesc: "Discord मा सूचनाहरू प्राप्त गर्नुहोस्।",
+    connected: "जोडिएको", notConnected: "जोडिएको छैन", connectedOn: "जोडिएको मिति",
+    disconnectConfirm: "प्रदायक डिस्कनेक्ट गर्ने?",
+    disconnectDesc: "के तपाईं यस प्रदायकलाई डिस्कनेक्ट गर्न चाहनुहुन्छ? तपाईं यसलाई पछि फेरि जोड्न सक्नुहुन्छ।",
+    mergeTitle: "खाता मर्ज गर्ने?",
+    mergeDesc: "यस प्रदायकको इमेल पहिले नै अर्को खातासँग जोडिएको छ। मर्ज गर्दा प्रदायक तपाईंको हालको खातामा स्थानान्तरण हुनेछ।",
+    mergeEmail: "इमेल",
+    mergeButton: "खाता मर्ज गर्ने",
+    cancelButton: "रद्द गर्ने",
+    mergeSuccess: "खाता सफलतापूर्वक मर्ज भयो!",
+    mergeCancelled: "मर्ज रद्द भयो।",
+    noProviders: "कुनै प्रदायक कन्फिगर गरिएको छैन।",
+    providerEmail: "इमेल",
   },
   security: {
     title: "सुरक्षा", subtitle: "बलियो सुरक्षाले आफ्नो खाता सुरक्षित गर्नुहोस्।",
