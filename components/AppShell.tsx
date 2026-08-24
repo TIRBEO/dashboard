@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback, type ReactNode } from "react";
+import { BlockedScreen, DeletionBanner } from "@/components/BlockedScreen";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useThemeToggle } from "@tirbeo/theme";
@@ -12,7 +13,7 @@ import {
 } from "lucide-react";
 import { MonthCalendar } from "@/components/ui/MonthCalendar";
 import {
-  getCurrentUser, isUnauthorizedError, listNotifications,
+  getCurrentUser, isUnauthorizedError, listNotifications, getBlockStatus, cancelAccountDeletion, ApiError,
   listTickets, logout, markAllNotificationsRead, markNotificationsRead,
   formatDate, formatDayMonth,
   type NotificationItem, type Profile, type Ticket,
@@ -149,6 +150,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const calTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [badgePulse, setBadgePulse] = useState(false);
   const [authState, setAuthState] = useState<"loading" | "authed" | "offline">("loading");
+  const [blockStatus, setBlockStatus] = useState<null | { banned?: boolean; suspended?: boolean; reason?: string; until?: string | null }>(null);
 
   // Cleanup timers
   useEffect(() => {
@@ -262,13 +264,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     let alive = true;
     getCurrentUser()
-      .then((u) => { if (alive) { setUser(u); setAuthState("authed"); } })
+      .then((u) => { if (alive) { setUser(u); setBlockStatus(null); setAuthState("authed"); } })
       .catch((e) => {
         if (!alive) return;
         if (isUnauthorizedError(e)) {
           redirectToAccounts();
           return;
         }
+        const blocked = getBlockStatus(e);
+        if (blocked) { setBlockStatus(blocked); setAuthState("authed"); return; }
         setAuthState("offline");
       });
     fetchNotifications();
@@ -357,9 +361,21 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   }
 
+  if (blockStatus) {
+    return <BlockedScreen status={blockStatus} onRetry={() => { setAuthState("loading"); setBlockStatus(null); }} />;
+  }
+
   return (
     <div className="dashboard-layout">
       {mobileOpen && <div className="dashboard-sidebar-backdrop" onClick={() => setMobileOpen(false)} />}
+
+      {(user as any)?.scheduledDeletionAt && (
+        <DeletionBanner
+          scheduledFor={(user as any).scheduledDeletionAt}
+          reason={(user as any).deletionReason}
+          onCancel={async () => { try { await cancelAccountDeletion(); setUser((prev: any) => prev ? ({ ...prev, scheduledDeletionAt: null, deletionReason: null }) : prev); } catch {} }}
+        />
+      )}
 
       {unsavedWarn && (
         <div className="tb-unsaved-banner" role="alert">

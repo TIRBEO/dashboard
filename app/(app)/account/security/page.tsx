@@ -52,6 +52,11 @@ export default function SecurityPage() {
   const [removeOtpLoading, setRemoveOtpLoading] = useState(false);
   const [removeError, setRemoveError] = useState("");
 
+  // Sessions & activity
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [activity, setActivity] = useState<any[]>([]);
+  const [loginHistory, setLoginHistory] = useState<any[]>([]);
+
   useEffect(() => {
     getCurrentUser()
       .then((u) => {
@@ -63,6 +68,11 @@ export default function SecurityPage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
+
+    // Fetch sessions, activity & login history
+    api.get<any>('/api/security/sessions').then(s => setSessions(Array.isArray(s) ? s : [])).catch(() => {});
+    api.get<any>('/api/user/activity?limit=10').then(a => setActivity(Array.isArray(a) ? a : [])).catch(() => {});
+    api.get<any>('/api/security/login-history?limit=15').then(r => setLoginHistory(Array.isArray(r?.logs) ? r.logs : Array.isArray(r) ? r : [])).catch(() => {});
   }, []);
 
   // ── 2FA ──
@@ -106,7 +116,7 @@ export default function SecurityPage() {
       if (hasPassword) body.currentPassword = pwdForm.current;
       else body.otpCode = pwdOtp;
       await api.post("/api/security/password", body);
-      setShowChangePwd(false); setPwdForm({ current: "", new: "", confirm: "" }); setPwdOtp(""); setHasPassword(true);
+      setShowChangePwd(false); setPwdForm({ current: "", new: "", confirm: "" }); setPwdOtp(""); setHasPassword(true); setUser((p: any) => p ? ({ ...p, mustChangePassword: false }) : p);
       setPwdSuccess(true); setTimeout(() => setPwdSuccess(false), 3000);
     } catch (e: any) { setPwdError(e.message || t("security.failed")); }
     setPwdSaving(false);
@@ -156,6 +166,21 @@ export default function SecurityPage() {
       setSecEmail(""); setSecVerified(false); setShowRemoveEmail(false); setRemoveOtp(""); setRemoveOtpSent(false);
     } catch (e: any) { setRemoveError(e.message || "Invalid code"); }
     setRemoveOtpLoading(false);
+  };
+
+  // ── Sessions ──
+  const revokeSession = async (sessionId: string) => {
+    try {
+      await api.request('/api/security/sessions', { method: 'DELETE', body: JSON.stringify({ sessionId }) });
+      setSessions(prev => prev.filter(s => s.id !== sessionId));
+    } catch (e: any) { console.error('Failed to revoke session', e); }
+  };
+
+  const revokeAllSessions = async () => {
+    try {
+      await api.request('/api/security/sessions/revoke-all', { method: 'DELETE' });
+      setSessions(prev => prev.filter(s => s.isCurrent));
+    } catch (e: any) { console.error('Failed to revoke sessions', e); }
   };
 
   if (loading) return (
@@ -275,18 +300,129 @@ export default function SecurityPage() {
             <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--tb-surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <History size={16} style={{ color: 'var(--tb-text-muted)' }} />
             </div>
-            <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--tb-text-primary)', margin: 0 }}>{t('security.loginHistory')}</h3>
-          </div>
-        </div>
-        {user?.lastActiveAt ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 20px' }}>
-            <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--tb-green, #10b981)', flexShrink: 0 }} />
             <div>
-              <div style={{ fontSize: 13, color: 'var(--tb-text-primary)' }}>{t('security.lastActive')}</div>
-              <div style={{ fontSize: 12, color: 'var(--tb-text-muted)' }}>{new Date(user.lastActiveAt).toLocaleString(lang)}</div>
+              <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--tb-text-primary)', margin: 0 }}>Login History</h3>
+              <p style={{ fontSize: 13, color: 'var(--tb-text-muted)', margin: 0 }}>{loginHistory.length} login{loginHistory.length !== 1 ? 's' : ''} recorded</p>
             </div>
           </div>
-        ) : <div className="empty-note">{t('security.noLoginHistory')}</div>}
+        </div>
+        {loginHistory.length === 0 ? (
+          <div style={{ padding: '20px', textAlign: 'center', fontSize: 13, color: 'var(--tb-text-muted)' }}>No login history yet</div>
+        ) : loginHistory.slice(0, 8).map((l: any) => {
+          const ua = l.userAgent || '';
+          let browser = 'Unknown';
+          if (ua.includes('Firefox')) browser = 'Firefox';
+          else if (ua.includes('Edg')) browser = 'Edge';
+          else if (ua.includes('Chrome')) browser = 'Chrome';
+          else if (ua.includes('Safari')) browser = 'Safari';
+          let os = 'Unknown';
+          if (ua.includes('Windows')) os = 'Windows';
+          else if (ua.includes('Mac OS X')) os = 'macOS';
+          else if (ua.includes('Linux')) os = 'Linux';
+          else if (ua.includes('Android')) os = 'Android';
+          else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+          const success = l.success !== false;
+          return (
+            <div key={l.id} style={{ padding: '10px 20px', borderBottom: '1px solid var(--tb-border)', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: success ? 'var(--tb-green, #10b981)' : 'var(--tb-red, #ef4444)', flexShrink: 0 }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, color: 'var(--tb-text-primary)' }}>{browser} on {os} · {success ? 'Success' : 'Failed'}</div>
+                <div style={{ fontSize: 12, color: 'var(--tb-text-muted)', marginTop: 1 }}>
+                  {l.ipAddress || 'Unknown IP'} · {l.method || 'password'} · {new Date(l.createdAt).toLocaleString(lang)}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ═══ Active Sessions ═══ */}
+      <div className="dashboard-card" style={{ padding: 0 }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--tb-border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--tb-surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Monitor size={16} style={{ color: 'var(--tb-text-muted)' }} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--tb-text-primary)', margin: 0 }}>Active Sessions</h3>
+              <p style={{ fontSize: 13, color: 'var(--tb-text-muted)', margin: 0 }}>{sessions.length} session{sessions.length !== 1 ? 's' : ''} active</p>
+            </div>
+            {sessions.filter((s: any) => !s.isCurrent).length > 0 && (
+              <button className="btn btn-ghost btn-sm" style={{ color: 'var(--tb-red, #ef4444)', fontSize: 12 }} onClick={revokeAllSessions}>Revoke all others</button>
+            )}
+          </div>
+        </div>
+        {sessions.length === 0 ? (
+          <div style={{ padding: '20px', textAlign: 'center', fontSize: 13, color: 'var(--tb-text-muted)' }}>No active sessions</div>
+        ) : sessions.slice(0, 5).map((s: any) => {
+          const ua = s.userAgent || '';
+          let browser = 'Unknown';
+          if (ua.includes('Firefox')) browser = 'Firefox';
+          else if (ua.includes('Edg')) browser = 'Edge';
+          else if (ua.includes('Chrome')) browser = 'Chrome';
+          else if (ua.includes('Safari')) browser = 'Safari';
+          let os = 'Unknown';
+          if (ua.includes('Windows')) os = 'Windows';
+          else if (ua.includes('Mac OS X')) os = 'macOS';
+          else if (ua.includes('Linux')) os = 'Linux';
+          else if (ua.includes('Android')) os = 'Android';
+          else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+          return (
+            <div key={s.id} style={{ padding: '12px 20px', borderBottom: '1px solid var(--tb-border)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: s.isCurrent ? 'rgba(16,185,129,0.12)' : 'var(--tb-surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Monitor size={14} style={{ color: s.isCurrent ? 'var(--tb-green)' : 'var(--tb-text-muted)' }} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--tb-text-primary)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {browser} on {os}
+                  {s.isCurrent && <span className="badge badge-success" style={{ fontSize: 10 }}>Current</span>}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--tb-text-muted)', marginTop: 2 }}>
+                  {s.ipAddress || 'Unknown IP'} · Last active {new Date(s.lastSeenAt || s.createdAt).toLocaleString(lang)}
+                </div>
+              </div>
+              {!s.isCurrent && (
+                <button className="btn btn-ghost btn-sm" style={{ color: 'var(--tb-red, #ef4444)', fontSize: 12, flexShrink: 0 }} onClick={() => revokeSession(s.id)}>Revoke</button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ═══ Recent Activity ═══ */}
+      <div className="dashboard-card" style={{ padding: 0 }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--tb-border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--tb-surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <History size={16} style={{ color: 'var(--tb-text-muted)' }} />
+            </div>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--tb-text-primary)', margin: 0 }}>Recent Activity</h3>
+          </div>
+        </div>
+        {activity.length === 0 ? (
+          <div style={{ padding: '20px', textAlign: 'center', fontSize: 13, color: 'var(--tb-text-muted)' }}>No recent activity</div>
+        ) : activity.slice(0, 8).map((a: any) => {
+          const action = a.action || a.eventType || 'unknown';
+          const severity = a.severity || 'info';
+          const sevColor = severity === 'warning' ? 'var(--tb-yellow, #eab308)' : severity === 'error' || severity === 'critical' ? 'var(--tb-red, #ef4444)' : severity === 'success' ? 'var(--tb-green, #10b981)' : 'var(--tb-text-muted)';
+          const sourceLabel = a.source === 'security' ? 'Security' : a.source === 'audit' ? 'Audit' : '';
+          const friendlyAction = action.replace(/_/g, ' ').replace(/\./g, ' → ').replace(/^./, (c: string) => c.toUpperCase());
+          return (
+            <div key={a.id} style={{ padding: '10px 20px', borderBottom: '1px solid var(--tb-border)', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: sevColor, flexShrink: 0 }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, color: 'var(--tb-text-primary)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {friendlyAction}
+                  {sourceLabel && <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 4, background: 'var(--tb-surface-2)', color: 'var(--tb-text-muted)' }}>{sourceLabel}</span>}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--tb-text-muted)', marginTop: 1 }}>
+                  {a.metadata?.ip && <span>{a.metadata.ip} · </span>}
+                  {new Date(a.createdAt).toLocaleString(lang)}
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* ═══ 2FA Setup Dialog ═══ */}
@@ -375,6 +511,16 @@ export default function SecurityPage() {
               <button className="btn btn-ghost btn-sm" onClick={() => setBackupCodes([])}>{t("security.done")}</button>
             </div>
           </div>
+        </div>
+      )}
+
+      {(user as any)?.mustChangePassword && !hasPassword && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', padding: '13px 18px', borderRadius: 12, border: '1px solid var(--tb-accent)', background: 'var(--tb-surface-2)', marginBottom: 16 }}>
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <div style={{ fontSize: 13.5, fontWeight: 700 }}>Add a password to your account</div>
+            <div style={{ fontSize: 12.5, color: 'var(--tb-text-secondary)' }}>You signed up with a social login and don&apos;t have a password yet. Adding one lets you sign in with your email too.</div>
+          </div>
+          <button className="btn btn-primary btn-sm" onClick={() => setShowChangePwd(true)}>Add password</button>
         </div>
       )}
 

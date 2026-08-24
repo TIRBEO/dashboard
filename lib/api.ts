@@ -18,7 +18,7 @@ function getToken(): string | undefined {
 }
 
 export class ApiError extends Error {
-  constructor(public status: number, code: string, message: string) {
+  constructor(public status: number, code: string, message: string, public data?: any) {
     super(message);
     this.name = 'ApiError';
   }
@@ -39,7 +39,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   if (!res.ok) {
     let body: any;
     try { body = await res.json(); } catch { body = {}; }
-    throw new ApiError(res.status, body?.error?.code || 'UNKNOWN', body?.error?.message || body?.message || res.statusText);
+    throw new ApiError(res.status, (typeof body?.error === 'string' ? body.error : body?.error?.code) || 'UNKNOWN', body?.error?.message || body?.message || res.statusText, body);
   }
   if (res.status === 204) return undefined as T;
   const raw = await res.text();
@@ -58,6 +58,18 @@ export const api = {
 
 export function isUnauthorizedError(e: unknown): boolean {
   return e instanceof ApiError && e.status === 401;
+}
+
+export function getBlockStatus(e: unknown): { banned?: boolean; suspended?: boolean; reason?: string; until?: string | null } | null {
+  if (!(e instanceof ApiError) || e.status !== 403) return null;
+  const d = e.data as any;
+  if (d?.banned) return { banned: true, reason: d.reason };
+  if (d?.suspended) return { suspended: true, reason: d.reason, until: d.until };
+  return null;
+}
+
+export async function cancelAccountDeletion() {
+  await api.request('/api/user/delete-account?cancel=1', { method: 'DELETE' });
 }
 
 export interface Profile {
