@@ -49,9 +49,11 @@ export default function ConnectedAppsPage() {
     try {
       const r = await api.get<any>("/api/integrations");
       setIntegrations(Array.isArray(r) ? r : r?.data || []);
-    } catch { /* silent */ }
+    } catch (e: any) {
+      showToast(e?.message || "Could not load connected accounts", "error");
+    }
     setLoading(false);
-  }, []);
+  }, [showToast]);
 
   useEffect(() => { load(); }, [load]);
 

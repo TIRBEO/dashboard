@@ -6,29 +6,54 @@ import { usePathname, useRouter } from "next/navigation";
 import { useThemeToggle } from "@tirbeo/theme";
 import {
   AlertTriangle, Bell, Building, Calendar, ChevronDown,
-  Clock, Eye, Home, Info, LifeBuoy, Monitor,
+  Clock, Eye, FileText, Home, Inbox, Info, LifeBuoy, Monitor,
   Lock, LogOut, Mail, Menu, Moon, Search,
   Settings, Sliders, Sun, User, X,
 } from "lucide-react";
 import { MonthCalendar } from "@/components/ui/MonthCalendar";
 import {
   getCurrentUser, isUnauthorizedError, listNotifications,
-  listTickets, logout, markAllNotificationsRead,
+  listTickets, logout, markAllNotificationsRead, markNotificationsRead,
   formatDate, formatDayMonth,
   type NotificationItem, type Profile, type Ticket,
 } from "@/lib/api";
+import {
+  getTypeMeta as getNotifMeta,
+  notifFullDate as notifDate,
+  notifTimeAgo as notifAgo,
+} from "@/lib/notif-shared";
 import { onDirtyChange, setDirtyGlobal } from "@/lib/unsaved";
 import { useI18n, type I18nT, translateNotifText } from "@/lib/i18n";
 
-/* ── Tooltip wrapper ── */
+/* ── Tooltip wrapper (viewport-clamped: never overflows screen edges) ── */
 function Tooltip({ label, children }: { label: string; children: React.ReactNode }) {
   const [show, setShow] = useState(false);
+  const [shiftX, setShiftX] = useState(0);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const tipRef = useRef<HTMLSpanElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const enter = () => { timer.current = setTimeout(() => setShow(true), 400); };
   const leave = () => { if (timer.current) clearTimeout(timer.current); setShow(false); };
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+  // Header sits at the very top of the viewport, so the bubble opens
+  // BELOW the trigger; horizontal position is clamped to stay on screen.
+  useEffect(() => {
+    if (!show) { setShiftX(0); return; }
+    const id = requestAnimationFrame(() => {
+      const w = wrapRef.current?.getBoundingClientRect();
+      const t = tipRef.current?.getBoundingClientRect();
+      if (!w || !t) return;
+      const margin = 8;
+      let dx = 0;
+      if (t.left < margin) dx = margin - t.left;
+      else if (t.right > window.innerWidth - margin) dx = window.innerWidth - margin - t.right;
+      setShiftX(dx);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [show, label]);
   return (
     <div
+      ref={wrapRef}
       onMouseEnter={enter}
       onMouseLeave={leave}
       onFocus={enter}
@@ -37,8 +62,9 @@ function Tooltip({ label, children }: { label: string; children: React.ReactNode
     >
       {children}
       {show && (
-        <span style={{
-          position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)",
+        <span ref={tipRef} style={{
+          position: "absolute", top: "calc(100% + 7px)", left: "50%",
+          transform: `translateX(calc(-50% + ${shiftX}px))`,
           padding: "4px 8px", borderRadius: 6, fontSize: 11, fontWeight: 500, whiteSpace: "nowrap",
           background: "var(--tb-surface-3)", color: "var(--tb-text-primary)", border: "1px solid var(--tb-border)",
           boxShadow: "0 4px 12px rgba(0,0,0,0.3)", zIndex: 100, pointerEvents: "none",
@@ -51,7 +77,7 @@ function Tooltip({ label, children }: { label: string; children: React.ReactNode
   );
 }
 
-interface NavItem { label: string; href: string; icon: ReactNode; badge?: number }
+interface NavItem { label: string; href: string; icon: ReactNode; badge?: number; external?: boolean }
 interface NavSection { section: string; items: NavItem[] }
 
 function personalNav(badgeCounts: Record<string, number>, t: I18nT): NavSection[] {
@@ -59,6 +85,7 @@ function personalNav(badgeCounts: Record<string, number>, t: I18nT): NavSection[
     { section: t("nav.workspace"), items: [
       { label: t("nav.getStarted"), href: "/overview", icon: <Home size={16} /> },
       { label: t("nav.inbox"), href: "/account/inbox", icon: <Mail size={16} /> },
+      { label: "Forms", href: process.env.NEXT_PUBLIC_FORMS_URL || "https://forms.tirbeo.app", icon: <FileText size={16} />, external: true },
     ]},
     { section: t("nav.account"), items: [
       { label: t("nav.profile"), href: "/account/profile", icon: <User size={16} /> },
@@ -198,7 +225,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [calOpen, notifOpen, userMenuOpen, mobileOpen]);
 
   // Notification data
-  const NOTIF_PAGE = 20;
+  const NOTIF_PAGE = 10;
   const applyRetention = (items: NotificationItem[]) => {
     const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
     return items.filter((n) => new Date(n.createdAt).getTime() >= cutoff);
@@ -252,6 +279,18 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => { alive = false; if (pollTimer.current) clearInterval(pollTimer.current); document.removeEventListener("visibilitychange", onVisibility); };
   }, [pathname]);
 
+  // Profile page broadcasts edits (avatar/name) — apply instantly everywhere
+  // (header avatar, sidebar user block, mobile menu) without waiting for the
+  // next /users/me round-trip.
+  useEffect(() => {
+    const onUserUpdated = (e: Event) => {
+      const detail = (e as CustomEvent).detail || {};
+      setUser((prev: any) => (prev ? { ...prev, ...detail } : prev));
+    };
+    window.addEventListener("tb:user-updated", onUserUpdated);
+    return () => window.removeEventListener("tb:user-updated", onUserUpdated);
+  }, []);
+
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
   useEffect(() => {
@@ -275,6 +314,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [notifOpen, notifHasMore, notifLoading]);
 
   const badgeCounts = { inbox: unread, notifications: unread, tickets: tickets.filter((tk) => tk.status === "open").length };
+
+  // Admin staff get a visible role badge — hidden entirely for normal users.
+  const isAdmin = !!user?.adminRole;
+  const roleLabel = (user?.adminRole || "").replace(/_/g, " ").toUpperCase();
   const navSections = personalNav(badgeCounts, t);
 
   const markAllRead = async () => {
@@ -352,6 +395,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                     className={`sidebar-item ${active ? "active" : ""}`}
                     aria-current={active ? "page" : undefined}
                     onClick={() => setMobileOpen(false)}
+                    target={(item as any).external ? '_blank' : undefined}
+                    rel={(item as any).external ? 'noopener noreferrer' : undefined}
                   >
                     {item.icon}
                     <span className="sidebar-item-text" style={{ flex: 1 }}>{item.label}</span>
@@ -373,7 +418,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               {user?.photoUrl ? <img src={user.photoUrl} alt="" /> : initialsOf(user?.name ?? user?.email)}
             </div>
             <div className="sidebar-user-info" style={{ flex: 1, minWidth: 0 }}>
-              <div className="sidebar-user-name">{user?.name ?? t("header.user")}</div>
+              <div className="sidebar-user-name" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name ?? t("header.user")}</span>
+                {isAdmin && <span className="role-badge">{roleLabel}</span>}
+              </div>
               <div className="sidebar-user-email">{user?.email}</div>
             </div>
             <div className="sidebar-user-actions">
@@ -412,7 +460,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 aria-label={t("header.notifications")}
               >
                 <Bell size={16} />
-                {unread > 0 && <span className="header-notif-dot" />}
+                {unread > 0 && <span className="header-notif-badge">{unread > 99 ? '99+' : unread}</span>}
               </button>
             </Tooltip>
 
@@ -476,7 +524,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                           {user?.photoUrl ? <img src={user.photoUrl} alt="" /> : initialsOf(user?.name ?? user?.email)}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--tb-text-primary)' }}>{user?.name ?? t("header.user")}</div>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--tb-text-primary)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                            {user?.name ?? t("header.user")}
+                            {isAdmin && <span className="role-badge">{roleLabel}</span>}
+                          </div>
                           <div style={{ fontSize: 12, color: 'var(--tb-text-muted)' }}>{user?.email ?? ""}</div>
                         </div>
 
@@ -511,11 +562,16 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="notification-sidebar-backdrop" onClick={() => setNotifOpen(false)} />
             <div className="notification-sidebar open" role="dialog" aria-label={t("header.notifications")}>
               <div className="notif-sidebar-header">
-                <span className="notif-sidebar-title">{t("notif.title")}</span>
+                <span className="notif-sidebar-title">{t("notif.title")}{unread > 0 && <span className="notif-sidebar-count">{unread}</span>}</span>
                 <div className="notif-sidebar-actions">
                   {unread > 0 && <button type="button" className="btn btn-ghost btn-sm" onClick={markAllRead}>{t("common.markRead")}</button>}
-                  <button type="button" className="header-control" onClick={() => setNotifOpen(false)} aria-label={t("common.close")} style={{ width: 28, height: 28 }}>
-                    <X size={16} />
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => { setNotifOpen(false); router.push("/account/inbox"); }}
+                  >
+                    <Inbox size={14} />
+                    {t("nav.inbox")}
                   </button>
                 </div>
               </div>
@@ -528,23 +584,57 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div style={{ flex: 1, overflow: 'auto' }}>
                 {notifications.length === 0 ? (
                   <div className="notif-sidebar-empty">{t("notif.empty")}</div>
-                ) : notifications.map((n) => (
-                  <div key={n.id} className={`notif-sidebar-item ${n.link ? "clickable" : ""}`} onClick={() => { if (n.link) { setNotifOpen(false); router.push(n.link); } }}>
-                    <div className={`notif-sidebar-dot ${n.read ? "read" : "unread"}`} />
-                    <div className="notif-sidebar-body">
-                      <div className={`notif-sidebar-title-text ${n.read ? "read" : "unread"}`}>{translateText(t, n.title, lang)}</div>
-                      {n.body && <div className="notif-sidebar-subtitle">{translateText(t, n.body, lang)}</div>}
+                ) : notifications.map((n) => {
+                  const meta = getNotifMeta(n.type, t);
+                  const NotifIcon = meta.icon;
+                  return (
+                    <div
+                      key={n.id}
+                      className={`notif-sidebar-item clickable ${n.read ? "read" : "unread"}`}
+                      onClick={() => {
+                        if (!n.read) {
+                          void markNotificationsRead([n.id]).catch(() => {});
+                          const updated = notificationsRef.current.map((x) => (x.id === n.id ? { ...x, read: true } : x));
+                          notificationsRef.current = updated;
+                          setNotifications(updated);
+                          setUnread((u) => Math.max(0, u - 1));
+                        }
+                        setNotifOpen(false);
+                        router.push(n.link || "/account/inbox");
+                      }}
+                    >
+                      {!n.read && <span className="notif-sidebar-dot unread" />}
+                      <div className="inbox-item-icon" style={{ flexShrink: 0 }}>
+                        <NotifIcon size={15} />
+                      </div>
+                      <div className="notif-sidebar-body">
+                        <div className={`notif-sidebar-title-text ${n.read ? "read" : "unread"}`}>
+                          {translateText(t, n.title, lang)}
+                        </div>
+                        {n.body && <div className="notif-sidebar-subtitle">{translateText(t, n.body, lang)}</div>}
+                      </div>
+                      <span className="notif-sidebar-time" title={notifDate(n.createdAt, lang)}>
+                        {notifAgo(n.createdAt, t, lang)}
+                      </span>
                     </div>
-                    <span className="notif-sidebar-time">{formatDayMonth(n.createdAt, lang)}</span>
-                  </div>
-                ))}
+                  );
+                })}
                 {notifHasMore && (
                   <div ref={loadMoreRef} className="notif-load-more">
                     {notifLoading ? t("common.loading") : t("common.loadMore")}
                   </div>
                 )}
               </div>
-              {notifTotal > 0 && <div className="notif-sidebar-footer">{notifTotal} {t("notif.total")}</div>}
+              {notifTotal > 0 && (
+                <button
+                  type="button"
+                  className="notif-sidebar-footer"
+                  onClick={() => { setNotifOpen(false); router.push("/account/inbox"); }}
+                  style={{ cursor: 'pointer', width: '100%', border: 'none', background: 'none', color: 'inherit', font: 'inherit' }}
+                >
+                  {notifTotal} {t("notif.total")} · {t("nav.inbox")}
+                </button>
+              )}
             </div>
           </>
         )}

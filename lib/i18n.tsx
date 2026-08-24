@@ -161,6 +161,8 @@ export interface Dict {
     catSupportDesc: string;
     perCategory: string;
     perCategoryDesc: string;
+    allNotifications?: string;
+    scheduleTitle?: string;
     colCategory: string;
     colEmail: string;
     colPush: string;
@@ -213,11 +215,15 @@ export interface Dict {
     tabAll: string;
     tabUnread: string;
     tabRead: string;
-    deselect: string;
-    selectAll: string;
-    select: string;
-    read: string;
+    deselect?: string;
+    selectAll?: string;
+    select?: string;
+    read?: string;
     delete: string;
+    when?: string;
+    where?: string;
+    device?: string;
+    category?: string;
     searchPlaceholder: string;
     noMatching: string;
     noMatchingDesc: string;
@@ -451,6 +457,15 @@ export interface Dict {
     subtitle: string;
     noActivity: string;
     noActivityDesc: string;
+    tabAll?: string;
+    tabSecurity?: string;
+    tabAccount?: string;
+    tabTickets?: string;
+    today?: string;
+    yesterday?: string;
+    chipMethod?: string;
+    chipReason?: string;
+    via?: string;
     act: {
       login: string;
       logout: string;
@@ -468,6 +483,29 @@ export interface Dict {
       ticketReplied: string;
       ticketClosed: string;
       unknown: string;
+      login2fa?: string;
+      loginOtp?: string;
+      loginFailed?: string;
+      deviceSeen?: string;
+      sessionsRevokedAll?: string;
+      passwordReset?: string;
+      oauthMerged?: string;
+      mergeLogin?: string;
+      passkeyRegistered?: string;
+      passkeyDeleted?: string;
+      passkeyAuth?: string;
+      recoveryEmailVerified?: string;
+      recoveryEmailUpdated?: string;
+      phoneAdded?: string;
+      phoneVerified?: string;
+      phoneRemoved?: string;
+      dataExportRequested?: string;
+      deleteAccountRequested?: string;
+      suspiciousLoginDenied?: string;
+      backupCodesRegenerated?: string;
+      avatarUpdated?: string;
+      usernameUpdated?: string;
+      unknownDevice?: string;
     };
   };
   tickets: {
@@ -602,6 +640,8 @@ const en: Dict = {
   notif: {
     title: "Notifications", subtitle: "Configure how and when you receive notifications.", retention: "Notifications are automatically deleted after 30 days.", empty: "No notifications", total: "total",
     channelsTitle: "Channels", channelsDesc: "Choose where you want to receive notifications.",
+    scheduleTitle: "Schedule & email summaries",
+    allNotifications: "Everything",
     email: "Email", push: "Push", inApp: "In-app",
     emailDesc: "Get notifications in your inbox.", pushDesc: "Browser push notifications.", inAppDesc: "Show inside the app.",
     browserBlocked: "Browser notifications are blocked in your browser settings.",
@@ -640,6 +680,7 @@ const en: Dict = {
     noContent: "No content", viewDetails: "View details", selectMessage: "Select a message",
     selectMessageDesc: "Choose a message from the list to read it here.",
     typeSecurity: "Security", typeForms: "Forms", typeProduct: "Product", typeSupport: "Support", typeLogin: "Login", typeNotification: "Notification", delete: "Delete",
+    when: "When", where: "Where", device: "Device", category: "Category",
   },
   sessions: {
     title: "Sessions", subtitle: "Manage where you're signed in.", revokeAllOthers: "Sign out all other sessions",
@@ -726,12 +767,25 @@ const en: Dict = {
   history: {
     title: "Activity history", subtitle: "A record of security and account events.",
     noActivity: "No activity yet", noActivityDesc: "Actions you take will show up here.",
+    tabAll: "All", tabSecurity: "Security", tabAccount: "Account", tabTickets: "Tickets",
+    today: "Today", yesterday: "Yesterday",
+    chipMethod: "Method", chipReason: "Reason", via: "via",
     act: {
       login: "Signed in", logout: "Signed out", signup: "Account created", passwordChanged: "Password changed",
       profileUpdated: "Profile updated", twofaEnabled: "2FA enabled", twofaDisabled: "2FA disabled",
       sessionRevoked: "Sessions signed out", emailVerified: "Email verified", accountDeleted: "Account deleted",
       dataExported: "Data exported", notificationRead: "Notification read", ticketCreated: "Ticket created",
       ticketReplied: "Ticket replied", ticketClosed: "Ticket closed", unknown: "Activity",
+      login2fa: "Signed in (two-factor)", loginOtp: "Signed in with one-time code", loginFailed: "Failed sign-in attempt",
+      deviceSeen: "New device recognized", sessionsRevokedAll: "Signed out of all devices",
+      passwordReset: "Password reset via email", oauthMerged: "Accounts merged", mergeLogin: "Linked account sign-in",
+      passkeyRegistered: "Passkey created", passkeyDeleted: "Passkey removed", passkeyAuth: "Signed in with passkey",
+      recoveryEmailVerified: "Recovery email verified", recoveryEmailUpdated: "Recovery email updated",
+      phoneAdded: "Phone added", phoneVerified: "Phone verified", phoneRemoved: "Phone removed",
+      dataExportRequested: "Data export requested", deleteAccountRequested: "Account deletion requested",
+      suspiciousLoginDenied: "Suspicious sign-in blocked", backupCodesRegenerated: "Backup codes regenerated",
+      avatarUpdated: "Profile photo updated", usernameUpdated: "Username changed",
+      unknownDevice: "Unknown device",
     },
   },
   tickets: {

@@ -41,6 +41,7 @@ export default function ProfilePage() {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   useUnsavedGuard();
@@ -62,7 +63,11 @@ export default function ProfilePage() {
 
   const save = async () => {
     setSaving(true); setSaved(false);
-    try { await api.patch("/api/users/me", form); setSaved(true); setDirtyGlobal(false); setTimeout(() => setSaved(false), 2500); } catch {}
+    try {
+      await api.patch("/api/users/me", form);
+      setSaved(true); setDirtyGlobal(false); setTimeout(() => setSaved(false), 2500);
+      if (form.name) window.dispatchEvent(new CustomEvent("tb:user-updated", { detail: { name: form.name } }));
+    } catch {}
     setSaving(false);
   };
 
@@ -70,23 +75,26 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setAvatarError("");
     try {
       const formData = new FormData();
       formData.append("avatar", file);
-      const res = await fetch(`${typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'http://localhost:3000' : process.env.NEXT_PUBLIC_API_URL || 'https://api.tirbeo.app'}/api/profile/avatar`, {
+      // api.request adds the X-CSRF-Token header — a raw fetch here 403s.
+      const data = await api.request<{ photoUrl?: string; url?: string; message?: string }>("/api/profile/avatar", {
         method: "POST",
-        credentials: "include",
         body: formData,
       });
-      if (res.ok) {
-        const data = await res.json();
-        const newUrl = data.photoUrl || data.url;
-        if (newUrl) {
-          setUser((prev: any) => ({ ...prev, photoUrl: newUrl }));
-          try { localStorage.setItem("tb:user", JSON.stringify({ ...user, photoUrl: newUrl })); } catch {}
-        }
+      const newUrl = data?.photoUrl || data?.url;
+      if (newUrl) {
+        setUser((prev: any) => ({ ...prev, photoUrl: newUrl }));
+        // Propagate to AppShell (header, sidebar, mobile menu) instantly.
+        window.dispatchEvent(new CustomEvent("tb:user-updated", { detail: { photoUrl: newUrl } }));
+      } else {
+        setAvatarError("Upload succeeded but no image URL was returned.");
       }
-    } catch {}
+    } catch (err: any) {
+      setAvatarError(err?.message || "Could not upload your photo. Try a JPEG/PNG/WebP under 5MB.");
+    }
     setUploading(false);
     if (fileRef.current) fileRef.current.value = "";
   };
@@ -211,6 +219,9 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+        {avatarError && (
+          <div style={{ marginTop: 12, fontSize: 12.5, color: 'var(--tb-red, #ef4444)' }}>{avatarError}</div>
+        )}
       </div>
 
       {/* Form Sections */}

@@ -1,19 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { api, getCurrentUser } from "@/lib/api";
+import { setDirtyGlobal } from "@/lib/unsaved";
 import {
-  AlertCircle,
-  Check,
-  History,
-  Key,
-  Lock,
-  Mail,
-  Monitor,
-  Shield,
-  X,
+  AlertCircle, Check, Copy, History, Key, Lock, Mail,
+  Monitor, Shield, X,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useI18n } from "@/lib/i18n";
+import TirbeoQRCode from "@/components/TirbeoQRCode";
 
 export default function SecurityPage() {
   const { t, lang } = useI18n();
@@ -24,6 +19,7 @@ export default function SecurityPage() {
   const [totpEnabled, setTotpEnabled] = useState(false);
   const [show2FASetup, setShow2FASetup] = useState(false);
   const [totpData, setTotpData] = useState<{ secret: string; uri: string } | null>(null);
+  const [copiedKey, setCopiedKey] = useState(false);
   const [totpCode, setTotpCode] = useState("");
   const [totpError, setTotpError] = useState("");
   const [totpLoading, setTotpLoading] = useState(false);
@@ -37,8 +33,11 @@ export default function SecurityPage() {
   const [pwdError, setPwdError] = useState("");
   const [pwdSaving, setPwdSaving] = useState(false);
   const [pwdSuccess, setPwdSuccess] = useState(false);
+  const [hasPassword, setHasPassword] = useState(true);
+  const [pwdOtp, setPwdOtp] = useState("");
+  const [sendingOtp, setSendingOtp] = useState(false);
 
-  // Secondary email
+  // Recovery email
   const [secEmail, setSecEmail] = useState("");
   const [secVerified, setSecVerified] = useState(false);
   const [showChangeEmail, setShowChangeEmail] = useState(false);
@@ -47,6 +46,11 @@ export default function SecurityPage() {
   const [verifyCode, setVerifyCode] = useState("");
   const [emailError, setEmailError] = useState("");
   const [emailLoading, setEmailLoading] = useState(false);
+  const [showRemoveEmail, setShowRemoveEmail] = useState(false);
+  const [removeOtp, setRemoveOtp] = useState("");
+  const [removeOtpSent, setRemoveOtpSent] = useState(false);
+  const [removeOtpLoading, setRemoveOtpLoading] = useState(false);
+  const [removeError, setRemoveError] = useState("");
 
   useEffect(() => {
     getCurrentUser()
@@ -55,131 +59,116 @@ export default function SecurityPage() {
         setTotpEnabled(!!u.totpEnabled);
         setSecEmail(u.recoveryEmail || u.secondaryEmail || "");
         setSecVerified(!!(u.recoveryEmailVerified || u.secondaryEmailVerified));
+        setHasPassword(!!u.hasPassword);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  // ── 2FA handlers ──
+  // ── 2FA ──
   const startSetup = async () => {
-    setTotpLoading(true);
-    setTotpError("");
+    setTotpLoading(true); setTotpError("");
     try {
       const data = await api.post<any>("/api/security/totp/setup");
-      setTotpData(data);
-      setShow2FASetup(true);
-    } catch (e: any) {
-      setTotpError(e.message || t("security.failed"));
-    }
+      setTotpData(data); setShow2FASetup(true);
+    } catch (e: any) { setTotpError(e.message || t("security.failed")); }
     setTotpLoading(false);
   };
 
   const verifySetup = async () => {
     if (totpCode.length !== 6) { setTotpError(t("security.enter6")); return; }
-    setTotpLoading(true);
-    setTotpError("");
+    setTotpLoading(true); setTotpError("");
     try {
-      const data = await api.post<any>("/api/security/totp/verify", { code: totpCode });
-      setTotpEnabled(true);
-      setShow2FASetup(false);
-      setTotpData(null);
-      setTotpCode("");
+      const data = await api.post<any>("/api/security/totp/verify", { code: totpCode, secret: totpData?.secret });
+      setTotpEnabled(true); setShow2FASetup(false); setTotpData(null); setTotpCode("");
       if (data?.backupCodes) setBackupCodes(data.backupCodes);
-    } catch (e: any) {
-      setTotpError(e.message || t("security.invalidCode"));
-      setTotpCode("");
-    }
+    } catch (e: any) { setTotpError(e.message || t("security.invalidCode")); setTotpCode(""); }
     setTotpLoading(false);
   };
 
   const disable2FA = async () => {
     if (disableCode.length !== 6) { setTotpError(t("security.enter6")); return; }
-    setTotpLoading(true);
-    setTotpError("");
+    setTotpLoading(true); setTotpError("");
     try {
       await api.request("/api/security/totp/disable", { method: "DELETE", body: JSON.stringify({ totpCode: disableCode }) });
-      setTotpEnabled(false);
-      setShowDisable2FA(false);
-      setDisableCode("");
-    } catch (e: any) {
-      setTotpError(e.message || t("security.disable2faFailed"));
-    }
+      setTotpEnabled(false); setShowDisable2FA(false); setDisableCode("");
+    } catch (e: any) { setTotpError(e.message || t("security.disable2faFailed")); }
     setTotpLoading(false);
   };
 
-  // ── Password handlers ──
+  // ── Password ──
   const changePassword = async () => {
     if (pwdForm.new !== pwdForm.confirm) { setPwdError(t("security.pwdMismatch")); return; }
-    setPwdSaving(true);
-    setPwdError("");
+    if (pwdForm.new.length < 8) { setPwdError("Password must be at least 8 characters"); return; }
+    setPwdSaving(true); setPwdError("");
     try {
-      await api.post("/api/auth/change-password", { currentPassword: pwdForm.current, newPassword: pwdForm.new });
-      setShowChangePwd(false);
-      setPwdForm({ current: "", new: "", confirm: "" });
-      setPwdSuccess(true);
-      setTimeout(() => setPwdSuccess(false), 3000);
-    } catch (e: any) {
-      setPwdError(e.message || t("security.failed"));
-    }
+      const body: any = { newPassword: pwdForm.new };
+      if (hasPassword) body.currentPassword = pwdForm.current;
+      else body.otpCode = pwdOtp;
+      await api.post("/api/security/password", body);
+      setShowChangePwd(false); setPwdForm({ current: "", new: "", confirm: "" }); setPwdOtp(""); setHasPassword(true);
+      setPwdSuccess(true); setTimeout(() => setPwdSuccess(false), 3000);
+    } catch (e: any) { setPwdError(e.message || t("security.failed")); }
     setPwdSaving(false);
   };
 
-  // ── Secondary email handlers ──
+  const sendPwdOtp = async () => {
+    setPwdError(""); setSendingOtp(true);
+    try { await api.post("/api/auth/email-otp/request", { email: user?.email }); }
+    catch (e: any) { setPwdError(e.message || "Failed to send code"); }
+    setSendingOtp(false);
+  };
+
+  // ── Recovery email ──
   const sendEmailCode = async () => {
     if (!newEmail.includes("@")) { setEmailError(t("security.enterValidEmail")); return; }
-    setEmailLoading(true);
-    setEmailError("");
-    try {
-      await api.post("/api/security/recovery-email/send-code", { email: newEmail });
-      setEmailStep("verify");
-    } catch (e: any) {
-      setEmailError(e.message || t("security.sendFailed"));
-    }
+    setEmailLoading(true); setEmailError("");
+    try { await api.post("/api/security/recovery-email/send-code", { email: newEmail }); setEmailStep("verify"); }
+    catch (e: any) { setEmailError(e.message || t("security.sendFailed")); }
     setEmailLoading(false);
   };
 
   const verifyEmailCode = async () => {
     if (!verifyCode || verifyCode.length < 4) { setEmailError(t("security.enterCodeErr")); return; }
-    setEmailLoading(true);
-    setEmailError("");
+    setEmailLoading(true); setEmailError("");
     try {
       await api.post("/api/security/recovery-email/verify", { email: newEmail, code: verifyCode });
-      setSecEmail(newEmail);
-      setSecVerified(true);
-      setShowChangeEmail(false);
-      setEmailStep("input");
-      setNewEmail("");
-      setVerifyCode("");
-    } catch (e: any) {
-      setEmailError(e.message || t("security.invalidCode"));
-    }
+      setSecEmail(newEmail); setSecVerified(true); setShowChangeEmail(false); setEmailStep("input"); setNewEmail(""); setVerifyCode("");
+    } catch (e: any) { setEmailError(e.message || t("security.invalidCode")); }
     setEmailLoading(false);
   };
 
-  const removeEmail = async () => {
+  const sendRemoveOtp = async () => {
+    setRemoveError(""); setRemoveOtpLoading(true);
     try {
-      await api.put("/api/security/recovery-email", { email: null });
-      setSecEmail("");
-      setSecVerified(false);
-    } catch {}
+      await api.post("/api/security/recovery-email/send-code", { email: secEmail });
+      setRemoveOtpSent(true);
+    } catch (e: any) { setRemoveError(e.message || "Failed to send code"); }
+    setRemoveOtpLoading(false);
   };
 
-  if (loading) {
-    return (
-      <div className="page-stack">
-        <div><Skeleton width={140} height={24} style={{ marginBottom: 6 }} /><Skeleton width={280} height={14} /></div>
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="dashboard-card">
-            <Skeleton width={180} height={18} style={{ marginBottom: 16 }} />
-            <div className="field-row">
-              <Skeleton width={120} height={14} />
-              <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}><Skeleton width={80} height={28} borderRadius={6} /></div>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
+  const removeEmail = async () => {
+    if (!removeOtp || removeOtp.length < 4) { setRemoveError("Enter the verification code"); return; }
+    setRemoveOtpLoading(true); setRemoveError("");
+    try {
+      await api.post("/api/security/recovery-email/verify", { email: secEmail, code: removeOtp });
+      await api.put("/api/security/recovery-email", { email: null });
+      setSecEmail(""); setSecVerified(false); setShowRemoveEmail(false); setRemoveOtp(""); setRemoveOtpSent(false);
+    } catch (e: any) { setRemoveError(e.message || "Invalid code"); }
+    setRemoveOtpLoading(false);
+  };
+
+  if (loading) return (
+    <div className="page-stack">
+      <div><Skeleton width={140} height={24} style={{ marginBottom: 6 }} /><Skeleton width={280} height={14} /></div>
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="dashboard-card">
+          <Skeleton width={180} height={18} style={{ marginBottom: 16 }} />
+          <div className="field-row"><Skeleton width={120} height={14} /><div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}><Skeleton width={80} height={28} borderRadius={6} /></div></div>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="page-stack">
@@ -194,12 +183,8 @@ export default function SecurityPage() {
 
       {/* ═══ 2FA ═══ */}
       <div className="dashboard-card">
-        <h3 className="section-title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Shield size={15} /> {t("security.twoFactor")}
-        </h3>
-        <p className="section-desc">
-          {totpEnabled ? t("security.twoFactorOn") : t("security.twoFactorOff")}
-        </p>
+        <h3 className="section-title"><Shield size={15} /> {t("security.twoFactor")}</h3>
+        <p className="section-desc">{totpEnabled ? t("security.twoFactorOn") : t("security.twoFactorOff")}</p>
         <div className="field-row">
           <label className="field-label">{t("security.status")}</label>
           <div className="field-control" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -215,18 +200,12 @@ export default function SecurityPage() {
             )}
           </div>
         </div>
-        {totpError && (
-          <div style={{ padding: "0 16px 8px", display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--tb-red, #ef4444)" }}>
-            <AlertCircle size={13} /> {totpError}
-          </div>
-        )}
+        {totpError && <div style={{ padding: "0 16px 8px", display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--tb-red, #ef4444)" }}><AlertCircle size={13} /> {totpError}</div>}
       </div>
 
       {/* ═══ Password ═══ */}
       <div className="dashboard-card">
-        <h3 className="section-title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Lock size={15} /> {t("security.password")}
-        </h3>
+        <h3 className="section-title"><Lock size={15} /> {t("security.password")}</h3>
         <div className="field-row">
           <label className="field-label">{t("security.passwordLabel")}</label>
           <div className="field-control" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -240,11 +219,9 @@ export default function SecurityPage() {
         </div>
       </div>
 
-      {/* ═══ Secondary Email ═══ */}
+      {/* ═══ Recovery Email ═══ */}
       <div className="dashboard-card">
-        <h3 className="section-title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Mail size={15} /> {t("security.secondaryEmail")}
-        </h3>
+        <h3 className="section-title"><Mail size={15} /> {t("security.secondaryEmail")}</h3>
         <p className="section-desc">{t("security.secondaryDesc")}</p>
         {secEmail && secVerified ? (
           <div className="field-row">
@@ -256,7 +233,7 @@ export default function SecurityPage() {
               </div>
               <div style={{ display: "flex", gap: 6 }}>
                 <button className="btn btn-secondary btn-sm" onClick={() => { setNewEmail(""); setEmailStep("input"); setShowChangeEmail(true); }}>{t("security.change")}</button>
-                <button className="btn btn-ghost btn-sm" style={{ color: "var(--tb-red, #ef4444)" }} onClick={removeEmail}>{t("security.remove")}</button>
+                <button className="btn btn-ghost btn-sm" style={{ color: "var(--tb-red, #ef4444)" }} onClick={() => setShowRemoveEmail(true)}>{t("security.remove")}</button>
               </div>
             </div>
           </div>
@@ -274,23 +251,17 @@ export default function SecurityPage() {
       {/* ═══ Login History ═══ */}
       <div className="dashboard-card" style={{ padding: 0, overflow: "hidden" }}>
         <div style={{ padding: "16px 18px 12px", borderBottom: "1px solid var(--tb-border)" }}>
-          <h3 className="section-title" style={{ margin: 0, display: "flex", alignItems: "center", gap: 8, fontSize: 14 }}>
-            <History size={14} /> {t("security.loginHistory")}
-          </h3>
+          <h3 className="section-title" style={{ margin: 0, display: "flex", alignItems: "center", gap: 8, fontSize: 14 }}><History size={14} /> {t("security.loginHistory")}</h3>
         </div>
-        <div style={{ padding: 0 }}>
-          {user?.lastActiveAt ? (
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 18px", borderBottom: "1px solid var(--tb-border)" }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--tb-green, #10b981)", flexShrink: 0 }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, color: "var(--tb-text-primary)" }}>{t("security.lastActive")}</div>
-                <div style={{ fontSize: 12, color: "var(--tb-text-muted)" }}>{new Date(user.lastActiveAt).toLocaleString(lang)}</div>
-              </div>
+        {user?.lastActiveAt ? (
+          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 18px" }}>
+            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--tb-green, #10b981)", flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, color: "var(--tb-text-primary)" }}>{t("security.lastActive")}</div>
+              <div style={{ fontSize: 12, color: "var(--tb-text-muted)" }}>{new Date(user.lastActiveAt).toLocaleString(lang)}</div>
             </div>
-          ) : (
-            <div className="empty-note">{t("security.noLoginHistory")}</div>
-          )}
-        </div>
+          </div>
+        ) : <div className="empty-note">{t("security.noLoginHistory")}</div>}
       </div>
 
       {/* ═══ 2FA Setup Dialog ═══ */}
@@ -302,42 +273,24 @@ export default function SecurityPage() {
                 <h3 className="tb-dialog-title">{t("security.setupTitle")}</h3>
                 <p className="tb-dialog-desc">{t("security.setupDesc")}</p>
               </div>
-              <button className="header-control" onClick={() => { setShow2FASetup(false); setTotpData(null); }}>
-                <X size={16} />
-              </button>
+              <button className="header-control" onClick={() => { setShow2FASetup(false); setTotpData(null); }}><X size={16} /></button>
             </div>
             <div className="tb-dialog-body">
-              <div style={{ textAlign: "center", marginBottom: 16 }}>
-                <div style={{ display: "inline-block", padding: 16, border: "1px solid var(--tb-border)", borderRadius: 12, background: "#fff" }}>
-                  <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(totpData.uri)}`}
-                    alt="QR Code"
-                    width={180}
-                    height={180}
-                    style={{ display: "block" }}
-                  />
-                </div>
+              <div className="qr-stage">
+                <TirbeoQRCode value={totpData.uri} size={220} email={user?.email} />
               </div>
-              <div style={{ marginBottom: 12 }}>
+              <div className="field-group">
                 <label className="form-label">{t("security.key")}</label>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <code style={{ flex: 1, fontSize: 13, fontFamily: "monospace", wordBreak: "break-all", color: "var(--tb-text-primary)", padding: "8px 12px", background: "var(--tb-surface-2)", borderRadius: 6, border: "1px solid var(--tb-border)" }}>
-                    {totpData.secret}
-                  </code>
-                  <button className="btn btn-ghost btn-sm" onClick={() => navigator.clipboard.writeText(totpData.secret)}>{t("security.copy")}</button>
+                  <code className="form-input" style={{ flex: 1, fontSize: 12.5, fontFamily: "monospace", letterSpacing: "0.06em", wordBreak: "break-all" }}>{totpData.secret}</code>
+                  <button className={`btn btn-ghost btn-sm ${copiedKey ? "qr-copied" : ""}`} onClick={async () => { try { await navigator.clipboard.writeText(totpData.secret); } catch {} setCopiedKey(true); setTimeout(() => setCopiedKey(false), 1600); }}>
+                    {copiedKey ? <Check size={13} /> : <Copy size={13} />} {copiedKey ? t("common.saved") : t("security.copy")}
+                  </button>
                 </div>
               </div>
-              <div>
-                <label className="form-label">{t("security.code")}</label>
-                <input
-                  className="form-input"
-                  value={totpCode}
-                  onChange={(e) => setTotpCode(e.target.value)}
-                  placeholder={t("security.enter6")}
-                  maxLength={6}
-                  style={{ letterSpacing: 6, textAlign: "center", fontSize: 20, height: 44 }}
-                  autoFocus
-                />
+              <div className="field-group">
+                <input className="form-input" value={totpCode} onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ""))} placeholder="000 000" maxLength={6} inputMode="numeric" autoComplete="one-time-code" autoFocus style={{ letterSpacing: 1, textAlign: "center", fontSize: 20, fontWeight: 600, height: 46 }} />
+                {totpError && <p style={{ fontSize: 12, color: "var(--tb-red, #ef4444)", marginTop: 6 }}>{totpError}</p>}
               </div>
             </div>
             <div className="tb-dialog-footer">
@@ -359,12 +312,10 @@ export default function SecurityPage() {
                 <h3 className="tb-dialog-title">{t("security.disable2fa")}</h3>
                 <p className="tb-dialog-desc">{t("security.disableDesc")}</p>
               </div>
-              <button className="header-control" onClick={() => { setShowDisable2FA(false); setDisableCode(""); }}>
-                <X size={16} />
-              </button>
+              <button className="header-control" onClick={() => { setShowDisable2FA(false); setDisableCode(""); }}><X size={16} /></button>
             </div>
             <div className="tb-dialog-body">
-              <input className="form-input" value={disableCode} onChange={(e) => setDisableCode(e.target.value)} placeholder={t("security.enter6")} maxLength={6} style={{ letterSpacing: 6, textAlign: "center", fontSize: 20, height: 44 }} autoFocus />
+              <input className="form-input" value={disableCode} onChange={(e) => setDisableCode(e.target.value)} placeholder="000 000" maxLength={6} style={{ letterSpacing: 1, textAlign: "center", fontSize: 20, height: 44 }} autoFocus />
             </div>
             <div className="tb-dialog-footer">
               <button className="btn btn-ghost btn-sm" onClick={() => { setShowDisable2FA(false); setDisableCode(""); }}>{t("common.cancel")}</button>
@@ -404,33 +355,45 @@ export default function SecurityPage() {
 
       {/* ═══ Change Password Dialog ═══ */}
       {showChangePwd && (
-        <div className="tb-dialog-overlay" onClick={() => { setShowChangePwd(false); setPwdError(""); }}>
+        <div className="tb-dialog-overlay" onClick={() => { setShowChangePwd(false); setPwdError(""); setPwdOtp(""); }}>
           <div className="tb-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="tb-dialog-header">
               <div>
                 <h3 className="tb-dialog-title">{t("security.changeTitle")}</h3>
-                <p className="tb-dialog-desc">{t("security.changeDesc")}</p>
+                <p className="tb-dialog-desc">{hasPassword ? t("security.changeDesc") : "Set a password for your account"}</p>
               </div>
-              <button className="header-control" onClick={() => { setShowChangePwd(false); setPwdError(""); }}><X size={16} /></button>
+              <button className="header-control" onClick={() => { setShowChangePwd(false); setPwdError(""); setPwdOtp(""); }}><X size={16} /></button>
             </div>
             <div className="tb-dialog-body">
-              <div style={{ marginBottom: 12 }}>
-                <label className="form-label">{t("security.current")}</label>
-                <input className="form-input" type="password" value={pwdForm.current} onChange={(e) => setPwdForm((p) => ({ ...p, current: e.target.value }))} placeholder={t("security.currentPh")} autoFocus />
-              </div>
-              <div style={{ marginBottom: 12 }}>
+              {hasPassword ? (
+                <div className="field-group">
+                  <label className="form-label">{t("security.current")}</label>
+                  <input className="form-input" type="password" value={pwdForm.current} onChange={(e) => setPwdForm((p) => ({ ...p, current: e.target.value }))} placeholder={t("security.currentPh")} autoFocus />
+                </div>
+              ) : (
+                <div className="field-group">
+                  <label className="form-label">Verification code</label>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <input className="form-input" value={pwdOtp} onChange={(e) => setPwdOtp(e.target.value.replace(/\D/g, ""))} placeholder="Enter 6-digit code" maxLength={6} autoFocus style={{ flex: 1 }} />
+                    <button className="btn btn-secondary btn-sm" onClick={sendPwdOtp} type="button" disabled={sendingOtp}>
+                      {sendingOtp ? <><span className="btn-spinner" /> Sending</> : "Send code"}
+                    </button>
+                  </div>
+                </div>
+              )}
+              <div className="field-group">
                 <label className="form-label">{t("security.new")}</label>
                 <input className="form-input" type="password" value={pwdForm.new} onChange={(e) => setPwdForm((p) => ({ ...p, new: e.target.value }))} placeholder={t("security.newPh")} />
               </div>
-              <div>
+              <div className="field-group">
                 <label className="form-label">{t("security.confirm")}</label>
                 <input className="form-input" type="password" value={pwdForm.confirm} onChange={(e) => setPwdForm((p) => ({ ...p, confirm: e.target.value }))} placeholder={t("security.confirmPh")} />
               </div>
               {pwdError && <p style={{ fontSize: 12, color: "var(--tb-red, #ef4444)", marginTop: 8 }}>{pwdError}</p>}
             </div>
             <div className="tb-dialog-footer">
-              <button className="btn btn-ghost btn-sm" onClick={() => { setShowChangePwd(false); setPwdError(""); }}>{t("common.cancel")}</button>
-              <button className="btn btn-primary btn-sm" onClick={changePassword} disabled={pwdSaving || !pwdForm.current || !pwdForm.new || !pwdForm.confirm}>
+              <button className="btn btn-ghost btn-sm" onClick={() => { setShowChangePwd(false); setPwdError(""); setPwdOtp(""); }}>{t("common.cancel")}</button>
+              <button className="btn btn-primary btn-sm" onClick={changePassword} disabled={pwdSaving || (!hasPassword && !pwdOtp) || (hasPassword && !pwdForm.current) || !pwdForm.new || !pwdForm.confirm}>
                 {pwdSaving ? <><span className="btn-spinner" /> {t("common.saving")}</> : t("security.changePassword")}
               </button>
             </div>
@@ -445,20 +408,18 @@ export default function SecurityPage() {
             <div className="tb-dialog-header">
               <div>
                 <h3 className="tb-dialog-title">{emailStep === "input" ? t("security.changeEmail") : t("security.verifyEmail")}</h3>
-                <p className="tb-dialog-desc">
-                  {emailStep === "input" ? t("security.secondaryDesc") : t("security.sentTo", { email: newEmail })}
-                </p>
+                <p className="tb-dialog-desc">{emailStep === "input" ? t("security.secondaryDesc") : t("security.sentTo", { email: newEmail })}</p>
               </div>
               <button className="header-control" onClick={() => { setShowChangeEmail(false); setEmailStep("input"); setEmailError(""); }}><X size={16} /></button>
             </div>
             <div className="tb-dialog-body">
               {emailStep === "input" ? (
-                <div>
+                <div className="field-group">
                   <label className="form-label">{t("security.newEmailLabel")}</label>
                   <input className="form-input" type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder={t("security.newEmailPh")} autoFocus />
                 </div>
               ) : (
-                <div>
+                <div className="field-group">
                   <label className="form-label">{t("security.code")}</label>
                   <input className="form-input" value={verifyCode} onChange={(e) => setVerifyCode(e.target.value)} placeholder={t("security.enterCode")} maxLength={8} autoFocus />
                 </div>
@@ -476,6 +437,40 @@ export default function SecurityPage() {
                   {emailLoading ? <><span className="btn-spinner" /> {t("security.verifying")}</> : t("security.verify")}
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ Remove Recovery Email Confirmation ═══ */}
+      {showRemoveEmail && (
+        <div className="tb-dialog-overlay" onClick={() => { setShowRemoveEmail(false); setRemoveOtp(""); setRemoveOtpSent(false); setRemoveError(""); }}>
+          <div className="tb-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="tb-dialog-header">
+              <div>
+                <h3 className="tb-dialog-title">Remove recovery email</h3>
+                <p className="tb-dialog-desc">A verification code will be sent to <strong>{secEmail}</strong>. Enter it to confirm removal.</p>
+              </div>
+              <button className="header-control" onClick={() => { setShowRemoveEmail(false); setRemoveOtp(""); setRemoveOtpSent(false); setRemoveError(""); }}><X size={16} /></button>
+            </div>
+            <div className="tb-dialog-body">
+              {!removeOtpSent ? (
+                <button className="btn btn-primary btn-sm" onClick={sendRemoveOtp} disabled={removeOtpLoading} style={{ width: "100%" }}>
+                  {removeOtpLoading ? <><span className="btn-spinner" /> Sending code</> : "Send verification code"}
+                </button>
+              ) : (
+                <div className="field-group">
+                  <label className="form-label">Enter the code sent to {secEmail}</label>
+                  <input className="form-input" value={removeOtp} onChange={(e) => setRemoveOtp(e.target.value.replace(/\D/g, ""))} placeholder="000 000" maxLength={6} autoFocus style={{ letterSpacing: 1, textAlign: "center", fontSize: 18, height: 44 }} />
+                </div>
+              )}
+              {removeError && <p style={{ fontSize: 12, color: "var(--tb-red, #ef4444)", marginTop: 8 }}>{removeError}</p>}
+            </div>
+            <div className="tb-dialog-footer">
+              <button className="btn btn-ghost btn-sm" onClick={() => { setShowRemoveEmail(false); setRemoveOtp(""); setRemoveOtpSent(false); setRemoveError(""); }}>{t("common.cancel")}</button>
+              <button className="btn btn-danger btn-sm" onClick={removeEmail} disabled={!removeOtpSent || removeOtpLoading || removeOtp.length < 4}>
+                {removeOtpLoading ? <><span className="btn-spinner" /> Removing</> : "Remove email"}
+              </button>
             </div>
           </div>
         </div>

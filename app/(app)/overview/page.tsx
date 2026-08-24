@@ -56,6 +56,7 @@ export default function OverviewPage() {
   const [user, setUser] = useState<Profile | null>(null);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [totalNotifs, setTotalNotifs] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -63,7 +64,7 @@ export default function OverviewPage() {
       getCurrentUser().then(setUser).catch(() => {}),
       listTickets({ limit: 5 }).then((r) => setTickets(r.data)).catch(() => {}),
       listNotifications(10, 0)
-        .then((r) => setNotifications(r.notifications))
+        .then((r) => { setNotifications(r.notifications); setTotalNotifs(r.total); })
         .catch(() => {}),
     ]).finally(() => setLoading(false));
   }, []);
@@ -142,26 +143,8 @@ export default function OverviewPage() {
       ) : (
         <div
           className="dashboard-card"
-          style={{
-            padding: 26,
-            position: "relative",
-            overflow: "hidden",
-            background:
-              "linear-gradient(135deg, var(--tb-surface-3) 0%, var(--tb-surface-2) 60%, transparent 100%)",
-          }}
+          style={{ padding: 26, position: "relative", overflow: "hidden" }}
         >
-          <div
-            style={{
-              position: "absolute",
-              right: -40,
-              top: -40,
-              width: 180,
-              height: 180,
-              borderRadius: "50%",
-              background: "color-mix(in srgb, var(--tb-accent, #6d5ef2) 14%, transparent)",
-              filter: "blur(2px)",
-            }}
-          />
           <div style={{ display: "flex", alignItems: "center", gap: 16, position: "relative" }}>
             <div
               className="sidebar-user-avatar"
@@ -282,13 +265,13 @@ export default function OverviewPage() {
             {
               icon: <Bell size={15} />,
               label: t("overview.statTotalNotif"),
-              value: notifications.length,
+              value: totalNotifs,
               accent: false,
               href: "/account/inbox",
-              tip: `${notifications.length} ${t("notif.total").toLowerCase()}`,
+              tip: `${totalNotifs} ${t("notif.total").toLowerCase()}`,
             },
           ].map((stat) => (
-            <Tooltip key={stat.label} label={stat.tip}>
+            <Tooltip key={stat.label} label={stat.tip} side="bottom">
               <button
                 onClick={() => router.push(stat.href)}
                 className="dashboard-card"

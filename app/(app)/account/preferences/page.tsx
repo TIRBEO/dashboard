@@ -5,26 +5,18 @@ import { useUnsavedGuard, setDirtyGlobal } from "@/lib/unsaved";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useI18n } from "@/lib/i18n";
 import { SUPPORTED_LANGS } from "@/lib/locales";
+import { Check } from "lucide-react";
 
 function PrefsSkeleton() {
   return (
     <div className="page-stack">
       <div><Skeleton width={180} height={24} style={{ marginBottom: 6 }} /><Skeleton width={280} height={14} /></div>
       <div className="dashboard-card">
-        <Skeleton width={100} height={18} style={{ marginBottom: 16 }} />
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', borderBottom: i < 3 ? '1px solid var(--tb-border)' : 'none' }}>
-            <div><Skeleton width={100} height={14} style={{ marginBottom: 4 }} /></div>
-            <Skeleton width={200} height={36} />
-          </div>
-        ))}
-      </div>
-      <div className="dashboard-card">
-        <Skeleton width={140} height={18} style={{ marginBottom: 16 }} />
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', borderBottom: i < 2 ? '1px solid var(--tb-border)' : 'none' }}>
-            <div><Skeleton width={120} height={14} style={{ marginBottom: 4 }} /><Skeleton width={200} height={10} /></div>
-            <Skeleton width={36} height={20} borderRadius={10} />
+        <Skeleton width={100} height={18} style={{ marginBottom: 18 }} />
+        {[0, 1, 2, 3].map(i => (
+          <div key={i} className="field-row">
+            <Skeleton width={90} height={13} style={{ margin: '8px 0' }} />
+            <Skeleton width={280} height={38} borderRadius={10} />
           </div>
         ))}
       </div>
@@ -73,7 +65,10 @@ export default function PreferencesPage() {
             <p className="page-header-description">{t("prefs.subtitle")}</p>
           </div>
           <div className="page-header-actions">
-            <span style={{ fontSize: 12, color: 'var(--tb-text-muted)' }}>{saving ? t("common.saving") : saved ? t("common.saved") : t("common.autoSaved")}</span>
+            <span className={`pref-save-chip ${saved ? "saved" : ""}`}>
+              {saved ? <Check size={12} /> : null}
+              {saving ? t("common.saving") : saved ? t("common.saved") : t("common.autoSaved")}
+            </span>
           </div>
         </div>
       </div>
@@ -125,26 +120,7 @@ export default function PreferencesPage() {
         </div>
       </div>
 
-      {/* Email preferences */}
-      <div className="dashboard-card">
-        <h3 className="section-title">{t("prefs.emailTitle")}</h3>
-        <p className="section-desc">{t("prefs.emailDesc")}</p>
-        {[
-          { key: "productEmails", label: t("prefs.productEmails"), desc: t("prefs.productEmailsDesc") },
-          { key: "weeklySummary", label: t("prefs.weeklySummary"), desc: t("prefs.weeklySummaryDesc") },
-          { key: "tipsAndUpdates", label: t("prefs.tipsUpdates"), desc: t("prefs.tipsUpdatesDesc") },
-        ].map(item => (
-          <div key={item.key} className="consent-row">
-            <div><div className="row-title">{item.label}</div><div className="row-desc">{item.desc}</div></div>
-            <button className={`tb-toggle ${(user.preferences as any)?.[item.key] !== false ? "checked" : ""}`} onClick={async () => {
-              const current = (user.preferences as any)?.[item.key] !== false;
-              const next = { ...((user.preferences as any) || {}), [item.key]: !current };
-              setUser((prev: any) => ({ ...prev, preferences: next }));
-              try { await api.patch("/api/users/me", { preferences: next }); } catch {}
-            }}><div className="tb-toggle-knob" /></button>
-          </div>
-        ))}
-      </div>
+      {/* Email preferences live in /account/notifications (single source of truth) */}
     </div>
   );
 }
