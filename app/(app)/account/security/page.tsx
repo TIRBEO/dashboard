@@ -34,8 +34,6 @@ export default function SecurityPage() {
   const [pwdSaving, setPwdSaving] = useState(false);
   const [pwdSuccess, setPwdSuccess] = useState(false);
   const [hasPassword, setHasPassword] = useState(true);
-  const [pwdOtp, setPwdOtp] = useState("");
-  const [sendingOtp, setSendingOtp] = useState(false);
 
   // Recovery email
   const [secEmail, setSecEmail] = useState("");
@@ -114,19 +112,11 @@ export default function SecurityPage() {
     try {
       const body: any = { newPassword: pwdForm.new };
       if (hasPassword) body.currentPassword = pwdForm.current;
-      else body.otpCode = pwdOtp;
       await api.post("/api/security/password", body);
-      setShowChangePwd(false); setPwdForm({ current: "", new: "", confirm: "" }); setPwdOtp(""); setHasPassword(true); setUser((p: any) => p ? ({ ...p, mustChangePassword: false }) : p);
+      setShowChangePwd(false); setPwdForm({ current: "", new: "", confirm: "" }); setHasPassword(true); setUser((p: any) => p ? ({ ...p, mustChangePassword: false }) : p);
       setPwdSuccess(true); setTimeout(() => setPwdSuccess(false), 3000);
     } catch (e: any) { setPwdError(e.message || t("security.failed")); }
     setPwdSaving(false);
-  };
-
-  const sendPwdOtp = async () => {
-    setPwdError(""); setSendingOtp(true);
-    try { await api.post("/api/auth/email-otp/request", { email: user?.email }); }
-    catch (e: any) { setPwdError(e.message || "Failed to send code"); }
-    setSendingOtp(false);
   };
 
   // ── Recovery email ──
@@ -250,12 +240,16 @@ export default function SecurityPage() {
         <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <span style={{ fontSize: 13, color: 'var(--tb-text-secondary)' }}>{t('security.passwordLabel')}</span>
-            <span style={{ fontSize: 14, color: 'var(--tb-text-muted)', letterSpacing: 4, fontFamily: 'monospace' }}>••••••••</span>
+            {hasPassword ? (
+              <span style={{ fontSize: 14, color: 'var(--tb-text-muted)', letterSpacing: 4, fontFamily: 'monospace' }}>••••••••</span>
+            ) : (
+              <span style={{ fontSize: 13, fontStyle: 'italic', color: 'var(--tb-text-muted)' }}>Not set — sign in with email login</span>
+            )}
           </div>
           {pwdSuccess ? (
             <span style={{ fontSize: 12, color: 'var(--tb-green)', display: 'flex', alignItems: 'center', gap: 4 }}><Check size={13} /> {t('security.changed')}</span>
           ) : (
-            <button className="btn btn-secondary btn-sm" onClick={() => setShowChangePwd(true)}>{t('security.change')}</button>
+            <button className="btn btn-secondary btn-sm" onClick={() => setShowChangePwd(true)}>{hasPassword ? t('security.change') : "Add password"}</button>
           )}
         </div>
       </div>
@@ -526,14 +520,14 @@ export default function SecurityPage() {
 
       {/* ═══ Change Password Dialog ═══ */}
       {showChangePwd && (
-        <div className="tb-dialog-overlay" onClick={() => { setShowChangePwd(false); setPwdError(""); setPwdOtp(""); }}>
+        <div className="tb-dialog-overlay" onClick={() => { setShowChangePwd(false); setPwdError(""); }}>
           <div className="tb-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="tb-dialog-header">
               <div>
                 <h3 className="tb-dialog-title">{t("security.changeTitle")}</h3>
                 <p className="tb-dialog-desc">{hasPassword ? t("security.changeDesc") : "Set a password for your account"}</p>
               </div>
-              <button className="header-control" onClick={() => { setShowChangePwd(false); setPwdError(""); setPwdOtp(""); }}><X size={16} /></button>
+              <button className="header-control" onClick={() => { setShowChangePwd(false); setPwdError(""); }}><X size={16} /></button>
             </div>
             <div className="tb-dialog-body">
               {hasPassword ? (
@@ -542,19 +536,11 @@ export default function SecurityPage() {
                   <input className="form-input" type="password" value={pwdForm.current} onChange={(e) => setPwdForm((p) => ({ ...p, current: e.target.value }))} placeholder={t("security.currentPh")} autoFocus />
                 </div>
               ) : (
-                <div className="field-group">
-                  <label className="form-label">Verification code</label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <input className="form-input" value={pwdOtp} onChange={(e) => setPwdOtp(e.target.value.replace(/\D/g, ""))} placeholder="Enter 6-digit code" maxLength={6} autoFocus style={{ flex: 1 }} />
-                    <button className="btn btn-secondary btn-sm" onClick={sendPwdOtp} type="button" disabled={sendingOtp}>
-                      {sendingOtp ? <><span className="btn-spinner" /> Sending</> : "Send code"}
-                    </button>
-                  </div>
-                </div>
+                <p style={{ fontSize: 12.5, color: 'var(--tb-text-secondary)', margin: '0 0 12px' }}>Your email is already verified — just choose a password and you&apos;ll be able to sign in with it too.</p>
               )}
               <div className="field-group">
                 <label className="form-label">{t("security.new")}</label>
-                <input className="form-input" type="password" value={pwdForm.new} onChange={(e) => setPwdForm((p) => ({ ...p, new: e.target.value }))} placeholder={t("security.newPh")} />
+                <input className="form-input" type="password" value={pwdForm.new} onChange={(e) => setPwdForm((p) => ({ ...p, new: e.target.value }))} placeholder={t("security.newPh")} autoFocus={!hasPassword} />
               </div>
               <div className="field-group">
                 <label className="form-label">{t("security.confirm")}</label>
@@ -563,8 +549,8 @@ export default function SecurityPage() {
               {pwdError && <p style={{ fontSize: 12, color: "var(--tb-red, #ef4444)", marginTop: 8 }}>{pwdError}</p>}
             </div>
             <div className="tb-dialog-footer">
-              <button className="btn btn-ghost btn-sm" onClick={() => { setShowChangePwd(false); setPwdError(""); setPwdOtp(""); }}>{t("common.cancel")}</button>
-              <button className="btn btn-primary btn-sm" onClick={changePassword} disabled={pwdSaving || (!hasPassword && !pwdOtp) || (hasPassword && !pwdForm.current) || !pwdForm.new || !pwdForm.confirm}>
+              <button className="btn btn-ghost btn-sm" onClick={() => { setShowChangePwd(false); setPwdError(""); }}>{t("common.cancel")}</button>
+              <button className="btn btn-primary btn-sm" onClick={changePassword} disabled={pwdSaving || (hasPassword && !pwdForm.current) || !pwdForm.new || !pwdForm.confirm}>
                 {pwdSaving ? <><span className="btn-spinner" /> {t("common.saving")}</> : t("security.changePassword")}
               </button>
             </div>

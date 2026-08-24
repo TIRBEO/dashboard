@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
+import { GoogleIcon, GitHubIcon, DiscordIcon } from "@/components/SocialIcons";
 import {
   Check,
   X,
@@ -14,10 +15,10 @@ import {
   Mail,
 } from "lucide-react";
 
-const PROVIDER_META: Record<string, { color: string; icon: string; bg: string }> = {
-  google: { color: "#4285f4", icon: "G", bg: "#e8f0fe" },
-  github: { color: "#333", icon: "GH", bg: "#f0f0f0" },
-  discord: { color: "#5865f2", icon: "D", bg: "#e8eaff" },
+const PROVIDER_META: Record<string, { icon: React.ReactNode; color?: string; bg: string; border: string }> = {
+  google: { icon: <GoogleIcon size={22} />, bg: "#ffffff", border: "#dadce0" },
+  github: { icon: <GitHubIcon size={22} />, color: "var(--tb-text-primary)", bg: "var(--tb-surface-1)", border: "var(--tb-border)" },
+  discord: { icon: <DiscordIcon size={24} />, color: "#5865f2", bg: "var(--tb-surface-1)", border: "var(--tb-border)" },
 };
 
 export default function ConnectedAppsPage() {
@@ -207,8 +208,8 @@ export default function ConnectedAppsPage() {
                 <div style={{ display: "flex", alignItems: "center", gap: 14, flex: 1, minWidth: 0 }}>
                   <div style={{
                     width: 44, height: 44, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
-                    background: meta?.bg || "#f5f5f5", fontSize: 16, fontWeight: 700, color: meta?.color || "#333",
-                    border: `1px solid ${meta?.color || "#ddd"}22`, flexShrink: 0,
+                    background: meta?.bg || "var(--tb-surface-2)", color: meta?.color || "var(--tb-text-primary)",
+                    border: `1px solid ${meta?.border || "var(--tb-border)"}`, flexShrink: 0,
                   }}>
                     {meta?.icon || p.name[0]}
                   </div>

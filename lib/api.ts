@@ -102,6 +102,10 @@ export interface Profile {
   recoveryEmailVerified?: boolean | null;
   preferences?: Record<string, any> | null;
   totpEnabled?: boolean;
+  mustChangePassword?: boolean;
+  scheduledDeletionAt?: string | null;
+  deletionReason?: string | null;
+  loginCount?: number | null;
   createdAt?: string;
   updatedAt?: string;
   lastActiveAt?: string | null;

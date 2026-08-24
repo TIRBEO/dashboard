@@ -440,6 +440,11 @@ export interface Dict {
     linkedinPh: string;
     github: string;
     githubPh: string;
+    usernameChecking: string;
+    usernameAvailable: string;
+    usernameTaken: string;
+    usernameReserved: string;
+    usernameInvalid: string;
     twitter: string;
     twitterPh: string;
     accountInfo: string;
@@ -760,7 +765,7 @@ const en: Dict = {
     birthday: "Birthday", country: "Country", countryPh: "Select your country", occupation: "Occupation",
     occupationPh: "e.g. Software Engineer", company: "Company", companyPh: "Your company", role: "Role", rolePh: "Your role",
     roleAtCompanyPh: "Your role at the company", industry: "Industry", industryPh: "e.g. Technology",
-    companySize: "Company size", justMe: "Just me", website: "Website", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github username", twitter: "Twitter / X", twitterPh: "@username", accountInfo: "Account info", email: "Email",
+    companySize: "Company size", justMe: "Just me", website: "Website", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github username", usernameChecking: "Checking availability…", usernameAvailable: "Username is available", usernameTaken: "This username is already taken", usernameReserved: "This username is reserved", usernameInvalid: "Use 3–30 letters, numbers or hyphens", twitter: "Twitter / X", twitterPh: "@username", accountInfo: "Account info", email: "Email",
     recoveryEmail: "Recovery email", memberSince: "Member since", lastActive: "Last active",
     connectedAccounts: "Connected accounts", noneConnected: "No accounts connected.", verified: "Verified", unverified: "Not verified",
   },
@@ -1001,7 +1006,7 @@ const es: Dict = {
     birthday: "Cumpleaños", country: "País", countryPh: "Selecciona tu país", occupation: "Ocupación",
     occupationPh: "p. ej. Ingeniero de software", company: "Empresa", companyPh: "Tu empresa", role: "Rol", rolePh: "Tu rol",
     roleAtCompanyPh: "Tu rol en la empresa", industry: "Sector", industryPh: "p. ej. Tecnología",
-    companySize: "Tamaño de la empresa", justMe: "Solo yo", website: "Sitio web", websitePh: "https://tusitio.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/usuario", github: "GitHub", githubPh: "usuario de github", twitter: "Twitter / X", twitterPh: "@usuario", accountInfo: "Información de la cuenta", email: "Correo",
+    companySize: "Tamaño de la empresa", justMe: "Solo yo", website: "Sitio web", websitePh: "https://tusitio.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/usuario", github: "GitHub", githubPh: "usuario de github", usernameChecking: "Comprobando disponibilidad…", usernameAvailable: "El nombre de usuario está disponible", usernameTaken: "Este nombre de usuario ya está en uso", usernameReserved: "Este nombre de usuario está reservado", usernameInvalid: "Usa de 3 a 30 letras, números o guiones", twitter: "Twitter / X", twitterPh: "@usuario", accountInfo: "Información de la cuenta", email: "Correo",
     recoveryEmail: "Correo de recuperación", memberSince: "Miembro desde", lastActive: "Última actividad",
     connectedAccounts: "Cuentas conectadas", noneConnected: "No hay cuentas conectadas.", verified: "Verificado", unverified: "No verificado",
   },
@@ -1229,7 +1234,7 @@ const fr: Dict = {
     birthday: "Anniversaire", country: "Pays", countryPh: "Sélectionnez votre pays", occupation: "Profession",
     occupationPh: "p. ex. Ingénieur logiciel", company: "Entreprise", companyPh: "Votre entreprise", role: "Rôle", rolePh: "Votre rôle",
     roleAtCompanyPh: "Votre rôle dans l'entreprise", industry: "Secteur", industryPh: "p. ex. Technologie",
-    companySize: "Taille de l'entreprise", justMe: "Moi uniquement", website: "Site web", websitePh: "https://votresite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/utilisateur", github: "GitHub", githubPh: "nom d'utilisateur github", twitter: "Twitter / X", twitterPh: "@utilisateur", accountInfo: "Informations du compte", email: "E-mail",
+    companySize: "Taille de l'entreprise", justMe: "Moi uniquement", website: "Site web", websitePh: "https://votresite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/utilisateur", github: "GitHub", githubPh: "nom d'utilisateur github", usernameChecking: "Vérification de la disponibilité…", usernameAvailable: "Ce nom d'utilisateur est disponible", usernameTaken: "Ce nom d'utilisateur est déjà pris", usernameReserved: "Ce nom d'utilisateur est réservé", usernameInvalid: "Utilisez 3 à 30 lettres, chiffres ou tirets", twitter: "Twitter / X", twitterPh: "@utilisateur", accountInfo: "Informations du compte", email: "E-mail",
     recoveryEmail: "E-mail de récupération", memberSince: "Membre depuis", lastActive: "Dernière activité",
     connectedAccounts: "Comptes connectés", noneConnected: "Aucun compte connecté.", verified: "Vérifié", unverified: "Non vérifié",
   },
@@ -1457,7 +1462,7 @@ const de: Dict = {
     birthday: "Geburtstag", country: "Land", countryPh: "Wählen Sie Ihr Land", occupation: "Beruf",
     occupationPh: "z. B. Softwareentwickler", company: "Unternehmen", companyPh: "Ihr Unternehmen", role: "Rolle", rolePh: "Ihre Rolle",
     roleAtCompanyPh: "Ihre Rolle im Unternehmen", industry: "Branche", industryPh: "z. B. Technologie",
-    companySize: "Unternehmensgröße", justMe: "Nur ich", website: "Website", websitePh: "https://deinewebsite.de", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/benutzername", github: "GitHub", githubPh: "github-benutzername", twitter: "Twitter / X", twitterPh: "@benutzername", accountInfo: "Kontoinformationen", email: "E-Mail",
+    companySize: "Unternehmensgröße", justMe: "Nur ich", website: "Website", websitePh: "https://deinewebsite.de", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/benutzername", github: "GitHub", githubPh: "github-benutzername", usernameChecking: "Verfügbarkeit wird geprüft…", usernameAvailable: "Benutzername ist verfügbar", usernameTaken: "Dieser Benutzername ist bereits vergeben", usernameReserved: "Dieser Benutzername ist reserviert", usernameInvalid: "Erlaubt sind 3–30 Buchstaben, Zahlen oder Bindestriche", twitter: "Twitter / X", twitterPh: "@benutzername", accountInfo: "Kontoinformationen", email: "E-Mail",
     recoveryEmail: "Wiederherstellungs-E-Mail", memberSince: "Mitglied seit", lastActive: "Zuletzt aktiv",
     connectedAccounts: "Verbundene Konten", noneConnected: "Keine Konten verbunden.", verified: "Verifiziert", unverified: "Nicht verifiziert",
   },
@@ -1685,7 +1690,7 @@ const ja: Dict = {
     birthday: "生年月日", country: "国", countryPh: "国を選択", occupation: "職業",
     occupationPh: "例：ソフトウェアエンジニア", company: "会社", companyPh: "あなたの会社", role: "役割", rolePh: "あなたの役割",
     roleAtCompanyPh: "会社での役割", industry: "業界", industryPh: "例：テクノロジー",
-    companySize: "会社の規模", justMe: "個人のみ", website: "ウェブサイト", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github ユーザー名", twitter: "Twitter / X", twitterPh: "@ユーザー名", accountInfo: "アカウント情報", email: "メール",
+    companySize: "会社の規模", justMe: "個人のみ", website: "ウェブサイト", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github ユーザー名", usernameChecking: "利用可能か確認中…", usernameAvailable: "このユーザー名は利用できます", usernameTaken: "このユーザー名は既に使用されています", usernameReserved: "このユーザー名は予約されています", usernameInvalid: "英数字とハイフンで3〜30文字で入力してください", twitter: "Twitter / X", twitterPh: "@ユーザー名", accountInfo: "アカウント情報", email: "メール",
     recoveryEmail: "回復用メール", memberSince: "登録日", lastActive: "最終アクティブ",
     connectedAccounts: "連携アカウント", noneConnected: "連携されたアカウントはありません。", verified: "確認済み", unverified: "未確認",
   },
@@ -1913,7 +1918,7 @@ const ko: Dict = {
     birthday: "생일", country: "국가", countryPh: "국가 선택", occupation: "직업",
     occupationPh: "예: 소프트웨어 엔지니어", company: "회사", companyPh: "당신의 회사", role: "역할", rolePh: "당신의 역할",
     roleAtCompanyPh: "회사에서의 역할", industry: "업계", industryPh: "예: 기술",
-    companySize: "회사 규모", justMe: "나만", website: "웹사이트", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github 사용자명", twitter: "Twitter / X", twitterPh: "@사용자명", accountInfo: "계정 정보", email: "이메일",
+    companySize: "회사 규모", justMe: "나만", website: "웹사이트", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github 사용자명", usernameChecking: "사용 가능 여부 확인 중…", usernameAvailable: "사용할 수 있는 사용자 이름입니다", usernameTaken: "이미 사용 중인 사용자 이름입니다", usernameReserved: "예약된 사용자 이름입니다", usernameInvalid: "영문, 숫자, 하이픈으로 3~30자 입력하세요", twitter: "Twitter / X", twitterPh: "@사용자명", accountInfo: "계정 정보", email: "이메일",
     recoveryEmail: "복구 이메일", memberSince: "가입일", lastActive: "마지막 활동",
     connectedAccounts: "연결된 계정", noneConnected: "연결된 계정이 없습니다.", verified: "확인됨", unverified: "미확인",
   },
@@ -2141,7 +2146,7 @@ const zh: Dict = {
     birthday: "生日", country: "国家/地区", countryPh: "选择您的国家/地区", occupation: "职业",
     occupationPh: "例如：软件工程师", company: "公司", companyPh: "您的公司", role: "职位", rolePh: "您的职位",
     roleAtCompanyPh: "您在公司中的职位", industry: "行业", industryPh: "例如：科技",
-    companySize: "公司规模", justMe: "仅我自己", website: "网站", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github 用户名", twitter: "Twitter / X", twitterPh: "@用户名", accountInfo: "账户信息", email: "邮箱",
+    companySize: "公司规模", justMe: "仅我自己", website: "网站", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github 用户名", usernameChecking: "正在检查可用性…", usernameAvailable: "该用户名可用", usernameTaken: "该用户名已被占用", usernameReserved: "该用户名已被保留", usernameInvalid: "请使用 3–30 个字母、数字或连字符", twitter: "Twitter / X", twitterPh: "@用户名", accountInfo: "账户信息", email: "邮箱",
     recoveryEmail: "恢复邮箱", memberSince: "加入日期", lastActive: "最近活跃",
     connectedAccounts: "已连接的账户", noneConnected: "未连接任何账户。", verified: "已验证", unverified: "未验证",
   },
@@ -2369,7 +2374,7 @@ const hi: Dict = {
     birthday: "जन्मदिन", country: "देश", countryPh: "अपना देश चुनें", occupation: "व्यवसाय",
     occupationPh: "जैसे सॉफ्टवेयर इंजीनियर", company: "कंपनी", companyPh: "आपकी कंपनी", role: "भूमिका", rolePh: "आपकी भूमिका",
     roleAtCompanyPh: "कंपनी में आपकी भूमिका", industry: "उद्योग", industryPh: "जैसे प्रौद्योगिकी",
-    companySize: "कंपनी का आकार", justMe: "सिर्फ मैं", website: "वेबसाइट", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github उपयोगकर्ता नाम", twitter: "Twitter / X", twitterPh: "@उपयोगकर्ता नाम", accountInfo: "खाता जानकारी", email: "ईमेल",
+    companySize: "कंपनी का आकार", justMe: "सिर्फ मैं", website: "वेबसाइट", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github उपयोगकर्ता नाम", usernameChecking: "उपलब्धता की जाँच हो रही है…", usernameAvailable: "यह उपयोगकर्ता नाम उपलब्ध है", usernameTaken: "यह उपयोगकर्ता नाम पहले से लिया गया है", usernameReserved: "यह उपयोगकर्ता नाम आरक्षित है", usernameInvalid: "3–30 अक्षर, संख्याएँ या हाइफ़न का उपयोग करें", twitter: "Twitter / X", twitterPh: "@उपयोगकर्ता नाम", accountInfo: "खाता जानकारी", email: "ईमेल",
     recoveryEmail: "रिकवरी ईमेल", memberSince: "सदस्य से", lastActive: "अंतिम गतिविधि",
     connectedAccounts: "कनेक्टेड खाते", noneConnected: "कोई खाता कनेक्ट नहीं है।", verified: "सत्यापित", unverified: "सत्यापित नहीं",
   },
@@ -2597,7 +2602,7 @@ const ne: Dict = {
     birthday: "जन्मदिन", country: "देश", countryPh: "आफ्नो देश छान्नुहोस्", occupation: "पेशा",
     occupationPh: "जस्तै सफ्टवेयर इन्जिनियर", company: "कम्पनी", companyPh: "तपाईंको कम्पनी", role: "भूमिका", rolePh: "तपाईंको भूमिका",
     roleAtCompanyPh: "कम्पनीमा तपाईंको भूमिका", industry: "उद्योग", industryPh: "जस्तै प्रविधि",
-    companySize: "कम्पनीको आकार", justMe: "केवल म", website: "वेबसाइट", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github प्रयोगकर्ता नाम", twitter: "Twitter / X", twitterPh: "@प्रयोगकर्ता नाम", accountInfo: "खाता जानकारी", email: "इमेल",
+    companySize: "कम्पनीको आकार", justMe: "केवल म", website: "वेबसाइट", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github प्रयोगकर्ता नाम", usernameChecking: "उपलब्धता जाँच हुँदै…", usernameAvailable: "यो प्रयोगकर्ता नाम उपलब्ध छ", usernameTaken: "यो प्रयोगकर्ता नाम पहिले नै प्रयोगमा छ", usernameReserved: "यो प्रयोगकर्ता नाम आरक्षित छ", usernameInvalid: "३–३० अक्षर, अंक वा ड्यास प्रयोग गर्नुहोस्", twitter: "Twitter / X", twitterPh: "@प्रयोगकर्ता नाम", accountInfo: "खाता जानकारी", email: "इमेल",
     recoveryEmail: "रिकभरी इमेल", memberSince: "सदस्य देखि", lastActive: "पछिल्लो गतिविधि",
     connectedAccounts: "जोडिएका खाताहरू", noneConnected: "कुनै खाता जोडिएको छैन।", verified: "प्रमाणित", unverified: "प्रमाणित नगरिएको",
   },

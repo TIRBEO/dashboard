@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, type ReactNode } from "react";
 import { api } from "@/lib/api";
+import { subscribeToPush } from "@/lib/push-client";
 import { setDirtyGlobal } from "@/lib/unsaved";
 import {
   AlertCircle, Mail, BellRing, MessageSquare, Shield, FileText,
@@ -137,7 +138,11 @@ export default function NotificationsSettingsPage() {
   };
 
   const flip = async (key: string, enable: boolean, isPush: boolean) => {
-    if (enable && isPush && !(await pushAllowed())) return;
+    if (enable && isPush) {
+      if (!(await pushAllowed())) return;
+      const ok = await subscribeToPush();
+      if (!ok) { setPref(key, false); return; }
+    }
     setPref(key, enable);
   };
 

@@ -18,6 +18,7 @@ import {
   formatDate, formatDayMonth,
   type NotificationItem, type Profile, type Ticket,
 } from "@/lib/api";
+import { registerServiceWorker } from "@/lib/push-client";
 import {
   getTypeMeta as getNotifMeta,
   notifFullDate as notifDate,
@@ -277,6 +278,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       });
     fetchNotifications();
     fetchTickets();
+    registerServiceWorker();
     pollTimer.current = setInterval(() => { if (document.visibilityState === "visible") fetchNotifications(); }, 30_000);
     const onVisibility = () => { if (document.visibilityState === "visible") fetchNotifications(); };
     document.addEventListener("visibilitychange", onVisibility);

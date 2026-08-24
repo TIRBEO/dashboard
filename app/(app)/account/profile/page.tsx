@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { api, getCurrentUser } from "@/lib/api";
 import { useUnsavedGuard, setDirtyGlobal } from "@/lib/unsaved";
-import { Camera, User, Briefcase, Link2, Info, Check } from "lucide-react";
+import { Camera, User, Briefcase, Link2, Info, Check, AlertCircle, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useI18n } from "@/lib/i18n";
 
@@ -42,6 +42,9 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [avatarError, setAvatarError] = useState("");
+  const [saveError, setSaveError] = useState("");
+  const [unameStatus, setUnameStatus] = useState<"idle" | "checking" | "available" | "taken" | "reserved" | "invalid">("idle");
+  const originalUsername = useRef("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   useUnsavedGuard();
@@ -49,6 +52,7 @@ export default function ProfilePage() {
   useEffect(() => {
     getCurrentUser().then(u => {
       setUser(u);
+      originalUsername.current = (u.username || "").toLowerCase();
       setForm({
         name: u.name || "", username: u.username || "", bio: u.bio || "",
         gender: u.gender || "", birthday: u.birthday ? u.birthday.split("T")[0] : "",
@@ -61,13 +65,42 @@ export default function ProfilePage() {
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
+  // Debounced username availability check (skipped when unchanged from loaded value)
+  useEffect(() => {
+    const uname = (form.username || "").trim();
+    if (!uname || uname.toLowerCase() === originalUsername.current) {
+      setUnameStatus("idle");
+      return;
+    }
+    setUnameStatus("checking");
+    const timer = setTimeout(async () => {
+      try {
+        const r = await api.post<{ exists: boolean; valid: boolean; reserved?: boolean }>("/api/auth/username-exists", { username: uname.toLowerCase() });
+        if (!r?.valid) setUnameStatus("invalid");
+        else if (r.exists) setUnameStatus(r.reserved ? "reserved" : "taken");
+        else setUnameStatus("available");
+      } catch {
+        setUnameStatus("idle");
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [form.username]);
+
+  const unameBlocked = unameStatus === "checking" || unameStatus === "taken" || unameStatus === "reserved" || unameStatus === "invalid";
+
   const save = async () => {
-    setSaving(true); setSaved(false);
+    if (unameBlocked) return;
+    setSaving(true); setSaved(false); setSaveError("");
     try {
       await api.patch("/api/users/me", form);
+      originalUsername.current = (form.username || "").trim().toLowerCase();
+      setUnameStatus("idle");
       setSaved(true); setDirtyGlobal(false); setTimeout(() => setSaved(false), 2500);
       if (form.name) window.dispatchEvent(new CustomEvent("tb:user-updated", { detail: { name: form.name } }));
-    } catch {}
+      if (form.username !== undefined) window.dispatchEvent(new CustomEvent("tb:user-updated", { detail: { username: form.username } }));
+    } catch (e: any) {
+      setSaveError(e?.message || "Could not save your changes. Please try again.");
+    }
     setSaving(false);
   };
 
@@ -166,10 +199,16 @@ export default function ProfilePage() {
           <div className="page-header-actions">
             {saved && <span style={{ fontSize: 12, color: 'var(--tb-green)', display: 'flex', alignItems: 'center', gap: 4 }}><Check size={14} /> {t("common.saved")}</span>}
             {saving && <span style={{ fontSize: 12, color: 'var(--tb-text-muted)' }}>{t("common.saving")}</span>}
-            <button className="btn btn-primary btn-sm" onClick={save} disabled={saving}>{t("profile.saveChanges")}</button>
+            <button className="btn btn-primary btn-sm" onClick={save} disabled={saving || unameBlocked} title={unameBlocked && unameStatus !== "checking" ? t("profile.usernameTaken") : undefined}>{t("profile.saveChanges")}</button>
           </div>
         </div>
       </div>
+
+      {saveError && (
+        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", borderRadius: 10, background: "var(--tb-red-soft, #fdecea)", border: "1px solid var(--tb-red, #ef4444)33", fontSize: 13.5, color: "var(--tb-red, #ef4444)" }}>
+          <AlertCircle size={15} /> {saveError}
+        </div>
+      )}
 
       {/* Avatar + Info Card */}
       <div className="dashboard-card" style={{ padding: 24 }}>
@@ -264,13 +303,34 @@ export default function ProfilePage() {
                     style={{ maxWidth: 280 }}
                   />
                 ) : (
-                  <input
-                    className="form-input"
-                    value={form[f.key] || ""}
-                    onChange={e => { setForm(prev => ({ ...prev, [f.key]: e.target.value })); setDirtyGlobal(true); }}
-                    placeholder={(f as any).placeholder}
-                    style={{ maxWidth: 400 }}
-                  />
+                  <div style={{ maxWidth: 400, width: "100%" }}>
+                    <input
+                      className="form-input"
+                      value={form[f.key] || ""}
+                      onChange={e => { setForm(prev => ({ ...prev, [f.key]: e.target.value })); setDirtyGlobal(true); }}
+                      placeholder={(f as any).placeholder}
+                      style={{
+                        maxWidth: 400,
+                        ...(f.key === "username" && (unameStatus === "taken" || unameStatus === "reserved" || unameStatus === "invalid")
+                          ? { borderColor: "var(--tb-red, #ef4444)" }
+                          : f.key === "username" && unameStatus === "available"
+                            ? { borderColor: "var(--tb-green, #28a745)" }
+                            : {}),
+                      }}
+                    />
+                    {f.key === "username" && unameStatus !== "idle" && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 5, fontSize: 12.5 }}>
+                        {unameStatus === "checking" && <Loader2 size={12} className="animate-spin" style={{ color: "var(--tb-text-muted)" }} />}
+                        {unameStatus === "checking" && <span style={{ color: "var(--tb-text-muted, #999)" }}>{t("profile.usernameChecking")}</span>}
+                        {unameStatus === "available" && <Check size={12} style={{ color: "var(--tb-green, #28a745)" }} />}
+                        {unameStatus === "available" && <span style={{ color: "var(--tb-green, #28a745)" }}>{t("profile.usernameAvailable")}</span>}
+                        {(unameStatus === "taken" || unameStatus === "reserved") && <AlertCircle size={12} style={{ color: "var(--tb-red, #ef4444)" }} />}
+                        {(unameStatus === "taken" || unameStatus === "reserved") && <span style={{ color: "var(--tb-red, #ef4444)" }}>{t(unameStatus === "taken" ? "profile.usernameTaken" : "profile.usernameReserved")}</span>}
+                        {unameStatus === "invalid" && <AlertCircle size={12} style={{ color: "var(--tb-red, #ef4444)" }} />}
+                        {unameStatus === "invalid" && <span style={{ color: "var(--tb-red, #ef4444)" }}>{t("profile.usernameInvalid")}</span>}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
