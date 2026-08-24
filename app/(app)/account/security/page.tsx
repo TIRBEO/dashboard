@@ -182,86 +182,111 @@ export default function SecurityPage() {
       </div>
 
       {/* ═══ 2FA ═══ */}
-      <div className="dashboard-card">
-        <h3 className="section-title"><Shield size={15} /> {t("security.twoFactor")}</h3>
-        <p className="section-desc">{totpEnabled ? t("security.twoFactorOn") : t("security.twoFactorOff")}</p>
-        <div className="field-row">
-          <label className="field-label">{t("security.status")}</label>
-          <div className="field-control" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span className={`badge ${totpEnabled ? "badge-success" : "badge-neutral"}`} style={{ fontSize: 11 }}>
-              {totpEnabled ? t("security.enabled") : t("security.notEnabled")}
-            </span>
-            {totpEnabled ? (
-              <button className="btn btn-danger btn-sm" onClick={() => setShowDisable2FA(true)}>{t("security.disable2fa")}</button>
-            ) : (
-              <button className="btn btn-primary btn-sm" onClick={startSetup} disabled={totpLoading}>
-                {totpLoading ? <><span className="btn-spinner" /> {t("security.setupLoading")}</> : t("security.enable2fa")}
-              </button>
-            )}
+      <div className="dashboard-card" style={{ padding: 0 }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--tb-border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: totpEnabled ? 'rgba(16,185,129,0.12)' : 'var(--tb-surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Shield size={16} style={{ color: totpEnabled ? 'var(--tb-green)' : 'var(--tb-text-muted)' }} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--tb-text-primary)', margin: 0 }}>{t('security.twoFactor')}</h3>
+              <p style={{ fontSize: 13, color: 'var(--tb-text-muted)', margin: 0 }}>{totpEnabled ? t('security.twoFactorOn') : t('security.twoFactorOff')}</p>
+            </div>
           </div>
         </div>
-        {totpError && <div style={{ padding: "0 16px 8px", display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--tb-red, #ef4444)" }}><AlertCircle size={13} /> {totpError}</div>}
+        <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 13, color: 'var(--tb-text-secondary)' }}>{t('security.status')}</span>
+            <span className={`badge ${totpEnabled ? 'badge-success' : 'badge-neutral'}`}>{totpEnabled ? t('security.enabled') : t('security.notEnabled')}</span>
+          </div>
+          {totpEnabled ? (
+            <button className="btn btn-danger btn-sm" onClick={() => setShowDisable2FA(true)}>{t('security.disable2fa')}</button>
+          ) : (
+            <button className="btn btn-primary btn-sm" onClick={startSetup} disabled={totpLoading}>
+              {totpLoading ? <><span className="btn-spinner" /> {t('security.setupLoading')}</> : t('security.enable2fa')}
+            </button>
+          )}
+        </div>
+        {totpError && <div style={{ padding: '0 20px 12px', fontSize: 12, color: 'var(--tb-red, #ef4444)', display: 'flex', alignItems: 'center', gap: 5 }}><AlertCircle size={13} /> {totpError}</div>}
       </div>
 
       {/* ═══ Password ═══ */}
-      <div className="dashboard-card">
-        <h3 className="section-title"><Lock size={15} /> {t("security.password")}</h3>
-        <div className="field-row">
-          <label className="field-label">{t("security.passwordLabel")}</label>
-          <div className="field-control" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontSize: 14, color: "var(--tb-text-muted)", letterSpacing: 4 }}>••••••••</span>
-            {pwdSuccess ? (
-              <span style={{ fontSize: 12, color: "var(--tb-green)", display: "flex", alignItems: "center", gap: 4 }}><Check size={13} /> {t("security.changed")}</span>
-            ) : (
-              <button className="btn btn-secondary btn-sm" onClick={() => setShowChangePwd(true)}>{t("security.change")}</button>
-            )}
+      <div className="dashboard-card" style={{ padding: 0 }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--tb-border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--tb-surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Lock size={16} style={{ color: 'var(--tb-text-muted)' }} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--tb-text-primary)', margin: 0 }}>{t('security.password')}</h3>
+            </div>
           </div>
+        </div>
+        <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 13, color: 'var(--tb-text-secondary)' }}>{t('security.passwordLabel')}</span>
+            <span style={{ fontSize: 14, color: 'var(--tb-text-muted)', letterSpacing: 4, fontFamily: 'monospace' }}>••••••••</span>
+          </div>
+          {pwdSuccess ? (
+            <span style={{ fontSize: 12, color: 'var(--tb-green)', display: 'flex', alignItems: 'center', gap: 4 }}><Check size={13} /> {t('security.changed')}</span>
+          ) : (
+            <button className="btn btn-secondary btn-sm" onClick={() => setShowChangePwd(true)}>{t('security.change')}</button>
+          )}
         </div>
       </div>
 
       {/* ═══ Recovery Email ═══ */}
-      <div className="dashboard-card">
-        <h3 className="section-title"><Mail size={15} /> {t("security.secondaryEmail")}</h3>
-        <p className="section-desc">{t("security.secondaryDesc")}</p>
+      <div className="dashboard-card" style={{ padding: 0 }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--tb-border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: secVerified ? 'rgba(16,185,129,0.12)' : 'var(--tb-surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Mail size={16} style={{ color: secVerified ? 'var(--tb-green)' : 'var(--tb-text-muted)' }} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--tb-text-primary)', margin: 0 }}>{t('security.secondaryEmail')}</h3>
+              <p style={{ fontSize: 13, color: 'var(--tb-text-muted)', margin: 0 }}>{t('security.secondaryDesc')}</p>
+            </div>
+          </div>
+        </div>
         {secEmail && secVerified ? (
-          <div className="field-row">
-            <label className="field-label">{t("security.email")}</label>
-            <div className="field-control" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 14, color: "var(--tb-text-primary)" }}>{secEmail}</span>
-                <span className="badge badge-success" style={{ fontSize: 10 }}>{t("security.verified")}</span>
-              </div>
-              <div style={{ display: "flex", gap: 6 }}>
-                <button className="btn btn-secondary btn-sm" onClick={() => { setNewEmail(""); setEmailStep("input"); setShowChangeEmail(true); }}>{t("security.change")}</button>
-                <button className="btn btn-ghost btn-sm" style={{ color: "var(--tb-red, #ef4444)" }} onClick={() => setShowRemoveEmail(true)}>{t("security.remove")}</button>
-              </div>
+          <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 13, color: 'var(--tb-text-secondary)' }}>{t('security.email')}</span>
+              <span style={{ fontSize: 14, color: 'var(--tb-text-primary)' }}>{secEmail}</span>
+              <span className="badge badge-success" style={{ fontSize: 10 }}>{t('security.verified')}</span>
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button className="btn btn-secondary btn-sm" onClick={() => { setNewEmail(''); setEmailStep('input'); setShowChangeEmail(true); }}>{t('security.change')}</button>
+              <button className="btn btn-ghost btn-sm" style={{ color: 'var(--tb-red, #ef4444)' }} onClick={() => setShowRemoveEmail(true)}>{t('security.remove')}</button>
             </div>
           </div>
         ) : (
-          <div className="field-row">
-            <label className="field-label">{t("security.email")}</label>
-            <div className="field-control" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <span style={{ fontSize: 13, color: "var(--tb-text-muted)" }}>{t("security.noSecondaryEmail")}</span>
-              <button className="btn btn-primary btn-sm" onClick={() => { setNewEmail(""); setEmailStep("input"); setShowChangeEmail(true); }}>{t("security.addEmail")}</button>
-            </div>
+          <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: 13, color: 'var(--tb-text-muted)' }}>{t('security.noSecondaryEmail')}</span>
+            <button className="btn btn-primary btn-sm" onClick={() => { setNewEmail(''); setEmailStep('input'); setShowChangeEmail(true); }}>{t('security.addEmail')}</button>
           </div>
         )}
       </div>
 
       {/* ═══ Login History ═══ */}
-      <div className="dashboard-card" style={{ padding: 0, overflow: "hidden" }}>
-        <div style={{ padding: "16px 18px 12px", borderBottom: "1px solid var(--tb-border)" }}>
-          <h3 className="section-title" style={{ margin: 0, display: "flex", alignItems: "center", gap: 8, fontSize: 14 }}><History size={14} /> {t("security.loginHistory")}</h3>
+      <div className="dashboard-card" style={{ padding: 0 }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--tb-border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--tb-surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <History size={16} style={{ color: 'var(--tb-text-muted)' }} />
+            </div>
+            <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--tb-text-primary)', margin: 0 }}>{t('security.loginHistory')}</h3>
+          </div>
         </div>
         {user?.lastActiveAt ? (
-          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 18px" }}>
-            <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--tb-green, #10b981)", flexShrink: 0 }} />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, color: "var(--tb-text-primary)" }}>{t("security.lastActive")}</div>
-              <div style={{ fontSize: 12, color: "var(--tb-text-muted)" }}>{new Date(user.lastActiveAt).toLocaleString(lang)}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 20px' }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--tb-green, #10b981)', flexShrink: 0 }} />
+            <div>
+              <div style={{ fontSize: 13, color: 'var(--tb-text-primary)' }}>{t('security.lastActive')}</div>
+              <div style={{ fontSize: 12, color: 'var(--tb-text-muted)' }}>{new Date(user.lastActiveAt).toLocaleString(lang)}</div>
             </div>
           </div>
-        ) : <div className="empty-note">{t("security.noLoginHistory")}</div>}
+        ) : <div className="empty-note">{t('security.noLoginHistory')}</div>}
       </div>
 
       {/* ═══ 2FA Setup Dialog ═══ */}

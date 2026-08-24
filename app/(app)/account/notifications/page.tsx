@@ -45,7 +45,7 @@ function NotifSkeleton() {
   return (
     <div className="page-stack">
       <div><Skeleton width={220} height={24} style={{ marginBottom: 6 }} /><Skeleton width={320} height={14} /></div>
-      {[4, 4, 6].map((n, c) => (
+      {[3, 4, 6].map((n, c) => (
         <div key={c} className="dashboard-card">
           <Skeleton width={150} height={18} style={{ marginBottom: 16 }} />
           {Array.from({ length: n }).map((_, i) => (
@@ -116,9 +116,6 @@ export default function NotificationsSettingsPage() {
 
   if (loading || !prefs) return <NotifSkeleton />;
 
-  const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
-  const matrixKey = (cat: string, ch: string) => cat + cap(ch);
-
   const catMeta: Record<string, { label: string; desc: string; icon: ReactNode }> = {
     security: { label: t("notif.catSecurity"), desc: t("notif.catSecurityDesc"), icon: <Shield size={14} /> },
     forms: { label: t("notif.catForms"), desc: t("notif.catFormsDesc"), icon: <FileText size={14} /> },
@@ -187,34 +184,18 @@ export default function NotificationsSettingsPage() {
         <h3 className="section-title">{t("notif.categoriesTitle")}</h3>
         <p className="section-desc">{t("notif.categoriesDesc")}</p>
         <div className="card-flush">
-          {CATEGORIES.map(cat => {
-            const dim = !prefs[cat.key];
-            return (
-              <div key={cat.key} className="consent-row cat-row">
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div className="pref-tile" style={dim ? { opacity: 0.5 } : undefined}>{catMeta[cat.key].icon}</div>
-                  <div>
-                    <div className={`row-title ${dim ? "row-off" : ""}`}>{catMeta[cat.key].label}</div>
-                    <div className="row-desc" style={{ marginBottom: dim ? 0 : 8 }}>{catMeta[cat.key].desc}</div>
-                    {!dim && (
-                      <div className="mini-channels">
-                        {CHANNELS.map(ch => (
-                          <label key={ch} className="mini-channel">
-                            <Toggle
-                              checked={prefs[matrixKey(cat.key, ch)]}
-                              onChange={v => flip(matrixKey(cat.key, ch), v, ch === 'push')}
-                            />
-                            {chMeta[ch].label}
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+          {CATEGORIES.map(cat => (
+            <div key={cat.key} className="consent-row">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div className="pref-tile" style={!prefs[cat.key] ? { opacity: 0.5 } : undefined}>{catMeta[cat.key].icon}</div>
+                <div>
+                  <div className={`row-title ${!prefs[cat.key] ? "row-off" : ""}`}>{catMeta[cat.key].label}</div>
+                  <div className="row-desc">{catMeta[cat.key].desc}</div>
                 </div>
-                <Toggle checked={prefs[cat.key]} onChange={v => setPref(cat.key, v)} />
               </div>
-            );
-          })}
+              <Toggle checked={prefs[cat.key]} onChange={v => setPref(cat.key, v)} />
+            </div>
+          ))}
         </div>
       </div>
 
