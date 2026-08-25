@@ -400,7 +400,7 @@ export default function SecurityPage() {
           const action = a.action || a.eventType || 'unknown';
           const severity = a.severity || 'info';
           const sevColor = severity === 'warning' ? 'var(--tb-yellow, #eab308)' : severity === 'error' || severity === 'critical' ? 'var(--tb-red, #ef4444)' : severity === 'success' ? 'var(--tb-green, #10b981)' : 'var(--tb-text-muted)';
-          const sourceLabel = a.source === 'security' ? 'Security' : a.source === 'audit' ? 'Audit' : '';
+          const sourceLabel = a.source === 'security' ? 'Security' : a.source === 'audit' ? 'Audit' : a.source === 'login' ? 'Auth' : '';
           const friendlyAction = action.replace(/_/g, ' ').replace(/\./g, ' → ').replace(/^./, (c: string) => c.toUpperCase());
           return (
             <div key={a.id} style={{ padding: '10px 20px', borderBottom: '1px solid var(--tb-border)', display: 'flex', alignItems: 'center', gap: 10 }}>

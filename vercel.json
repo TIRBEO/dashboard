@@ -9,6 +9,7 @@
     "NEXT_PUBLIC_COOKIE_DOMAIN": "tirbeo.app",
     "NEXT_PUBLIC_LOGO_URL": "",
     "NEXT_PUBLIC_WS_URL": "wss://ws.tirbeo.app/ws",
+    "NEXT_PUBLIC_VAPID_PUBLIC_KEY": "BAl33vholmLbvhBML9Xt5RerNEGKqkvpN9Po2RYUtYhAi7-kNr-fcXUcZkPplBWf8aOr3AuzL6ZeyqKuJrS_YM0",
     "NEXT_PUBLIC_TURNSTILE_SITE_KEY": ""
   }
 }

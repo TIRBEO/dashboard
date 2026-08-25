@@ -92,7 +92,7 @@ function personalNav(badgeCounts: Record<string, number>, t: I18nT): NavSection[
     { section: t("nav.account"), items: [
       { label: t("nav.profile"), href: "/account/profile", icon: <User size={16} /> },
       { label: t("nav.preferences"), href: "/account/preferences", icon: <Sliders size={16} /> },
-      { label: t("nav.notifications"), href: "/account/notifications", icon: <Bell size={16} />, badge: badgeCounts.notifications },
+      { label: t("nav.notifications"), href: "/account/notifications", icon: <Bell size={16} /> },
       { label: t("nav.connectedApps"), href: "/account/apps", icon: <Building size={16} /> },
       { label: t("nav.security"), href: "/account/security", icon: <Lock size={16} /> },
       { label: t("nav.privacy"), href: "/account/privacy", icon: <Eye size={16} /> },

@@ -47,12 +47,15 @@ interface ActionMeta {
 
 /* action token → meta. Matched by "includes" against the raw action/eventType. */
 const ACTIONS: Array<ActionMeta & { match: string[] }> = [
-  { match: ["login_failed"], icon: ShieldAlert, color: "#ef4444", labelKey: "history.act.loginFailed", category: "security" },
+  { match: ["login_failed", "auth.login_failed"], icon: ShieldAlert, color: "#ef4444", labelKey: "history.act.loginFailed", category: "security" },
   { match: ["suspicious", "denied", "blocked"], icon: ShieldAlert, color: "#ef4444", labelKey: "history.act.suspiciousLoginDenied", category: "security" },
-  { match: ["login_2fa"], icon: KeyRound, color: "#10b981", labelKey: "history.act.login2fa", category: "security" },
-  { match: ["login_otp"], icon: KeyRound, color: "#10b981", labelKey: "history.act.loginOtp", category: "security" },
+  { match: ["login_2fa", "auth.login_2fa"], icon: KeyRound, color: "#10b981", labelKey: "history.act.login2fa", category: "security" },
+  { match: ["login_otp", "auth.login_otp", "suspicious_login_otp"], icon: KeyRound, color: "#10b981", labelKey: "history.act.loginOtp", category: "security" },
+  { match: ["backup_code", "auth.login_recovery_2fa"], icon: KeyRound, color: "#8b5cf6", labelKey: "history.act.backupCodesRegenerated", category: "security" },
+  { match: ["recovery_email", "auth.login_recovery_email"], icon: Mail, color: "#3b82f6", labelKey: "history.act.recoveryEmailVerified", category: "security" },
+  { match: ["magic_link", "auth.login_magic_link"], icon: Mail, color: "#3b82f6", labelKey: "history.act.loginOtp", category: "security" },
   { match: ["passkey.authenticated", "passkey_authenticated", "cli_login", "CLI_LOGIN"], icon: Fingerprint, color: "#8b5cf6", labelKey: "history.act.passkeyAuth", category: "security" },
-  { match: ["user.login", "auth.login_success", "login_success"], icon: LogIn, color: "#10b981", labelKey: "history.act.login", category: "security" },
+  { match: ["user.login", "auth.login_success", "login_success", "auth.login_password"], icon: LogIn, color: "#10b981", labelKey: "history.act.login", category: "security" },
   { match: ["logout", "session.revoked_all", "sessions_revoked"], icon: LogOut, color: "#6b7280", labelKey: "history.act.sessionsRevokedAll", category: "security" },
   { match: ["session.revoked"], icon: LogOut, color: "#ef4444", labelKey: "history.act.sessionRevoked", category: "security" },
   { match: ["device.seen", "device_seen"], icon: MonitorSmartphone, color: "#3b82f6", labelKey: "history.act.deviceSeen", category: "security" },
@@ -65,6 +68,7 @@ const ACTIONS: Array<ActionMeta & { match: string[] }> = [
   { match: ["passkey.deleted"], icon: Fingerprint, color: "#ef4444", labelKey: "history.act.passkeyDeleted", category: "security" },
   { match: ["recovery_email.verified"], icon: Mail, color: "#10b981", labelKey: "history.act.recoveryEmailVerified", category: "account" },
   { match: ["recovery_email.updated"], icon: Mail, color: "#3b82f6", labelKey: "history.act.recoveryEmailUpdated", category: "account" },
+  { match: ["recovery_email.removed"], icon: Mail, color: "#ef4444", labelKey: "history.act.recoveryEmailUpdated", category: "account" },
   { match: ["phone.added"], icon: Smartphone, color: "#3b82f6", labelKey: "history.act.phoneAdded", category: "account" },
   { match: ["phone.verified"], icon: Smartphone, color: "#10b981", labelKey: "history.act.phoneVerified", category: "account" },
   { match: ["phone.removed"], icon: Smartphone, color: "#ef4444", labelKey: "history.act.phoneRemoved", category: "account" },
@@ -124,6 +128,12 @@ const METHOD_LABELS: Record<string, string> = {
   totp: "Authenticator app",
   otp: "One-time code",
   passkey: "Passkey",
+  admin_password: "Admin password",
+  backup_code: "Backup code",
+  recovery_email: "Recovery email",
+  google: "Google",
+  github: "GitHub",
+  discord: "Discord",
 };
 
 /* Human detail chips built from metadata */

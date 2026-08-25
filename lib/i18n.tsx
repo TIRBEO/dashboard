@@ -124,10 +124,6 @@ export interface Dict {
     kolkata: string;
     emailTitle: string;
     emailDesc: string;
-    productEmails: string;
-    productEmailsDesc: string;
-    weeklySummary: string;
-    weeklySummaryDesc: string;
     tipsUpdates: string;
     tipsUpdatesDesc: string;
   };
@@ -145,39 +141,21 @@ export interface Dict {
     channelsDesc: string;
     email: string;
     push: string;
-    inApp: string;
     emailDesc: string;
     pushDesc: string;
-    inAppDesc: string;
     browserBlocked: string;
     categoriesTitle: string;
     categoriesDesc: string;
-    catSecurity: string;
-    catSecurityDesc: string;
     catForms: string;
     catFormsDesc: string;
     catProduct: string;
     catProductDesc: string;
     catSupport: string;
     catSupportDesc: string;
-    perCategory: string;
-    perCategoryDesc: string;
-    allNotifications?: string;
     scheduleTitle?: string;
     colCategory: string;
     colEmail: string;
     colPush: string;
-    colInApp: string;
-    quietTitle: string;
-    quietDesc: string;
-    enableQuiet: string;
-    enableQuietDesc: string;
-    timeWindow: string;
-    timeWindowDesc: string;
-    to: string;
-    quietActive: string;
-    digestTitle: string;
-    digestDesc: string;
     enableDigest: string;
     enableDigestDesc: string;
     frequency: string;
@@ -379,14 +357,7 @@ export interface Dict {
     analyticsDesc: string;
     crashReports: string;
     crashReportsDesc: string;
-    personalizedRecs: string;
-    personalizedRecsDesc: string;
-    discoverability: string;
-    discoverabilityDesc: string;
-    searchEngine: string;
-    searchEngineDesc: string;
-    directory: string;
-    directoryDesc: string;
+
     dataExport: string;
     dataExportDesc: string;
     preparing: string;
@@ -638,8 +609,6 @@ const en: Dict = {
     mountain: "Mountain Time", pacific: "Pacific Time", london: "London", berlin: "Berlin", tokyo: "Tokyo",
     shanghai: "Shanghai", kolkata: "Kolkata",
     emailTitle: "Email preferences", emailDesc: "Manage what emails you receive from Tirbeo.",
-    productEmails: "Product emails", productEmailsDesc: "Feature updates and product news.",
-    weeklySummary: "Weekly summary", weeklySummaryDesc: "Get a weekly digest of your activity.",
     tipsUpdates: "Tips & updates", tipsUpdatesDesc: "Tips to get the most out of Tirbeo.",
   },
   session: { expired: "Your session has expired. Some features may not work.", signInAgain: "Sign in again" },
@@ -647,22 +616,14 @@ const en: Dict = {
     title: "Notifications", subtitle: "Configure how and when you receive notifications.", retention: "Notifications are automatically deleted after 30 days.", empty: "No notifications", total: "total",
     channelsTitle: "Channels", channelsDesc: "Choose where you want to receive notifications.",
     scheduleTitle: "Schedule & email summaries",
-    allNotifications: "Everything",
     email: "Email", push: "Push",
     emailDesc: "Get notifications in your inbox.", pushDesc: "Browser push notifications.",
     browserBlocked: "Browser notifications are blocked in your browser settings.",
     categoriesTitle: "Categories", categoriesDesc: "Choose which categories you care about.",
-    catSecurity: "Security", catSecurityDesc: "Sign-ins, 2FA changes, and password activity.",
     catForms: "Forms", catFormsDesc: "Form submissions and responses.",
     catProduct: "Product", catProductDesc: "Product updates and announcements.",
     catSupport: "Support", catSupportDesc: "Replies to your tickets and support updates.",
-    perCategory: "Per-category channels", perCategoryDesc: "Override channels for each category.",
     colCategory: "Category", colEmail: "Email", colPush: "Push",
-    quietTitle: "Quiet hours", quietDesc: "Don't send notifications during these hours.",
-    enableQuiet: "Enable quiet hours", enableQuietDesc: "Silence notifications during your set window.",
-    timeWindow: "Time window", timeWindowDesc: "Notifications are paused between these hours.", to: "to",
-    quietActive: "Quiet hours are on.",
-    digestTitle: "Daily digest", digestDesc: "Get a summary of everything you missed.",
     enableDigest: "Enable digest", enableDigestDesc: "Receive a digest instead of real-time alerts.",
     frequency: "Frequency", frequencyDesc: "How often you want to receive the digest.",
     daily: "Daily", weekly: "Weekly", monthly: "Monthly",
@@ -747,10 +708,7 @@ const en: Dict = {
     title: "Privacy", subtitle: "Control how your data is used.",
     dataAnalytics: "Data & analytics", analytics: "Analytics", analyticsDesc: "Help Tirbeo improve by sharing usage data.",
     crashReports: "Crash reports", crashReportsDesc: "Automatically send error reports when something breaks.",
-    personalizedRecs: "Personalized recommendations", personalizedRecsDesc: "Use activity to tailor recommendations.",
-    discoverability: "Discoverability", discoverabilityDesc: "Control how others can find you.",
-    searchEngine: "Search engines", searchEngineDesc: "Allow search engines to index your public profile.",
-    directory: "Directory", directoryDesc: "Show your profile in the Tirbeo directory.",
+
     dataExport: "Data export", dataExportDesc: "Download a copy of everything stored in your account.",
     preparing: "Preparing export...", exportData: "Export data",
     exportNote: "You'll get a download link by email when it's ready.",
@@ -882,8 +840,6 @@ const es: Dict = {
     mountain: "Hora de Montaña", pacific: "Hora del Pacífico", london: "Londres", berlin: "Berlín", tokyo: "Tokio",
     shanghai: "Shanghái", kolkata: "Calcuta",
     emailTitle: "Preferencias de correo", emailDesc: "Gestiona qué correos recibes de Tirbeo.",
-    productEmails: "Correos de producto", productEmailsDesc: "Actualizaciones y noticias del producto.",
-    weeklySummary: "Resumen semanal", weeklySummaryDesc: "Recibe un resumen semanal de tu actividad.",
     tipsUpdates: "Consejos y actualizaciones", tipsUpdatesDesc: "Consejos para aprovechar Tirbeo al máximo.",
   },
   session: { expired: "Tu sesión ha caducado. Es posible que algunas funciones no funcionen.", signInAgain: "Volver a iniciar sesión" },
@@ -894,17 +850,10 @@ const es: Dict = {
     emailDesc: "Recibe notificaciones en tu correo.", pushDesc: "Notificaciones push del navegador.",
     browserBlocked: "Las notificaciones del navegador están bloqueadas en tu configuración del navegador.",
     categoriesTitle: "Categorías", categoriesDesc: "Elige qué categorías te interesan.",
-    catSecurity: "Seguridad", catSecurityDesc: "Inicios de sesión, cambios de 2FA y actividad de contraseñas.",
     catForms: "Formularios", catFormsDesc: "Envíos y respuestas de formularios.",
     catProduct: "Producto", catProductDesc: "Actualizaciones y anuncios del producto.",
     catSupport: "Soporte", catSupportDesc: "Respuestas a tus tickets y novedades de soporte.",
-    perCategory: "Canales por categoría", perCategoryDesc: "Anula los canales de cada categoría.",
     colCategory: "Categoría", colEmail: "Correo", colPush: "Push",
-    quietTitle: "Horas de silencio", quietDesc: "No enviar notificaciones durante estas horas.",
-    enableQuiet: "Activar horas de silencio", enableQuietDesc: "Silencia las notificaciones durante tu franja.",
-    timeWindow: "Franja horaria", timeWindowDesc: "Las notificaciones se pausan entre estas horas.", to: "a",
-    quietActive: "Las horas de silencio están activadas.",
-    digestTitle: "Resumen diario", digestDesc: "Recibe un resumen de todo lo que te has perdido.",
     enableDigest: "Activar resumen", enableDigestDesc: "Recibe un resumen en lugar de alertas en tiempo real.",
     frequency: "Frecuencia", frequencyDesc: "Con qué frecuencia quieres recibir el resumen.",
     daily: "Diario", weekly: "Semanal", monthly: "Mensual",
@@ -988,10 +937,7 @@ const es: Dict = {
     title: "Privacidad", subtitle: "Controla cómo se usan tus datos.",
     dataAnalytics: "Datos y analítica", analytics: "Analítica", analyticsDesc: "Ayuda a Tirbeo a mejorar compartiendo datos de uso.",
     crashReports: "Informes de errores", crashReportsDesc: "Envía automáticamente informes de error cuando algo falle.",
-    personalizedRecs: "Recomendaciones personalizadas", personalizedRecsDesc: "Usa la actividad para adaptar las recomendaciones.",
-    discoverability: "Descubribilidad", discoverabilityDesc: "Controla cómo pueden encontrarte los demás.",
-    searchEngine: "Motores de búsqueda", searchEngineDesc: "Permite que los motores de búsqueda indexen tu perfil público.",
-    directory: "Directorio", directoryDesc: "Muestra tu perfil en el directorio de Tirbeo.",
+
     dataExport: "Exportación de datos", dataExportDesc: "Descarga una copia de todo lo que hay en tu cuenta.",
     preparing: "Preparando exportación...", exportData: "Exportar datos",
     exportNote: "Recibirás un enlace de descarga por correo cuando esté listo.",
@@ -1110,8 +1056,6 @@ const fr: Dict = {
     mountain: "Heure des Rocheuses", pacific: "Heure du Pacifique", london: "Londres", berlin: "Berlin", tokyo: "Tokyo",
     shanghai: "Shanghai", kolkata: "Kolkata",
     emailTitle: "Préférences e-mail", emailDesc: "Gérez les e-mails que vous recevez de Tirbeo.",
-    productEmails: "E-mails produit", productEmailsDesc: "Mises à jour de fonctionnalités et actualités produit.",
-    weeklySummary: "Résumé hebdomadaire", weeklySummaryDesc: "Recevez un résumé hebdomadaire de votre activité.",
     tipsUpdates: "Conseils et mises à jour", tipsUpdatesDesc: "Des conseils pour tirer le meilleur parti de Tirbeo.",
   },
   session: { expired: "Votre session a expiré. Certaines fonctionnalités peuvent ne pas fonctionner.", signInAgain: "Se reconnecter" },
@@ -1122,17 +1066,10 @@ const fr: Dict = {
     emailDesc: "Recevez des notifications dans votre boîte mail.", pushDesc: "Notifications push du navigateur.",
     browserBlocked: "Les notifications du navigateur sont bloquées dans vos paramètres.",
     categoriesTitle: "Catégories", categoriesDesc: "Choisissez les catégories qui vous intéressent.",
-    catSecurity: "Sécurité", catSecurityDesc: "Connexions, changements 2FA et activité des mots de passe.",
     catForms: "Formulaires", catFormsDesc: "Envois et réponses de formulaires.",
     catProduct: "Produit", catProductDesc: "Mises à jour et annonces produit.",
     catSupport: "Assistance", catSupportDesc: "Réponses à vos tickets et mises à jour d'assistance.",
-    perCategory: "Canaux par catégorie", perCategoryDesc: "Remplacez les canaux de chaque catégorie.",
-    colCategory: "Catégorie", colEmail: "E-mail", colPush: "Push", colInApp: "Dans l'app",
-    quietTitle: "Heures calmes", quietDesc: "Ne pas envoyer de notifications pendant ces heures.",
-    enableQuiet: "Activer les heures calmes", enableQuietDesc: "Silenciez les notifications pendant votre créneau.",
-    timeWindow: "Créneau horaire", timeWindowDesc: "Les notifications sont mises en pause entre ces heures.", to: "à",
-    quietActive: "Les heures calmes sont actives.",
-    digestTitle: "Résumé quotidien", digestDesc: "Recevez un récapitulatif de tout ce que vous avez manqué.",
+    colCategory: "Catégorie", colEmail: "E-mail", colPush: "Push",
     enableDigest: "Activer le résumé", enableDigestDesc: "Recevez un résumé au lieu d'alertes en temps réel.",
     frequency: "Fréquence", frequencyDesc: "À quelle fréquence vous souhaitez recevoir le résumé.",
     daily: "Quotidien", weekly: "Hebdomadaire", monthly: "Mensuel",
@@ -1169,8 +1106,8 @@ const fr: Dict = {
   apps: {
     title: "Applications connectées", subtitle: "Connectez vos comptes pour débloquer des intégrations.",
     available: "Applications disponibles", disconnect: "Déconnecter", connect: "Connecter",
-    googleDesc: "Synchronisez contacts, calendrier et Gmail.", githubDesc: "Synchronisez dépôts et activité.",
-    discordDesc: "Recevez des notifications sur Discord.",
+    googleDesc: "Sign in with your Google account.", githubDesc: "Sign in with your GitHub account.",
+    discordDesc: "Sign in with your Discord account.",
     connected: "Connecté", notConnected: "Non connecté", connectedOn: "Connecté le",
     disconnectConfirm: "Déconnecter le fournisseur ?",
     disconnectDesc: "Êtes-vous sûr de vouloir déconnecter ce fournisseur ? Vous pouvez le reconnecter plus tard.",
@@ -1216,10 +1153,7 @@ const fr: Dict = {
     title: "Confidentialité", subtitle: "Contrôlez l'utilisation de vos données.",
     dataAnalytics: "Données et analytique", analytics: "Analytique", analyticsDesc: "Aidez Tirbeo à s'améliorer en partageant des données d'utilisation.",
     crashReports: "Rapports d'erreur", crashReportsDesc: "Envoyez automatiquement des rapports d'erreur en cas de panne.",
-    personalizedRecs: "Recommandations personnalisées", personalizedRecsDesc: "Utilisez l'activité pour adapter les recommandations.",
-    discoverability: "Découvrabilité", discoverabilityDesc: "Contrôlez comment les autres peuvent vous trouver.",
-    searchEngine: "Moteurs de recherche", searchEngineDesc: "Autorisez les moteurs de recherche à indexer votre profil public.",
-    directory: "Annuaire", directoryDesc: "Affichez votre profil dans l'annuaire Tirbeo.",
+
     dataExport: "Export de données", dataExportDesc: "Téléchargez une copie de tout ce qui est stocké sur votre compte.",
     preparing: "Préparation de l'export...", exportData: "Exporter les données",
     exportNote: "Vous recevrez un lien de téléchargement par e-mail lorsqu'il sera prêt.",
@@ -1338,29 +1272,20 @@ const de: Dict = {
     mountain: "Mountain Time", pacific: "Pacific Time", london: "London", berlin: "Berlin", tokyo: "Tokio",
     shanghai: "Schanghai", kolkata: "Kolkata",
     emailTitle: "E-Mail-Einstellungen", emailDesc: "Verwalten Sie, welche E-Mails Sie von Tirbeo erhalten.",
-    productEmails: "Produkt-E-Mails", productEmailsDesc: "Feature-Updates und Produktneuigkeiten.",
-    weeklySummary: "Wochenzusammenfassung", weeklySummaryDesc: "Erhalten Sie einen wöchentlichen Überblick über Ihre Aktivität.",
     tipsUpdates: "Tipps & Updates", tipsUpdatesDesc: "Tipps, um das Beste aus Tirbeo herauszuholen.",
   },
   session: { expired: "Ihre Sitzung ist abgelaufen. Einige Funktionen funktionieren möglicherweise nicht.", signInAgain: "Erneut anmelden" },
   notif: {
     title: "Benachrichtigungen", subtitle: "Konfigurieren Sie, wie und wann Sie Benachrichtigungen erhalten.", retention: "Benachrichtigungen werden nach 30 Tagen automatisch gelöscht.", empty: "Keine Benachrichtigungen", total: "gesamt",
     channelsTitle: "Kanäle", channelsDesc: "Wählen Sie, wo Sie Benachrichtigungen erhalten möchten.",
-    email: "E-Mail", push: "Push", inApp: "In-App",
-    emailDesc: "Benachrichtigungen in Ihrem Posteingang.", pushDesc: "Browser-Push-Benachrichtigungen.", inAppDesc: "Innerhalb der App anzeigen.",
+    email: "E-Mail", push: "Push",
+    emailDesc: "Benachrichtigungen in Ihrem Posteingang.", pushDesc: "Browser-Push-Benachrichtigungen.",
     browserBlocked: "Browser-Benachrichtigungen sind in Ihren Browsereinstellungen blockiert.",
     categoriesTitle: "Kategorien", categoriesDesc: "Wählen Sie, welche Kategorien Sie interessieren.",
-    catSecurity: "Sicherheit", catSecurityDesc: "Anmeldungen, 2FA-Änderungen und Passwortaktivität.",
     catForms: "Formulare", catFormsDesc: "Formulareinreichungen und Antworten.",
     catProduct: "Produkt", catProductDesc: "Produktupdates und Ankündigungen.",
     catSupport: "Support", catSupportDesc: "Antworten auf Ihre Tickets und Support-Updates.",
-    perCategory: "Kanäle pro Kategorie", perCategoryDesc: "Kanäle für jede Kategorie überschreiben.",
-    colCategory: "Kategorie", colEmail: "E-Mail", colPush: "Push", colInApp: "In-App",
-    quietTitle: "Ruhezeiten", quietDesc: "Keine Benachrichtigungen während dieser Stunden senden.",
-    enableQuiet: "Ruhezeiten aktivieren", enableQuietDesc: "Benachrichtigungen während Ihres Zeitfensters stummschalten.",
-    timeWindow: "Zeitfenster", timeWindowDesc: "Benachrichtigungen werden zwischen diesen Stunden pausiert.", to: "bis",
-    quietActive: "Ruhezeiten sind aktiv.",
-    digestTitle: "Tägliche Zusammenfassung", digestDesc: "Erhalten Sie eine Übersicht über alles, was Sie verpasst haben.",
+    colCategory: "Kategorie", colEmail: "E-Mail", colPush: "Push",
     enableDigest: "Zusammenfassung aktivieren", enableDigestDesc: "Erhalten Sie eine Zusammenfassung statt Echtzeit-Alerts.",
     frequency: "Häufigkeit", frequencyDesc: "Wie oft Sie die Zusammenfassung erhalten möchten.",
     daily: "Täglich", weekly: "Wöchentlich", monthly: "Monatlich",
@@ -1397,8 +1322,8 @@ const de: Dict = {
   apps: {
     title: "Verbundene Apps", subtitle: "Verbinden Sie Ihre Konten, um Integrationen freizuschalten.",
     available: "Verfügbare Apps", disconnect: "Trennen", connect: "Verbinden",
-    googleDesc: "Synchronisieren Sie Kontakte, Kalender und Gmail.", githubDesc: "Synchronisieren Sie Repositorien und Aktivität.",
-    discordDesc: "Erhalten Sie Benachrichtigungen in Discord.",
+    googleDesc: "Sign in with your Google account.", githubDesc: "Sign in with your GitHub account.",
+    discordDesc: "Sign in with your Discord account.",
     connected: "Verbunden", notConnected: "Nicht verbunden", connectedOn: "Verbunden am",
     disconnectConfirm: "Anbieter trennen?",
     disconnectDesc: "Möchten Sie diesen Anbieter wirklich trennen? Sie können ihn später wieder verbinden.",
@@ -1444,10 +1369,7 @@ const de: Dict = {
     title: "Datenschutz", subtitle: "Kontrollieren Sie, wie Ihre Daten verwendet werden.",
     dataAnalytics: "Daten und Analysen", analytics: "Analysen", analyticsDesc: "Helfen Sie Tirbeo, sich zu verbessern, indem Sie Nutzungsdaten teilen.",
     crashReports: "Absturzberichte", crashReportsDesc: "Fehlerberichte automatisch senden, wenn etwas ausfällt.",
-    personalizedRecs: "Personalisierte Empfehlungen", personalizedRecsDesc: "Aktivität verwenden, um Empfehlungen anzupassen.",
-    discoverability: "Auffindbarkeit", discoverabilityDesc: "Kontrollieren Sie, wie andere Sie finden können.",
-    searchEngine: "Suchmaschinen", searchEngineDesc: "Suchmaschinen erlauben, Ihr öffentliches Profil zu indexieren.",
-    directory: "Verzeichnis", directoryDesc: "Ihr Profil im Tirbeo-Verzeichnis anzeigen.",
+
     dataExport: "Datenexport", dataExportDesc: "Laden Sie eine Kopie von allem herunter, was in Ihrem Konto gespeichert ist.",
     preparing: "Export wird vorbereitet...", exportData: "Daten exportieren",
     exportNote: "Sie erhalten einen Download-Link per E-Mail, sobald er bereit ist.",
@@ -1566,29 +1488,20 @@ const ja: Dict = {
     mountain: "山岳部標準時", pacific: "太平洋標準時", london: "ロンドン", berlin: "ベルリン", tokyo: "東京",
     shanghai: "上海", kolkata: "コルカタ",
     emailTitle: "メール設定", emailDesc: "Tirbeoから受け取るメールを管理します。",
-    productEmails: "製品メール", productEmailsDesc: "機能更新と製品ニュース。",
-    weeklySummary: "週間サマリー", weeklySummaryDesc: "毎週のアクティビティダイジェストを受け取ります。",
     tipsUpdates: "ヒントと更新", tipsUpdatesDesc: "Tirbeoを最大限に活用するためのヒント。",
   },
   session: { expired: "セッションが期限切れになりました。一部の機能が動作しない場合があります。", signInAgain: "再サインイン" },
   notif: {
     title: "通知", subtitle: "通知を受け取る方法とタイミングを設定します。", retention: "通知は30日後に自動的に削除されます。", empty: "通知はありません", total: "合計",
     channelsTitle: "チャンネル", channelsDesc: "通知を受け取る場所を選択します。",
-    email: "メール", push: "プッシュ", inApp: "アプリ内",
-    emailDesc: "受信トレイで通知を受け取ります。", pushDesc: "ブラウザーのプッシュ通知。", inAppDesc: "アプリ内に表示します。",
+    email: "メール", push: "プッシュ",
+    emailDesc: "受信トレイで通知を受け取ります。", pushDesc: "ブラウザーのプッシュ通知。",
     browserBlocked: "ブラウザー設定でブラウザー通知がブロックされています。",
     categoriesTitle: "カテゴリ", categoriesDesc: "関心のあるカテゴリを選択します。",
-    catSecurity: "セキュリティ", catSecurityDesc: "サインイン、2FAの変更、パスワードのアクティビティ。",
     catForms: "フォーム", catFormsDesc: "フォームの送信と回答。",
     catProduct: "プロダクト", catProductDesc: "プロダクトのアップデートとお知らせ。",
     catSupport: "サポート", catSupportDesc: "チケットへの返信とサポートの更新。",
-    perCategory: "カテゴリごとのチャンネル", perCategoryDesc: "各カテゴリのチャンネルを上書きします。",
-    colCategory: "カテゴリ", colEmail: "メール", colPush: "プッシュ", colInApp: "アプリ内",
-    quietTitle: "静音時間", quietDesc: "この時間帯は通知を送信しません。",
-    enableQuiet: "静音時間を有効化", enableQuietDesc: "設定した時間帯は通知をミュートします。",
-    timeWindow: "時間帯", timeWindowDesc: "この時間帯の間は通知が一時停止されます。", to: "〜",
-    quietActive: "静音時間がオンです。",
-    digestTitle: "デイリーダイジェスト", digestDesc: "見逃したすべての概要を受け取ります。",
+    colCategory: "カテゴリ", colEmail: "メール", colPush: "プッシュ",
     enableDigest: "ダイジェストを有効化", enableDigestDesc: "リアルタイムのアラートの代わりにダイジェストを受け取ります。",
     frequency: "頻度", frequencyDesc: "ダイジェストを受け取る頻度。",
     daily: "毎日", weekly: "毎週", monthly: "毎月",
@@ -1625,8 +1538,8 @@ const ja: Dict = {
   apps: {
     title: "連携アプリ", subtitle: "アカウントを連携して統合を有効にします。",
     available: "利用可能なアプリ", disconnect: "連携解除", connect: "連携",
-    googleDesc: "連絡先、カレンダー、Gmailを同期します。", githubDesc: "リポジトリとアクティビティを同期します。",
-    discordDesc: "Discordで通知を受け取ります。",
+    googleDesc: "Sign in with your Google account.", githubDesc: "Sign in with your GitHub account.",
+    discordDesc: "Sign in with your Discord account.",
     connected: "接続済み", notConnected: "未接続", connectedOn: "接続日",
     disconnectConfirm: "プロバイダーを切断しますか？",
     disconnectDesc: "このプロバイダーを切断してもよろしいですか？後で再接続できます。",
@@ -1672,10 +1585,7 @@ const ja: Dict = {
     title: "プライバシー", subtitle: "データの使用方法を管理します。",
     dataAnalytics: "データと分析", analytics: "分析", analyticsDesc: "利用状況データを共有してTirbeoの改善に協力します。",
     crashReports: "クラッシュレポート", crashReportsDesc: "問題が発生したときにエラーレポートを自動送信します。",
-    personalizedRecs: "パーソナライズされたおすすめ", personalizedRecsDesc: "アクティビティを使用しておすすめを調整します。",
-    discoverability: "発見可能性", discoverabilityDesc: "他の人があなたを見つける方法を管理します。",
-    searchEngine: "検索エンジン", searchEngineDesc: "検索エンジンがあなたの公開プロフィールをインデックスすることを許可します。",
-    directory: "ディレクトリ", directoryDesc: "Tirbeoのディレクトリにプロフィールを表示します。",
+
     dataExport: "データのエクスポート", dataExportDesc: "アカウントに保存されているすべてのコピーをダウンロードします。",
     preparing: "エクスポートを準備中...", exportData: "データをエクスポート",
     exportNote: "準備ができるとダウンロードリンクをメールでお送りします。",
@@ -1794,29 +1704,20 @@ const ko: Dict = {
     mountain: "산악 표준시", pacific: "태평양 표준시", london: "런던", berlin: "베를린", tokyo: "도쿄",
     shanghai: "상하이", kolkata: "콜카타",
     emailTitle: "이메일 환경설정", emailDesc: "Tirbeo에서 받는 이메일을 관리하세요.",
-    productEmails: "제품 이메일", productEmailsDesc: "기능 업데이트 및 제품 소식.",
-    weeklySummary: "주간 요약", weeklySummaryDesc: "주간 활동 요약을 받아보세요.",
     tipsUpdates: "팁 및 업데이트", tipsUpdatesDesc: "Tirbeo를 최대한 활용하는 팁.",
   },
   session: { expired: "세션이 만료되었습니다. 일부 기능이 작동하지 않을 수 있습니다.", signInAgain: "다시 로그인" },
   notif: {
     title: "알림", subtitle: "알림을 받을 방법과 시기를 구성하세요.", retention: "알림은 30일 후 자동으로 삭제됩니다.", empty: "알림 없음", total: "총",
     channelsTitle: "채널", channelsDesc: "알림을 받을 위치를 선택하세요.",
-    email: "이메일", push: "푸시", inApp: "앱 내",
-    emailDesc: "받은편지함에서 알림을 받습니다.", pushDesc: "브라우저 푸시 알림.", inAppDesc: "앱 내부에 표시합니다.",
+    email: "이메일", push: "푸시",
+    emailDesc: "받은편지함에서 알림을 받습니다.", pushDesc: "브라우저 푸시 알림.",
     browserBlocked: "브라우저 설정에서 브라우저 알림이 차단되어 있습니다.",
     categoriesTitle: "카테고리", categoriesDesc: "관심 있는 카테고리를 선택하세요.",
-    catSecurity: "보안", catSecurityDesc: "로그인, 2FA 변경, 비밀번호 활동.",
     catForms: "양식", catFormsDesc: "양식 제출 및 응답.",
     catProduct: "제품", catProductDesc: "제품 업데이트 및 공지.",
     catSupport: "지원", catSupportDesc: "티켓에 대한 답변과 지원 업데이트.",
-    perCategory: "카테고리별 채널", perCategoryDesc: "각 카테고리의 채널을 재정의합니다.",
-    colCategory: "카테고리", colEmail: "이메일", colPush: "푸시", colInApp: "앱 내",
-    quietTitle: "방해금지 시간", quietDesc: "이 시간에는 알림을 보내지 않습니다.",
-    enableQuiet: "방해금지 시간 활성화", enableQuietDesc: "설정한 시간 동안 알림을 음소거합니다.",
-    timeWindow: "시간 범위", timeWindowDesc: "이 시간 사이에는 알림이 일시 중지됩니다.", to: "부터",
-    quietActive: "방해금지 시간이 켜져 있습니다.",
-    digestTitle: "일일 요약", digestDesc: "놓친 모든 것의 요약을 받아보세요.",
+    colCategory: "카테고리", colEmail: "이메일", colPush: "푸시",
     enableDigest: "요약 활성화", enableDigestDesc: "실시간 알림 대신 요약을 받습니다.",
     frequency: "빈도", frequencyDesc: "요약을 받을 빈도.",
     daily: "매일", weekly: "매주", monthly: "매월",
@@ -1853,8 +1754,8 @@ const ko: Dict = {
   apps: {
     title: "연결된 앱", subtitle: "계정을 연결하여 통합 기능을 사용하세요.",
     available: "사용 가능한 앱", disconnect: "연결 해제", connect: "연결",
-    googleDesc: "연락처, 캘린더, Gmail을 동기화합니다.", githubDesc: "저장소와 활동을 동기화합니다.",
-    discordDesc: "Discord에서 알림을 받습니다.",
+    googleDesc: "Sign in with your Google account.", githubDesc: "Sign in with your GitHub account.",
+    discordDesc: "Sign in with your Discord account.",
     connected: "연결됨", notConnected: "연결 안 됨", connectedOn: "연결일",
     disconnectConfirm: "공급자를 연결 해제하시겠습니까?",
     disconnectDesc: "이 공급자의 연결을 해제하시겠습니까? 나중에 다시 연결할 수 있습니다.",
@@ -1900,10 +1801,7 @@ const ko: Dict = {
     title: "개인정보", subtitle: "데이터 사용 방식을 관리하세요.",
     dataAnalytics: "데이터 및 분석", analytics: "분석", analyticsDesc: "사용 데이터를 공유하여 Tirbeo 개선에 도움을 주세요.",
     crashReports: "충돌 보고서", crashReportsDesc: "문제 발생 시 오류 보고서를 자동으로 보냅니다.",
-    personalizedRecs: "맞춤 추천", personalizedRecsDesc: "활동을 사용하여 추천을 조정합니다.",
-    discoverability: "검색 가능성", discoverabilityDesc: "다른 사람이 당신을 찾는 방식을 관리하세요.",
-    searchEngine: "검색 엔진", searchEngineDesc: "검색 엔진이 공개 프로필을 색인하도록 허용합니다.",
-    directory: "디렉터리", directoryDesc: "Tirbeo 디렉터리에 프로필을 표시합니다.",
+
     dataExport: "데이터 내보내기", dataExportDesc: "계정에 저장된 모든 데이터의 사본을 다운로드합니다.",
     preparing: "내보내기 준비 중...", exportData: "데이터 내보내기",
     exportNote: "준비되면 다운로드 링크를 이메일로 보내드립니다.",
@@ -2022,29 +1920,20 @@ const zh: Dict = {
     mountain: "山地时间", pacific: "太平洋时间", london: "伦敦", berlin: "柏林", tokyo: "东京",
     shanghai: "上海", kolkata: "加尔各答",
     emailTitle: "电子邮件偏好", emailDesc: "管理您从 Tirbeo 收到的邮件。",
-    productEmails: "产品邮件", productEmailsDesc: "功能更新和产品新闻。",
-    weeklySummary: "每周摘要", weeklySummaryDesc: "每周获取您的活动摘要。",
     tipsUpdates: "提示与更新", tipsUpdatesDesc: "充分利用 Tirbeo 的提示。",
   },
   session: { expired: "您的会话已过期。某些功能可能无法使用。", signInAgain: "重新登录" },
   notif: {
     title: "通知", subtitle: "配置接收通知的方式和时间。", retention: "通知将在30天后自动删除。", empty: "暂无通知", total: "共",
     channelsTitle: "渠道", channelsDesc: "选择您希望接收通知的方式。",
-    email: "邮件", push: "推送", inApp: "应用内",
-    emailDesc: "在收件箱中接收通知。", pushDesc: "浏览器推送通知。", inAppDesc: "在应用内显示。",
+    email: "邮件", push: "推送",
+    emailDesc: "在收件箱中接收通知。", pushDesc: "浏览器推送通知。",
     browserBlocked: "您的浏览器设置中已阻止浏览器通知。",
     categoriesTitle: "分类", categoriesDesc: "选择您关心的分类。",
-    catSecurity: "安全", catSecurityDesc: "登录、双重验证更改和密码活动。",
     catForms: "表单", catFormsDesc: "表单提交和回复。",
     catProduct: "产品", catProductDesc: "产品更新和公告。",
     catSupport: "支持", catSupportDesc: "工单回复和支持更新。",
-    perCategory: "按分类设置渠道", perCategoryDesc: "覆盖每个分类的渠道。",
-    colCategory: "分类", colEmail: "邮件", colPush: "推送", colInApp: "应用内",
-    quietTitle: "免打扰时段", quietDesc: "在此期间不发送通知。",
-    enableQuiet: "启用免打扰时段", enableQuietDesc: "在您设定的时段内静默通知。",
-    timeWindow: "时间范围", timeWindowDesc: "通知将在此期间暂停。", to: "至",
-    quietActive: "免打扰时段已开启。",
-    digestTitle: "每日摘要", digestDesc: "获取您错过的所有内容的摘要。",
+    colCategory: "分类", colEmail: "邮件", colPush: "推送",
     enableDigest: "启用摘要", enableDigestDesc: "接收摘要而非实时提醒。",
     frequency: "频率", frequencyDesc: "您希望接收摘要的频率。",
     daily: "每日", weekly: "每周", monthly: "每月",
@@ -2081,8 +1970,8 @@ const zh: Dict = {
   apps: {
     title: "已连接的应用", subtitle: "连接您的账户以解锁集成功能。",
     available: "可用应用", disconnect: "断开连接", connect: "连接",
-    googleDesc: "同步联系人、日历和 Gmail。", githubDesc: "同步代码仓库和活动。",
-    discordDesc: "在 Discord 中接收通知。",
+    googleDesc: "Sign in with your Google account.", githubDesc: "Sign in with your GitHub account.",
+    discordDesc: "Sign in with your Discord account.",
     connected: "已连接", notConnected: "未连接", connectedOn: "连接日期",
     disconnectConfirm: "断开提供者连接？",
     disconnectDesc: "确定要断开此提供者的连接吗？您可以稍后重新连接。",
@@ -2128,10 +2017,7 @@ const zh: Dict = {
     title: "隐私", subtitle: "控制您的数据使用方式。",
     dataAnalytics: "数据与分析", analytics: "分析", analyticsDesc: "通过分享使用数据帮助 Tirbeo 改进。",
     crashReports: "崩溃报告", crashReportsDesc: "发生问题时自动发送错误报告。",
-    personalizedRecs: "个性化推荐", personalizedRecsDesc: "使用活动数据来定制推荐。",
-    discoverability: "可发现性", discoverabilityDesc: "控制他人如何找到您。",
-    searchEngine: "搜索引擎", searchEngineDesc: "允许搜索引擎索引您的公开个人资料。",
-    directory: "目录", directoryDesc: "在 Tirbeo 目录中显示您的个人资料。",
+
     dataExport: "数据导出", dataExportDesc: "下载您账户中存储的所有内容的副本。",
     preparing: "正在准备导出...", exportData: "导出数据",
     exportNote: "准备就绪后，我们将通过邮件发送下载链接。",
@@ -2250,29 +2136,20 @@ const hi: Dict = {
     mountain: "पर्वतीय समय", pacific: "प्रशांत समय", london: "लंदन", berlin: "बर्लिन", tokyo: "टोक्यो",
     shanghai: "शंघाई", kolkata: "कोलकाता",
     emailTitle: "ईमेल प्राथमिकताएं", emailDesc: "Tirbeo से प्राप्त होने वाले ईमेल प्रबंधित करें।",
-    productEmails: "उत्पाद ईमेल", productEmailsDesc: "सुविधा अपडेट और उत्पाद समाचार।",
-    weeklySummary: "साप्ताहिक सारांश", weeklySummaryDesc: "अपनी गतिविधि का साप्ताहिक सारांश प्राप्त करें।",
     tipsUpdates: "सुझाव और अपडेट", tipsUpdatesDesc: "Tirbeo का अधिकतम लाभ उठाने के सुझाव।",
   },
   session: { expired: "आपका सत्र समाप्त हो गया है। कुछ सुविधाएं काम नहीं कर सकती हैं।", signInAgain: "फिर से साइन इन करें" },
   notif: {
     title: "सूचनाएं", subtitle: "सूचनाएं कैसे और कब प्राप्त करें, यह कॉन्फ़िगर करें।", retention: "30 दिनों के बाद सूचनाएं स्वतः हटा दी जाती हैं।", empty: "कोई सूचना नहीं", total: "कुल",
     channelsTitle: "चैनल", channelsDesc: "चुनें कि आप सूचनाएं कहां प्राप्त करना चाहते हैं।",
-    email: "ईमेल", push: "पुश", inApp: "इन-ऐप",
-    emailDesc: "अपने इनबॉक्स में सूचनाएं प्राप्त करें।", pushDesc: "ब्राउज़र पुश सूचनाएं।", inAppDesc: "ऐप के भीतर दिखाएं।",
+    email: "ईमेल", push: "पुश",
+    emailDesc: "अपने इनबॉक्स में सूचनाएं प्राप्त करें।", pushDesc: "ब्राउज़र पुश सूचनाएं।",
     browserBlocked: "आपकी ब्राउज़र सेटिंग में ब्राउज़र सूचनाएं अवरुद्ध हैं।",
     categoriesTitle: "श्रेणियां", categoriesDesc: "चुनें कि आपको किन श्रेणियों की परवाह है।",
-    catSecurity: "सुरक्षा", catSecurityDesc: "साइन-इन, 2FA बदलाव और पासवर्ड गतिविधि।",
     catForms: "फ़ॉर्म", catFormsDesc: "फ़ॉर्म सबमिशन और प्रतिक्रियाएं।",
     catProduct: "उत्पाद", catProductDesc: "उत्पाद अपडेट और घोषणाएं।",
     catSupport: "सहायता", catSupportDesc: "आपके टिकटों के उत्तर और सहायता अपडेट।",
-    perCategory: "प्रति श्रेणी चैनल", perCategoryDesc: "प्रत्येक श्रेणी के चैनल ओवरराइड करें।",
-    colCategory: "श्रेणी", colEmail: "ईमेल", colPush: "पुश", colInApp: "इन-ऐप",
-    quietTitle: "शांत समय", quietDesc: "इन घंटों के दौरान सूचनाएं न भेजें।",
-    enableQuiet: "शांत समय सक्षम करें", enableQuietDesc: "अपने निर्धारित समय के दौरान सूचनाएं म्यूट करें।",
-    timeWindow: "समय सीमा", timeWindowDesc: "इन घंटों के बीच सूचनाएं रुक जाती हैं।", to: "से",
-    quietActive: "शांत समय चालू है।",
-    digestTitle: "दैनिक डाइजेस्ट", digestDesc: "जो कुछ आपने मिस किया उसका सारांश प्राप्त करें।",
+    colCategory: "श्रेणी", colEmail: "ईमेल", colPush: "पुश",
     enableDigest: "डाइजेस्ट सक्षम करें", enableDigestDesc: "रियल-टाइम अलर्ट के बजाय डाइजेस्ट प्राप्त करें।",
     frequency: "आवृत्ति", frequencyDesc: "आप डाइजेस्ट कितनी बार प्राप्त करना चाहते हैं।",
     daily: "दैनिक", weekly: "साप्ताहिक", monthly: "मासिक",
@@ -2309,8 +2186,8 @@ const hi: Dict = {
   apps: {
     title: "कनेक्टेड ऐप्स", subtitle: "इंटीग्रेशन अनलॉक करने के लिए अपने खाते कनेक्ट करें।",
     available: "उपलब्ध ऐप्स", disconnect: "डिस्कनेक्ट", connect: "कनेक्ट",
-    googleDesc: "संपर्क, कैलेंडर और Gmail सिंक करें।", githubDesc: "रिपॉजिटरी और गतिविधि सिंक करें।",
-    discordDesc: "Discord में सूचनाएं प्राप्त करें।",
+    googleDesc: "Sign in with your Google account.", githubDesc: "Sign in with your GitHub account.",
+    discordDesc: "Sign in with your Discord account.",
     connected: "जुड़ा हुआ", notConnected: "जुड़ा नहीं", connectedOn: "जुड़ने की तिथि",
     disconnectConfirm: "प्रदाता डिस्कनेक्ट करें?",
     disconnectDesc: "क्या आप वाकई इस प्रदाता को डिस्कनेक्ट करना चाहते हैं? आप इसे बाद में फिर से जोड़ सकते हैं।",
@@ -2356,10 +2233,7 @@ const hi: Dict = {
     title: "गोपनीयता", subtitle: "नियंत्रित करें कि आपका डेटा कैसे उपयोग होता है।",
     dataAnalytics: "डेटा और विश्लेषण", analytics: "विश्लेषण", analyticsDesc: "उपयोग डेटा साझा करके Tirbeo को बेहतर बनाने में मदद करें।",
     crashReports: "क्रैश रिपोर्ट", crashReportsDesc: "कुछ खराब होने पर त्रुटि रिपोर्ट स्वतः भेजें।",
-    personalizedRecs: "व्यक्तिगत अनुशंसाएं", personalizedRecsDesc: "अनुशंसाओं को अनुकूलित करने के लिए गतिविधि का उपयोग करें।",
-    discoverability: "खोज क्षमता", discoverabilityDesc: "नियंत्रित करें कि दूसरे आपको कैसे ढूंढ सकते हैं।",
-    searchEngine: "सर्च इंजन", searchEngineDesc: "सर्च इंजन को आपकी सार्वजनिक प्रोफ़ाइल को इंडेक्स करने दें।",
-    directory: "निर्देशिका", directoryDesc: "Tirbeo निर्देशिका में अपनी प्रोफ़ाइल दिखाएं।",
+
     dataExport: "डेटा निर्यात", dataExportDesc: "अपने खाते में संग्रहीत सब कुछ की एक प्रति डाउनलोड करें।",
     preparing: "निर्यात तैयार हो रहा है...", exportData: "डेटा निर्यात करें",
     exportNote: "तैयार होने पर आपको ईमेल से डाउनलोड लिंक मिलेगा।",
@@ -2478,29 +2352,20 @@ const ne: Dict = {
     mountain: "पर्वतीय समय", pacific: "प्रशान्त समय", london: "लन्डन", berlin: "बर्लिन", tokyo: "टोकियो",
     shanghai: "सांघाई", kolkata: "कोलकाता",
     emailTitle: "इमेल प्राथमिकताहरू", emailDesc: "Tirbeo बाट प्राप्त हुने इमेलहरू व्यवस्थापन गर्नुहोस्।",
-    productEmails: "उत्पाद इमेलहरू", productEmailsDesc: "सुविधा अद्यावधिक र उत्पाद समाचार।",
-    weeklySummary: "साप्ताहिक सारांश", weeklySummaryDesc: "आफ्नो गतिविधिको साप्ताहिक सारांश प्राप्त गर्नुहोस्।",
     tipsUpdates: "सुझाव र अद्यावधिक", tipsUpdatesDesc: "Tirbeo को अधिकतम उपयोग गर्ने सुझावहरू।",
   },
   session: { expired: "तपाईंको सत्र समाप्त भयो। केही सुविधाहरूले काम नगर्न सक्छन्।", signInAgain: "फेरि साइन इन गर्नुहोस्" },
   notif: {
     title: "सूचनाहरू", subtitle: "सूचनाहरू कसरी र कहिले प्राप्त गर्ने भनेर कन्फिगर गर्नुहोस्।", retention: "३० दिनपछि सूचनाहरू स्वतः मेटिन्छन्।", empty: "कुनै सूचना छैन", total: "जम्मा",
     channelsTitle: "च्यानलहरू", channelsDesc: "तपाईं कहाँ सूचनाहरू प्राप्त गर्न चाहनुहुन्छ छान्नुहोस्।",
-    email: "इमेल", push: "पुश", inApp: "इन-एप",
-    emailDesc: "आफ्नो इनबक्समा सूचनाहरू प्राप्त गर्नुहोस्।", pushDesc: "ब्राउजर पुश सूचनाहरू।", inAppDesc: "एप भित्र देखाउनुहोस्।",
+    email: "इमेल", push: "पुश",
+    emailDesc: "आफ्नो इनबक्समा सूचनाहरू प्राप्त गर्नुहोस्।", pushDesc: "ब्राउजर पुश सूचनाहरू।",
     browserBlocked: "तपाईंको ब्राउजर सेटिङमा ब्राउजर सूचनाहरू रोकिएका छन्।",
     categoriesTitle: "श्रेणीहरू", categoriesDesc: "तपाईंलाई चासो भएका श्रेणीहरू छान्नुहोस्।",
-    catSecurity: "सुरक्षा", catSecurityDesc: "साइन-इन, 2FA परिवर्तन र पासवर्ड गतिविधि।",
     catForms: "फारमहरू", catFormsDesc: "फारम पेशी र प्रतिक्रियाहरू।",
     catProduct: "उत्पाद", catProductDesc: "उत्पाद अद्यावधिक र घोषणाहरू।",
     catSupport: "सहयोग", catSupportDesc: "तपाईंका टिकटहरूका उत्तर र सहयोग अद्यावधिकहरू।",
-    perCategory: "प्रति श्रेणी च्यानल", perCategoryDesc: "प्रत्येक श्रेणीका च्यानलहरू ओभरराइड गर्नुहोस्।",
-    colCategory: "श्रेणी", colEmail: "इमेल", colPush: "पुश", colInApp: "इन-एप",
-    quietTitle: "शान्त समय", quietDesc: "यी घण्टाहरूमा सूचनाहरू नपठाउनुहोस्।",
-    enableQuiet: "शान्त समय सक्षम गर्नुहोस्", enableQuietDesc: "तपाईंले तोकेको समयमा सूचनाहरू म्युट गर्नुहोस्।",
-    timeWindow: "समय सीमा", timeWindowDesc: "यी घण्टाहरू बीच सूचनाहरू रोकिन्छन्।", to: "देखि",
-    quietActive: "शान्त समय चालू छ।",
-    digestTitle: "दैनिक डाइजेस्ट", digestDesc: "तपाईंले छुटाउनुभएको सबैको सारांश प्राप्त गर्नुहोस्।",
+    colCategory: "श्रेणी", colEmail: "इमेल", colPush: "पुश",
     enableDigest: "डाइजेस्ट सक्षम गर्नुहोस्", enableDigestDesc: "रियल-टाइम अलर्टको सट्टा डाइजेस्ट प्राप्त गर्नुहोस्।",
     frequency: "आवृत्ति", frequencyDesc: "तपाईं डाइजेस्ट कति पटक प्राप्त गर्न चाहनुहुन्छ।",
     daily: "दैनिक", weekly: "साप्ताहिक", monthly: "मासिक",
@@ -2537,8 +2402,8 @@ const ne: Dict = {
   apps: {
     title: "जोडिएका एपहरू", subtitle: "इन्टिग्रेसनहरू खोल्न आफ्ना खाताहरू जडान गर्नुहोस्।",
     available: "उपलब्ध एपहरू", disconnect: "विच्छेद", connect: "जडान",
-    googleDesc: "सम्पर्क, पात्रो र Gmail सिङ्क गर्नुहोस्।", githubDesc: "रेपोजिटरीहरू र गतिविधि सिङ्क गर्नुहोस्।",
-    discordDesc: "Discord मा सूचनाहरू प्राप्त गर्नुहोस्।",
+    googleDesc: "Sign in with your Google account.", githubDesc: "Sign in with your GitHub account.",
+    discordDesc: "Sign in with your Discord account.",
     connected: "जोडिएको", notConnected: "जोडिएको छैन", connectedOn: "जोडिएको मिति",
     disconnectConfirm: "प्रदायक डिस्कनेक्ट गर्ने?",
     disconnectDesc: "के तपाईं यस प्रदायकलाई डिस्कनेक्ट गर्न चाहनुहुन्छ? तपाईं यसलाई पछि फेरि जोड्न सक्नुहुन्छ।",
@@ -2584,10 +2449,7 @@ const ne: Dict = {
     title: "गोपनीयता", subtitle: "तपाईंको डेटा कसरी प्रयोग हुन्छ नियन्त्रण गर्नुहोस्।",
     dataAnalytics: "डेटा र विश्लेषण", analytics: "विश्लेषण", analyticsDesc: "प्रयोग डेटा साझा गरेर Tirbeo लाई सुधार्न मद्दत गर्नुहोस्।",
     crashReports: "क्र्यास रिपोर्टहरू", crashReportsDesc: "केही बिग्रिएको बेला त्रुटि रिपोर्ट स्वतः पठाउनुहोस्।",
-    personalizedRecs: "व्यक्तिगत सिफारिसहरू", personalizedRecsDesc: "सिफारिसहरू मिलाउन गतिविधि प्रयोग गर्नुहोस्।",
-    discoverability: "खोज योग्यता", discoverabilityDesc: "अरूले तपाईंलाई कसरी भेट्टाउन सक्छन् नियन्त्रण गर्नुहोस्।",
-    searchEngine: "सर्च इन्जिनहरू", searchEngineDesc: "सर्च इन्जिनहरूलाई तपाईंको सार्वजनिक प्रोफाइल अनुक्रमणिका गर्न अनुमति दिनुहोस्।",
-    directory: "निर्देशिका", directoryDesc: "Tirbeo निर्देशिकामा आफ्नो प्रोफाइल देखाउनुहोस्।",
+
     dataExport: "डेटा निर्यात", dataExportDesc: "आफ्नो खातामा भण्डारण भएका सबै कुराको प्रतिलिपि डाउनलोड गर्नुहोस्।",
     preparing: "निर्यात तयार हुँदैछ...", exportData: "डेटा निर्यात गर्नुहोस्",
     exportNote: "तयार भएपछि तपाईंलाई इमेलमा डाउनलोड लिंक प्राप्त हुनेछ।",

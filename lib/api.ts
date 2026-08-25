@@ -194,12 +194,12 @@ export async function replyToTicket(id: string, message: string) {
   return api.post(`/api/support/tickets/${id}/messages`, { message });
 }
 
-export async function deleteAccount() {
-  return api.delete('/api/user/delete-account');
+export async function deleteAccount(password?: string, reason?: string): Promise<{ ok?: boolean; scheduledAt?: string; message?: string }> {
+  return api.post('/api/user/delete-account', { password, reason }) as any;
 }
 
-export async function exportData() {
-  return api.get<{ downloadUrl: string }>('/api/user/export-data');
+export async function cancelDeletion(): Promise<{ ok?: boolean; message?: string }> {
+  return api.delete('/api/user/delete-account?cancel=1') as any;
 }
 
 export async function logout() {

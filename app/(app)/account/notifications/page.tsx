@@ -1,11 +1,12 @@
 "use client";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, useCallback, type ReactNode } from "react";
+import { useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { subscribeToPush } from "@/lib/push-client";
 import { setDirtyGlobal } from "@/lib/unsaved";
 import {
-  AlertCircle, Mail, BellRing, Shield, FileText,
-  Rocket, LifeBuoy, Moon, Check,
+  AlertCircle, Mail, BellRing, FileText,
+  Rocket, LifeBuoy, Check,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useI18n } from "@/lib/i18n";
@@ -24,7 +25,6 @@ function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: (
 }
 
 const CATEGORIES = [
-  { key: "security", icon: <Shield size={14} /> },
   { key: "forms", icon: <FileText size={14} /> },
   { key: "product", icon: <Rocket size={14} /> },
   { key: "support", icon: <LifeBuoy size={14} /> },
@@ -32,21 +32,20 @@ const CATEGORIES = [
 
 const CHANNELS = ["email", "push"] as const;
 
-/** Canonical pref keys — exactly the API/DB column names. */
 const PREF_KEYS = [
   "email", "push",
-  "security", "forms", "product", "support",
-  ...CATEGORIES.flatMap((c) => CHANNELS.map((ch) => `${c.key}${ch[0].toUpperCase()}${ch.slice(1)}` as string)),
-  "quietHoursEnabled", "quietHoursStart", "quietHoursEnd",
+  "forms", "product", "support",
+  "formsEmail", "formsPush",
+  "productEmail", "productPush",
+  "supportEmail", "supportPush",
   "digestEnabled", "digestFrequency",
-  "productEmail", "weeklySummary",
 ];
 
 function NotifSkeleton() {
   return (
     <div className="page-stack">
       <div><Skeleton width={220} height={24} style={{ marginBottom: 6 }} /><Skeleton width={320} height={14} /></div>
-      {[3, 4, 6].map((n, c) => (
+      {[2, 3, 2].map((n, c) => (
         <div key={c} className="dashboard-card">
           <Skeleton width={150} height={18} style={{ marginBottom: 16 }} />
           {Array.from({ length: n }).map((_, i) => (
@@ -66,10 +65,19 @@ function NotifSkeleton() {
 
 export default function NotificationsSettingsPage() {
   const { t } = useI18n();
+  const searchParams = useSearchParams();
+  const unsubCategory = searchParams.get("unsubscribed");
+  const [showBanner, setShowBanner] = useState(!!unsubCategory);
   const [prefs, setPrefs] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!showBanner) return;
+    const timer = setTimeout(() => setShowBanner(false), 6000);
+    return () => clearTimeout(timer);
+  }, [showBanner]);
 
   const on = (v: unknown) => v !== false && v !== null && v !== undefined;
 
@@ -77,19 +85,15 @@ export default function NotificationsSettingsPage() {
     let cancelled = false;
     (async () => {
       try {
-        // Single source of truth: notification_preferences table via /api/notifications/prefs.
         const p: any = await api.get("/api/notifications/prefs");
         if (cancelled) return;
         setPrefs({
           email: on(p?.email), push: on(p?.push),
-          security: on(p?.security), forms: on(p?.forms), product: on(p?.product), support: on(p?.support),
-          securityEmail: on(p?.securityEmail), securityPush: on(p?.securityPush),
+          forms: on(p?.forms), product: on(p?.product), support: on(p?.support),
           formsEmail: on(p?.formsEmail), formsPush: on(p?.formsPush),
           productEmail: on(p?.productEmail), productPush: on(p?.productPush),
           supportEmail: on(p?.supportEmail), supportPush: on(p?.supportPush),
-          quietHoursEnabled: !!p?.quietHoursEnabled, quietHoursStart: p?.quietHoursStart || "22:00", quietHoursEnd: p?.quietHoursEnd || "07:00",
           digestEnabled: !!p?.digestEnabled, digestFrequency: p?.digestFrequency || "daily",
-          weeklySummary: !!p?.weeklySummary,
         });
       } catch {
         if (!cancelled) setPrefs(null);
@@ -111,14 +115,13 @@ export default function NotificationsSettingsPage() {
       await api.put("/api/notifications/prefs", body);
       setSaved(true); setDirtyGlobal(false);
       setTimeout(() => setSaved(false), 2000);
-    } catch { /* optimistic UI; row reloads on next visit */ }
+    } catch { /* optimistic UI */ }
     setSaving(false);
   };
 
   if (loading || !prefs) return <NotifSkeleton />;
 
   const catMeta: Record<string, { label: string; desc: string; icon: ReactNode }> = {
-    security: { label: t("notif.catSecurity"), desc: t("notif.catSecurityDesc"), icon: <Shield size={14} /> },
     forms: { label: t("notif.catForms"), desc: t("notif.catFormsDesc"), icon: <FileText size={14} /> },
     product: { label: t("notif.catProduct"), desc: t("notif.catProductDesc"), icon: <Rocket size={14} /> },
     support: { label: t("notif.catSupport"), desc: t("notif.catSupportDesc"), icon: <LifeBuoy size={14} /> },
@@ -128,7 +131,6 @@ export default function NotificationsSettingsPage() {
     push: { label: t("notif.colPush"), desc: t("notif.pushDesc"), icon: <BellRing size={13} /> },
   };
 
-  /** Ask browser permission before enabling push anywhere. */
   const pushAllowed = async () => {
     if (typeof Notification === 'undefined') return false;
     if (Notification.permission === 'granted') return true;
@@ -162,7 +164,56 @@ export default function NotificationsSettingsPage() {
         </div>
       </div>
 
-      {/* ═══ HOW YOU GET NOTIFIED ═══ */}
+      {showBanner && (
+        <div style={{
+          background: "var(--tb-surface-2)", border: "1px solid var(--tb-border)", borderRadius: 10,
+          padding: "14px 18px", display: "flex", alignItems: "center", gap: 10,
+        }}>
+          <Mail size={16} style={{ color: "var(--tb-accent, #2563eb)", flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 600, fontSize: 14, color: "var(--tb-text-primary)" }}>
+              {unsubCategory === "all"
+                ? "You have been unsubscribed from all emails"
+                : `You have been unsubscribed from ${unsubCategory} emails`}
+            </div>
+            <div style={{ fontSize: 13, color: "var(--tb-text-muted)", marginTop: 2 }}>
+              Essential security emails (password resets, OTPs) will still be sent.
+            </div>
+          </div>
+          <button type="button" onClick={() => flip('email', true, false)}
+            style={{ background: "var(--tb-accent, #2563eb)", color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+            Re-enable email
+          </button>
+          <button type="button" onClick={() => setShowBanner(false)}
+            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--tb-text-muted)", padding: 4 }}
+            aria-label="Dismiss">
+            <AlertCircle size={16} />
+          </button>
+        </div>
+      )}
+
+      {!showBanner && !prefs.email && (
+        <div style={{
+          background: '#fef3c7', border: '1px solid #fcd34d', borderRadius: 10,
+          padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <AlertCircle size={16} style={{ color: '#d97706', flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 600, fontSize: 14, color: '#92400e' }}>
+              Email notifications are disabled
+            </div>
+            <div style={{ fontSize: 13, color: '#a16207', marginTop: 2 }}>
+              You won't receive any emails except security alerts (OTPs, password resets, login alerts).
+            </div>
+          </div>
+          <button type="button" onClick={() => flip('email', true, false)}
+            style={{ background: '#d97706', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+            Re-enable email
+          </button>
+        </div>
+      )}
+
+      {/* ═══ CHANNELS ═══ */}
       <div className="dashboard-card">
         <h3 className="section-title">{t("notif.channelsTitle")}</h3>
         <div className="card-flush">
@@ -183,7 +234,7 @@ export default function NotificationsSettingsPage() {
         )}
       </div>
 
-      {/* ═══ WHAT YOU GET NOTIFIED ABOUT ═══ */}
+      {/* ═══ CATEGORIES ═══ */}
       <div className="dashboard-card">
         <h3 className="section-title">{t("notif.categoriesTitle")}</h3>
         <p className="section-desc">{t("notif.categoriesDesc")}</p>
@@ -203,38 +254,11 @@ export default function NotificationsSettingsPage() {
         </div>
       </div>
 
-      {/* ═══ SCHEDULE & EMAIL SUMMARIES ═══ */}
+      {/* ═══ EMAIL SUMMARIES ═══ */}
       <div className="dashboard-card">
         <h3 className="section-title">{t("notif.scheduleTitle")}</h3>
         <div className="card-flush">
           <div className="consent-row">
-            <div><div className="row-title">{t("notif.enableQuiet")}</div><div className="row-desc">{t("notif.enableQuietDesc")}</div></div>
-            <Toggle checked={prefs.quietHoursEnabled} onChange={v => setPref('quietHoursEnabled', v)} />
-          </div>
-          {prefs.quietHoursEnabled && (
-            <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '2px 0 10px' }}>
-                <input type="time" className="form-input" value={prefs.quietHoursStart} onChange={e => setPref('quietHoursStart', e.target.value)} style={{ width: 120 }} aria-label={t("notif.timeWindow")} />
-                <span style={{ fontSize: 13, color: 'var(--tb-text-muted)' }}>{t("notif.to")}</span>
-                <input type="time" className="form-input" value={prefs.quietHoursEnd} onChange={e => setPref('quietHoursEnd', e.target.value)} style={{ width: 120 }} />
-              </div>
-              {(() => {
-                const now = new Date();
-                const mins = now.getHours() * 60 + now.getMinutes();
-                const [sH, sM] = prefs.quietHoursStart.split(':').map(Number);
-                const [eH, eM] = prefs.quietHoursEnd.split(':').map(Number);
-                const start = sH * 60 + sM, end = eH * 60 + eM;
-                const active = start > end ? mins >= start || mins < end : mins >= start && mins < end;
-                return active ? (
-                  <div style={{ fontSize: 12, color: 'var(--tb-text-muted)', paddingBottom: 8 }}>
-                    <Moon size={12} style={{ verticalAlign: -2, marginRight: 6 }} />{t("notif.quietActive")}
-                  </div>
-                ) : null;
-              })()}
-            </>
-          )}
-
-          <div className="consent-row" style={{ borderTop: '1px solid var(--tb-border)' }}>
             <div><div className="row-title">{t("notif.enableDigest")}</div><div className="row-desc">{t("notif.enableDigestDesc")}</div></div>
             <Toggle checked={prefs.digestEnabled} onChange={v => setPref('digestEnabled', v)} />
           </div>
@@ -247,16 +271,6 @@ export default function NotificationsSettingsPage() {
               ))}
             </div>
           )}
-
-          <div className="consent-row" style={{ borderTop: '1px solid var(--tb-border)' }}>
-            <div><div className="row-title">{t("prefs.productEmails")}</div><div className="row-desc">{t("prefs.productEmailsDesc")}</div></div>
-            <Toggle checked={on(prefs.productEmail)} onChange={v => setPref('productEmail', v)} />
-          </div>
-          <div className="consent-row">
-            <div><div className="row-title">{t("prefs.weeklySummary")}</div><div className="row-desc">{t("prefs.weeklySummaryDesc")}</div></div>
-            <Toggle checked={on(prefs.weeklySummary)} onChange={v => setPref('weeklySummary', v)} />
-          </div>
-
         </div>
       </div>
     </div>
