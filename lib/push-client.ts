@@ -47,12 +47,14 @@ export async function subscribeToPush(): Promise<boolean> {
 
   const json = sub.toJSON() as any;
   const keys = json.keys || {};
-  await api
-    .post("/api/notifications/push/subscribe", {
+  try {
+    await api.post("/api/notifications/push/subscribe", {
       endpoint: json.endpoint,
       p256dh: keys.p256dh,
       auth: keys.auth,
-    })
-    .catch(() => null);
-  return true;
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }

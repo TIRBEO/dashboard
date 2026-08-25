@@ -4,7 +4,7 @@ import { api } from "@/lib/api";
 import { subscribeToPush } from "@/lib/push-client";
 import { setDirtyGlobal } from "@/lib/unsaved";
 import {
-  AlertCircle, Mail, BellRing, MessageSquare, Shield, FileText,
+  AlertCircle, Mail, BellRing, Shield, FileText,
   Rocket, LifeBuoy, Moon, Check,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -30,16 +30,16 @@ const CATEGORIES = [
   { key: "support", icon: <LifeBuoy size={14} /> },
 ] as const;
 
-const CHANNELS = ["email", "push", "inApp"] as const;
+const CHANNELS = ["email", "push"] as const;
 
 /** Canonical pref keys — exactly the API/DB column names. */
 const PREF_KEYS = [
-  "email", "push", "inApp",
+  "email", "push",
   "security", "forms", "product", "support",
   ...CATEGORIES.flatMap((c) => CHANNELS.map((ch) => `${c.key}${ch[0].toUpperCase()}${ch.slice(1)}` as string)),
   "quietHoursEnabled", "quietHoursStart", "quietHoursEnd",
   "digestEnabled", "digestFrequency",
-  "tipsEmail", "weeklySummary", "productEmail",
+  "productEmail", "weeklySummary",
 ];
 
 function NotifSkeleton() {
@@ -81,15 +81,15 @@ export default function NotificationsSettingsPage() {
         const p: any = await api.get("/api/notifications/prefs");
         if (cancelled) return;
         setPrefs({
-          email: on(p?.email), push: on(p?.push), inApp: on(p?.inApp),
+          email: on(p?.email), push: on(p?.push),
           security: on(p?.security), forms: on(p?.forms), product: on(p?.product), support: on(p?.support),
-          securityEmail: on(p?.securityEmail), securityPush: on(p?.securityPush), securityInApp: on(p?.securityInApp),
-          formsEmail: on(p?.formsEmail), formsPush: on(p?.formsPush), formsInApp: on(p?.formsInApp),
-          productEmail: on(p?.productEmail), productPush: on(p?.productPush), productInApp: on(p?.productInApp),
-          supportEmail: on(p?.supportEmail), supportPush: on(p?.supportPush), supportInApp: on(p?.supportInApp),
+          securityEmail: on(p?.securityEmail), securityPush: on(p?.securityPush),
+          formsEmail: on(p?.formsEmail), formsPush: on(p?.formsPush),
+          productEmail: on(p?.productEmail), productPush: on(p?.productPush),
+          supportEmail: on(p?.supportEmail), supportPush: on(p?.supportPush),
           quietHoursEnabled: !!p?.quietHoursEnabled, quietHoursStart: p?.quietHoursStart || "22:00", quietHoursEnd: p?.quietHoursEnd || "07:00",
           digestEnabled: !!p?.digestEnabled, digestFrequency: p?.digestFrequency || "daily",
-          tipsEmail: p?.tipsEmail !== false, weeklySummary: !!p?.weeklySummary,
+          weeklySummary: !!p?.weeklySummary,
         });
       } catch {
         if (!cancelled) setPrefs(null);
@@ -126,7 +126,6 @@ export default function NotificationsSettingsPage() {
   const chMeta: Record<string, { label: string; desc: string; icon: ReactNode }> = {
     email: { label: t("notif.colEmail"), desc: t("notif.emailDesc"), icon: <Mail size={13} /> },
     push: { label: t("notif.colPush"), desc: t("notif.pushDesc"), icon: <BellRing size={13} /> },
-    inApp: { label: t("notif.colInApp"), desc: t("notif.inAppDesc"), icon: <MessageSquare size={13} /> },
   };
 
   /** Ask browser permission before enabling push anywhere. */
@@ -257,10 +256,7 @@ export default function NotificationsSettingsPage() {
             <div><div className="row-title">{t("prefs.weeklySummary")}</div><div className="row-desc">{t("prefs.weeklySummaryDesc")}</div></div>
             <Toggle checked={on(prefs.weeklySummary)} onChange={v => setPref('weeklySummary', v)} />
           </div>
-          <div className="consent-row">
-            <div><div className="row-title">{t("prefs.tipsUpdates")}</div><div className="row-desc">{t("prefs.tipsUpdatesDesc")}</div></div>
-            <Toggle checked={on(prefs.tipsEmail)} onChange={v => setPref('tipsEmail', v)} />
-          </div>
+
         </div>
       </div>
     </div>

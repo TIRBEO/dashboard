@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { api, getCurrentUser } from "@/lib/api";
-import { useUnsavedGuard, setDirtyGlobal } from "@/lib/unsaved";
+import { setDirtyGlobal } from "@/lib/unsaved";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useI18n } from "@/lib/i18n";
 import { SUPPORTED_LANGS } from "@/lib/locales";
@@ -31,8 +31,6 @@ export default function PreferencesPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  useUnsavedGuard();
 
   useEffect(() => {
     getCurrentUser().then(u => {

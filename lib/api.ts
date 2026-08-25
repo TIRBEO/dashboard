@@ -1,6 +1,6 @@
 import { LOCALES } from "@/lib/locales";
 
-const API = typeof window !== 'undefined'
+export const API = typeof window !== 'undefined'
   ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:3000'
       : process.env.NEXT_PUBLIC_API_URL || 'https://api.tirbeo.app')
@@ -28,7 +28,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const method = (options.method || 'GET').toUpperCase();
   const headers: Record<string, string> = { ...(options.headers as Record<string, string>) };
   if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
-    headers['X-CSRF-Token'] = getCsrf();
+    const csrf = getCsrf();
+    if (csrf) headers['X-CSRF-Token'] = csrf;
   }
   const bearer = getToken();
   if (bearer) headers['Authorization'] = `Bearer ${bearer}`;

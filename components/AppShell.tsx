@@ -86,13 +86,13 @@ function personalNav(badgeCounts: Record<string, number>, t: I18nT): NavSection[
   return [
     { section: t("nav.workspace"), items: [
       { label: t("nav.getStarted"), href: "/overview", icon: <Home size={16} /> },
-      { label: t("nav.inbox"), href: "/account/inbox", icon: <Mail size={16} /> },
+      { label: t("nav.inbox"), href: "/account/inbox", icon: <Mail size={16} />, badge: badgeCounts.inbox },
       { label: "Forms", href: process.env.NEXT_PUBLIC_FORMS_URL || "https://forms.tirbeo.app", icon: <FileText size={16} />, external: true },
     ]},
     { section: t("nav.account"), items: [
       { label: t("nav.profile"), href: "/account/profile", icon: <User size={16} /> },
       { label: t("nav.preferences"), href: "/account/preferences", icon: <Sliders size={16} /> },
-      { label: t("nav.notifications"), href: "/account/notifications", icon: <Bell size={16} /> },
+      { label: t("nav.notifications"), href: "/account/notifications", icon: <Bell size={16} />, badge: badgeCounts.notifications },
       { label: t("nav.connectedApps"), href: "/account/apps", icon: <Building size={16} /> },
       { label: t("nav.security"), href: "/account/security", icon: <Lock size={16} /> },
       { label: t("nav.privacy"), href: "/account/privacy", icon: <Eye size={16} /> },
@@ -234,7 +234,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return items.filter((n) => new Date(n.createdAt).getTime() >= cutoff);
   };
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       const r = await listNotifications(NOTIF_PAGE, 0);
       const seen = applyRetention(r.notifications);
@@ -244,9 +244,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       setNotifTotal(r.total);
       setNotifHasMore(seen.length < r.total);
     } catch (e) { if (isUnauthorizedError(e)) redirectToAccounts(); }
-  };
+  }, []);
 
-  const loadMoreNotifications = async () => {
+  const loadMoreNotifications = useCallback(async () => {
     if (notifLoading || !notifHasMore) return;
     setNotifLoading(true);
     try {
@@ -256,11 +256,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       setNotifTotal(r.total);
       setNotifHasMore(notifications.length + incoming.length < r.total && incoming.length > 0);
     } catch (e) { if (isUnauthorizedError(e)) redirectToAccounts(); } finally { setNotifLoading(false); }
-  };
+  }, [notifLoading, notifHasMore, notifications.length]);
 
-  const fetchTickets = async () => {
+  const fetchTickets = useCallback(async () => {
     try { const r = await listTickets({ limit: 10 }); setTickets(r.data); } catch (e) { if (isUnauthorizedError(e)) redirectToAccounts(); }
-  };
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -283,7 +283,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     const onVisibility = () => { if (document.visibilityState === "visible") fetchNotifications(); };
     document.addEventListener("visibilitychange", onVisibility);
     return () => { alive = false; if (pollTimer.current) clearInterval(pollTimer.current); document.removeEventListener("visibilitychange", onVisibility); };
-  }, [pathname]);
+  }, []);
 
   // Profile page broadcasts edits (avatar/name) — apply instantly everywhere
   // (header avatar, sidebar user block, mobile menu) without waiting for the
@@ -296,6 +296,104 @@ export function AppShell({ children }: { children: ReactNode }) {
     window.addEventListener("tb:user-updated", onUserUpdated);
     return () => window.removeEventListener("tb:user-updated", onUserUpdated);
   }, []);
+
+  // Real-time notification updates via WebSocket
+  useEffect(() => {
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
+    if (!wsUrl || !user?.id) return;
+    let ws: WebSocket | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let pingInterval: ReturnType<typeof setInterval> | null = null;
+    let retryCount = 0;
+    let alive = true;
+
+    const handleNotification = (notifData: any) => {
+      setNotifications((prev) => [notifData, ...prev]);
+      setUnread((u) => u + 1);
+      setBadgePulse(true);
+      if (pulseTimer.current) clearTimeout(pulseTimer.current);
+      pulseTimer.current = setTimeout(() => setBadgePulse(false), 700);
+      try { const { notifyNotificationsChanged } = require("@/lib/notification-events"); notifyNotificationsChanged(); } catch {}
+    };
+
+    const connect = () => {
+      if (!alive) return;
+      try {
+        ws = new WebSocket(wsUrl);
+        ws.onopen = () => {
+          retryCount = 0;
+          // Authenticate with session token
+          const token = localStorage.getItem('auth_token');
+          if (token && ws?.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'auth', token }));
+          }
+        };
+        ws.onmessage = (event) => {
+          try {
+            const msg = JSON.parse(event.data);
+
+            // Handle ping → pong keep-alive
+            if (msg.type === 'ping') {
+              ws?.send(JSON.stringify({ type: 'pong' }));
+              return;
+            }
+
+            // Auth confirmed — subscribe to user channel
+            if (msg.type === 'auth_ok') {
+              ws?.send(JSON.stringify({ type: 'subscribe', channel: `user:${user.id}` }));
+              // Start periodic ping
+              pingInterval = setInterval(() => {
+                if (ws?.readyState === WebSocket.OPEN) {
+                  ws.send(JSON.stringify({ type: 'ping' }));
+                }
+              }, 25000);
+              return;
+            }
+
+            // Auth failed
+            if (msg.type === 'auth_error') return;
+
+            // Rate limit — just ignore
+            if (msg.type === 'rate_limit_exceeded') return;
+
+            // Direct notification from local WS server
+            if (msg.type === 'notification' && msg.data) {
+              handleNotification(msg.data);
+              return;
+            }
+
+            // Realtime platform event: { type: 'event', channel, event: { type: 'notification', payload: {...} } }
+            if (msg.type === 'event' && msg.event && typeof msg.event === 'object') {
+              const evt = msg.event as Record<string, unknown>;
+              if (evt.type === 'notification') {
+                const payload = (evt.payload || evt) as Record<string, unknown>;
+                if (payload && typeof payload === 'object' && 'title' in payload) {
+                  handleNotification(payload);
+                }
+              }
+              return;
+            }
+          } catch {}
+        };
+        ws.onclose = (event) => {
+          if (pingInterval) { clearInterval(pingInterval); pingInterval = null; }
+          if (alive && event.code !== 4001 && event.code !== 4003 && retryCount < 10) {
+            const delay = Math.min(1000 * Math.pow(2, retryCount), 30000);
+            retryCount++;
+            reconnectTimer = setTimeout(connect, delay);
+          }
+        };
+        ws.onerror = () => { ws?.close(); };
+      } catch {}
+    };
+    connect();
+    return () => {
+      alive = false;
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      if (pingInterval) clearInterval(pingInterval);
+      ws?.close();
+    };
+  }, [user?.id]);
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 

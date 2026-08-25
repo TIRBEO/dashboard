@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { api, getCurrentUser } from "@/lib/api";
-import { useUnsavedGuard, setDirtyGlobal } from "@/lib/unsaved";
+import { setDirtyGlobal } from "@/lib/unsaved";
 import { Camera, User, Briefcase, Link2, Info, Check, AlertCircle, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useI18n } from "@/lib/i18n";
@@ -47,8 +47,6 @@ export default function ProfilePage() {
   const originalUsername = useRef("");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  useUnsavedGuard();
-
   useEffect(() => {
     getCurrentUser().then(u => {
       setUser(u);
@@ -92,12 +90,18 @@ export default function ProfilePage() {
     if (unameBlocked) return;
     setSaving(true); setSaved(false); setSaveError("");
     try {
-      await api.patch("/api/users/me", form);
+      const payload: Record<string, any> = {};
+      for (const [k, v] of Object.entries(form)) {
+        payload[k] = v === '' ? null : v;
+      }
+      await api.patch("/api/users/me", payload);
       originalUsername.current = (form.username || "").trim().toLowerCase();
       setUnameStatus("idle");
       setSaved(true); setDirtyGlobal(false); setTimeout(() => setSaved(false), 2500);
-      if (form.name) window.dispatchEvent(new CustomEvent("tb:user-updated", { detail: { name: form.name } }));
-      if (form.username !== undefined) window.dispatchEvent(new CustomEvent("tb:user-updated", { detail: { username: form.username } }));
+      const detail: Record<string, any> = {};
+      if (form.name) detail.name = form.name;
+      if (form.username !== undefined) detail.username = form.username;
+      if (Object.keys(detail).length) window.dispatchEvent(new CustomEvent("tb:user-updated", { detail }));
     } catch (e: any) {
       setSaveError(e?.message || "Could not save your changes. Please try again.");
     }

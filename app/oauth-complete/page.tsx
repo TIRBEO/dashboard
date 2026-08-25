@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { api, getCurrentUser, ApiError } from "@/lib/api";
 import { Loader2, CheckCircle2, Camera, ArrowRight, AlertCircle, Lock } from "lucide-react";
@@ -22,7 +22,26 @@ function sanitizeTarget(raw: string | null): string {
   }
 }
 
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6" style={{ background: "var(--tb-bg, #0b0b0d)", color: "var(--tb-text-primary, #f2f2f2)" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+        <Loader2 size={24} className="animate-spin" />
+        <span style={{ fontSize: 14, color: "var(--tb-text-muted, #858589)" }}>Loading…</span>
+      </div>
+    </div>
+  );
+}
+
 export default function OAuthCompletePage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <OAuthCompleteInner />
+    </Suspense>
+  );
+}
+
+function OAuthCompleteInner() {
   const searchParams = useSearchParams();
   const signupToken = searchParams.get("signup") || "";
   const finishMode = searchParams.get("finish") === "1";
@@ -33,6 +52,8 @@ export default function OAuthCompletePage() {
   const [consent, setConsent] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const [name, setName] = useState("");
 
   // Optional password for brand-new accounts (set via popup)
   const [showPw, setShowPw] = useState(false);
@@ -53,14 +74,20 @@ export default function OAuthCompletePage() {
           const r = await api.get<{ provider: string; email: string; name?: string; photoUrl?: string | null }>(
             `/api/auth/oauth/pending?token=${encodeURIComponent(signupToken)}`
           );
-          if (!cancelled) setInfo(r);
+          if (!cancelled) {
+            setInfo(r);
+            if (r.name) setName(r.name);
+          }
         } catch (e) {
           if (!cancelled) setError(e instanceof ApiError ? e.message : "This sign-in link has expired. Please sign in again.");
         }
       } else if (finishMode) {
         try {
           const u = await getCurrentUser();
-          if (!cancelled) setInfo({ provider: "", email: u.email || "", name: u.name || undefined });
+          if (!cancelled) {
+            setInfo({ provider: "", email: u.email || "", name: u.name || undefined });
+            if (u.name) setName(u.name);
+          }
         } catch {
           if (!cancelled) setError("Your session could not be verified. Please sign in again.");
         }
@@ -106,6 +133,7 @@ export default function OAuthCompletePage() {
         const r = await api.post<{ ok: boolean; redirect_to: string }>("/api/auth/oauth/complete", {
           token: signupToken,
           policyAccepted: true,
+          name: name.trim() || undefined,
           ...(pw ? { password: pw } : {}),
         });
         await uploadAvatarBestEffort();
@@ -203,6 +231,15 @@ export default function OAuthCompletePage() {
               {/* Optional password (new accounts only) — opens as a popup */}
               {signupToken && (
                 <div style={{ marginBottom: 16 }}>
+                  <input
+                    className="form-input"
+                    type="text"
+                    placeholder="Your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    autoFocus
+                    style={{ marginBottom: 8 }}
+                  />
                   <button type="button" className="btn btn-secondary btn-sm" onClick={() => { setShowPw(true); setPwError(""); }} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
                     <Lock size={13} /> {pw ? "Password added — change or remove" : "Add a password (optional)"}
                   </button>

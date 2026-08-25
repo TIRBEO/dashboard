@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
   type ReactNode,
 } from "react";
@@ -647,8 +648,8 @@ const en: Dict = {
     channelsTitle: "Channels", channelsDesc: "Choose where you want to receive notifications.",
     scheduleTitle: "Schedule & email summaries",
     allNotifications: "Everything",
-    email: "Email", push: "Push", inApp: "In-app",
-    emailDesc: "Get notifications in your inbox.", pushDesc: "Browser push notifications.", inAppDesc: "Show inside the app.",
+    email: "Email", push: "Push",
+    emailDesc: "Get notifications in your inbox.", pushDesc: "Browser push notifications.",
     browserBlocked: "Browser notifications are blocked in your browser settings.",
     categoriesTitle: "Categories", categoriesDesc: "Choose which categories you care about.",
     catSecurity: "Security", catSecurityDesc: "Sign-ins, 2FA changes, and password activity.",
@@ -656,7 +657,7 @@ const en: Dict = {
     catProduct: "Product", catProductDesc: "Product updates and announcements.",
     catSupport: "Support", catSupportDesc: "Replies to your tickets and support updates.",
     perCategory: "Per-category channels", perCategoryDesc: "Override channels for each category.",
-    colCategory: "Category", colEmail: "Email", colPush: "Push", colInApp: "In-app",
+    colCategory: "Category", colEmail: "Email", colPush: "Push",
     quietTitle: "Quiet hours", quietDesc: "Don't send notifications during these hours.",
     enableQuiet: "Enable quiet hours", enableQuietDesc: "Silence notifications during your set window.",
     timeWindow: "Time window", timeWindowDesc: "Notifications are paused between these hours.", to: "to",
@@ -699,8 +700,8 @@ const en: Dict = {
   apps: {
     title: "Connected apps", subtitle: "Connect your accounts to unlock integrations.",
     available: "Available apps", disconnect: "Disconnect", connect: "Connect",
-    googleDesc: "Sync contacts, calendar, and Gmail.", githubDesc: "Sync repositories and activity.",
-    discordDesc: "Get notifications in Discord.",
+    googleDesc: "Sign in with your Google account.", githubDesc: "Sign in with your GitHub account.",
+    discordDesc: "Sign in with your Discord account.",
     connected: "Connected", notConnected: "Not connected", connectedOn: "Connected on",
     disconnectConfirm: "Disconnect provider?",
     disconnectDesc: "Are you sure you want to disconnect this provider? You can reconnect it later.",
@@ -889,8 +890,8 @@ const es: Dict = {
   notif: {
     title: "Notificaciones", subtitle: "Configura cómo y cuándo recibes las notificaciones.", retention: "Las notificaciones se eliminan automáticamente después de 30 días.", empty: "Sin notificaciones", total: "en total",
     channelsTitle: "Canales", channelsDesc: "Elige dónde quieres recibir las notificaciones.",
-    email: "Correo", push: "Push", inApp: "En la app",
-    emailDesc: "Recibe notificaciones en tu correo.", pushDesc: "Notificaciones push del navegador.", inAppDesc: "Mostrar dentro de la aplicación.",
+    email: "Correo", push: "Push",
+    emailDesc: "Recibe notificaciones en tu correo.", pushDesc: "Notificaciones push del navegador.",
     browserBlocked: "Las notificaciones del navegador están bloqueadas en tu configuración del navegador.",
     categoriesTitle: "Categorías", categoriesDesc: "Elige qué categorías te interesan.",
     catSecurity: "Seguridad", catSecurityDesc: "Inicios de sesión, cambios de 2FA y actividad de contraseñas.",
@@ -898,7 +899,7 @@ const es: Dict = {
     catProduct: "Producto", catProductDesc: "Actualizaciones y anuncios del producto.",
     catSupport: "Soporte", catSupportDesc: "Respuestas a tus tickets y novedades de soporte.",
     perCategory: "Canales por categoría", perCategoryDesc: "Anula los canales de cada categoría.",
-    colCategory: "Categoría", colEmail: "Correo", colPush: "Push", colInApp: "En la app",
+    colCategory: "Categoría", colEmail: "Correo", colPush: "Push",
     quietTitle: "Horas de silencio", quietDesc: "No enviar notificaciones durante estas horas.",
     enableQuiet: "Activar horas de silencio", enableQuietDesc: "Silencia las notificaciones durante tu franja.",
     timeWindow: "Franja horaria", timeWindowDesc: "Las notificaciones se pausan entre estas horas.", to: "a",
@@ -940,8 +941,8 @@ const es: Dict = {
   apps: {
     title: "Aplicaciones conectadas", subtitle: "Conecta tus cuentas para desbloquear integraciones.",
     available: "Aplicaciones disponibles", disconnect: "Desconectar", connect: "Conectar",
-    googleDesc: "Sincroniza contactos, calendario y Gmail.", githubDesc: "Sincroniza repositorios y actividad.",
-    discordDesc: "Recibe notificaciones en Discord.",
+    googleDesc: "Sign in with your Google account.", githubDesc: "Sign in with your GitHub account.",
+    discordDesc: "Sign in with your Discord account.",
     connected: "Conectado", notConnected: "No conectado", connectedOn: "Conectado el",
     disconnectConfirm: "¿Desconectar proveedor?",
     disconnectDesc: "¿Estás seguro de que quieres desconectar este proveedor? Puedes reconectarlo después.",
@@ -1117,8 +1118,8 @@ const fr: Dict = {
   notif: {
     title: "Notifications", subtitle: "Configurez comment et quand vous recevez les notifications.", retention: "Les notifications sont supprimées automatiquement après 30 jours.", empty: "Aucune notification", total: "au total",
     channelsTitle: "Canaux", channelsDesc: "Choisissez où recevoir les notifications.",
-    email: "E-mail", push: "Push", inApp: "Dans l'app",
-    emailDesc: "Recevez des notifications dans votre boîte mail.", pushDesc: "Notifications push du navigateur.", inAppDesc: "Afficher dans l'application.",
+    email: "E-mail", push: "Push",
+    emailDesc: "Recevez des notifications dans votre boîte mail.", pushDesc: "Notifications push du navigateur.",
     browserBlocked: "Les notifications du navigateur sont bloquées dans vos paramètres.",
     categoriesTitle: "Catégories", categoriesDesc: "Choisissez les catégories qui vous intéressent.",
     catSecurity: "Sécurité", catSecurityDesc: "Connexions, changements 2FA et activité des mots de passe.",
@@ -2778,8 +2779,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     [lang],
   );
 
+  const value = useMemo(() => ({ lang, t, setLang, syncLangFromProfile }), [lang, t, setLang, syncLangFromProfile]);
+
   return (
-    <I18nContext.Provider value={{ lang, t, setLang, syncLangFromProfile }}>
+    <I18nContext.Provider value={value}>
       {children}
     </I18nContext.Provider>
   );

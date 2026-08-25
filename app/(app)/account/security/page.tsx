@@ -18,7 +18,8 @@ export default function SecurityPage() {
   // 2FA
   const [totpEnabled, setTotpEnabled] = useState(false);
   const [show2FASetup, setShow2FASetup] = useState(false);
-  const [totpData, setTotpData] = useState<{ secret: string; uri: string } | null>(null);
+  const [totpData, setTotpData] = useState<{ secret?: string; uri: string } | null>(null);
+  const totpSecret = totpData?.uri ? new URL(totpData.uri).searchParams.get('secret') || '' : '';
   const [copiedKey, setCopiedKey] = useState(false);
   const [totpCode, setTotpCode] = useState("");
   const [totpError, setTotpError] = useState("");
@@ -87,7 +88,7 @@ export default function SecurityPage() {
     if (totpCode.length !== 6) { setTotpError(t("security.enter6")); return; }
     setTotpLoading(true); setTotpError("");
     try {
-      const data = await api.post<any>("/api/security/totp/verify", { code: totpCode, secret: totpData?.secret });
+      const data = await api.post<any>("/api/security/totp/verify", { code: totpCode });
       setTotpEnabled(true); setShow2FASetup(false); setTotpData(null); setTotpCode("");
       if (data?.backupCodes) setBackupCodes(data.backupCodes);
     } catch (e: any) { setTotpError(e.message || t("security.invalidCode")); setTotpCode(""); }
@@ -98,7 +99,7 @@ export default function SecurityPage() {
     if (disableCode.length !== 6) { setTotpError(t("security.enter6")); return; }
     setTotpLoading(true); setTotpError("");
     try {
-      await api.request("/api/security/totp/disable", { method: "DELETE", body: JSON.stringify({ totpCode: disableCode }) });
+      await api.request(`/api/security/totp/disable?code=${encodeURIComponent(disableCode)}`, { method: "DELETE" });
       setTotpEnabled(false); setShowDisable2FA(false); setDisableCode("");
     } catch (e: any) { setTotpError(e.message || t("security.disable2faFailed")); }
     setTotpLoading(false);
@@ -161,7 +162,7 @@ export default function SecurityPage() {
   // ── Sessions ──
   const revokeSession = async (sessionId: string) => {
     try {
-      await api.request('/api/security/sessions', { method: 'DELETE', body: JSON.stringify({ sessionId }) });
+      await api.request(`/api/security/sessions?sessionId=${encodeURIComponent(sessionId)}`, { method: 'DELETE' });
       setSessions(prev => prev.filter(s => s.id !== sessionId));
     } catch (e: any) { console.error('Failed to revoke session', e); }
   };
@@ -437,8 +438,8 @@ export default function SecurityPage() {
               <div className="field-group">
                 <label className="form-label">{t("security.key")}</label>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <code className="form-input" style={{ flex: 1, fontSize: 12.5, fontFamily: "monospace", letterSpacing: "0.06em", wordBreak: "break-all" }}>{totpData.secret}</code>
-                  <button className={`btn btn-ghost btn-sm ${copiedKey ? "qr-copied" : ""}`} onClick={async () => { try { await navigator.clipboard.writeText(totpData.secret); } catch {} setCopiedKey(true); setTimeout(() => setCopiedKey(false), 1600); }}>
+                  <code className="form-input" style={{ flex: 1, fontSize: 12.5, fontFamily: "monospace", letterSpacing: "0.06em", wordBreak: "break-all" }}>{totpSecret}</code>
+                  <button className={`btn btn-ghost btn-sm ${copiedKey ? "qr-copied" : ""}`} onClick={async () => { try { await navigator.clipboard.writeText(totpSecret); } catch {} setCopiedKey(true); setTimeout(() => setCopiedKey(false), 1600); }}>
                     {copiedKey ? <Check size={13} /> : <Copy size={13} />} {copiedKey ? t("common.saved") : t("security.copy")}
                   </button>
                 </div>

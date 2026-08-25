@@ -1,7 +1,7 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { api } from "@/lib/api";
+import { api, API } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { GoogleIcon, GitHubIcon, DiscordIcon } from "@/components/SocialIcons";
 import {
@@ -22,6 +22,10 @@ const PROVIDER_META: Record<string, { icon: React.ReactNode; color?: string; bg:
 };
 
 export default function ConnectedAppsPage() {
+  return <Suspense fallback={<div style={{ padding: 24 }}>Loading...</div>}><ConnectedAppsInner /></Suspense>;
+}
+
+function ConnectedAppsInner() {
   const { t } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -80,8 +84,7 @@ export default function ConnectedAppsPage() {
 
   const handleConnect = (provider: string) => {
     setConnecting(provider);
-    const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-    window.location.href = `${base}/api/auth/${provider}?link=1`;
+    window.location.href = `${API}/api/auth/${provider}?link=1`;
   };
 
   const handleDisconnect = async (provider: string) => {
