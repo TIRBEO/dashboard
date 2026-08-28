@@ -43,6 +43,7 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState(false);
   const [avatarError, setAvatarError] = useState("");
   const [saveError, setSaveError] = useState("");
+  const [imgFailed, setImgFailed] = useState(false);
   const [unameStatus, setUnameStatus] = useState<"idle" | "checking" | "available" | "taken" | "reserved" | "invalid">("idle");
   const originalUsername = useRef("");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -50,6 +51,7 @@ export default function ProfilePage() {
   useEffect(() => {
     getCurrentUser().then(u => {
       setUser(u);
+      setImgFailed(false);
       originalUsername.current = (u.username || "").toLowerCase();
       setForm({
         name: u.name || "", username: u.username || "", bio: u.bio || "",
@@ -62,6 +64,8 @@ export default function ProfilePage() {
       });
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => { setImgFailed(false); }, [user?.photoUrl]);
 
   // Debounced username availability check (skipped when unchanged from loaded value)
   useEffect(() => {
@@ -123,6 +127,7 @@ export default function ProfilePage() {
       });
       const newUrl = data?.photoUrl || data?.url;
       if (newUrl) {
+        setImgFailed(false);
         setUser((prev: any) => ({ ...prev, photoUrl: newUrl }));
         // Propagate to AppShell (header, sidebar, mobile menu) instantly.
         window.dispatchEvent(new CustomEvent("tb:user-updated", { detail: { photoUrl: newUrl } }));
@@ -229,8 +234,8 @@ export default function ProfilePage() {
               }}
               onClick={() => fileRef.current?.click()}
             >
-              {user?.photoUrl ? (
-                <img src={user.photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              {user?.photoUrl && !imgFailed ? (
+                <img src={user.photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setImgFailed(true)} referrerPolicy="no-referrer" crossOrigin="anonymous" />
               ) : (
                 initialsOf(user?.name ?? user?.email)
               )}

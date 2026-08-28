@@ -111,6 +111,13 @@ function initialsOf(name: string | null | undefined): string {
   return p.length === 1 ? p[0].slice(0, 2).toUpperCase() : (p[0][0] + p[p.length - 1][0]).toUpperCase();
 }
 
+function SafeAvatarImg({ src, alt, fallback }: { src?: string | null; alt: string; fallback: string }) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => { setFailed(false); }, [src]);
+  if (!src || failed) return <>{fallback}</>;
+  return <img src={src} alt={alt} style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={() => setFailed(true)} referrerPolicy="no-referrer" crossOrigin="anonymous" loading="eager" />;
+}
+
 function translateText(t: I18nT, text?: string, lang?: string) {
   if (!text) return text || "";
   if (lang) return translateNotifText(text, lang);
@@ -434,7 +441,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="sidebar-footer">
           <div className="sidebar-user-row">
             <div className="sidebar-user-avatar">
-              {user?.photoUrl ? <img src={user.photoUrl} alt="" /> : initialsOf(user?.name ?? user?.email)}
+              <SafeAvatarImg src={user?.photoUrl} alt="" fallback={initialsOf(user?.name ?? user?.email)} />
             </div>
             <div className="sidebar-user-info" style={{ flex: 1, minWidth: 0 }}>
               <div className="sidebar-user-name" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
@@ -529,7 +536,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   aria-label={t("header.account")}
                 >
                   <div className="header-avatar">
-                    {user?.photoUrl ? <img src={user.photoUrl} alt="" /> : initialsOf(user?.name ?? user?.email)}
+                    <SafeAvatarImg src={user?.photoUrl} alt="" fallback={initialsOf(user?.name ?? user?.email)} />
                   </div>
                 </button>
               </Tooltip>
@@ -540,7 +547,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     <div style={{ padding: 12 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 4px 12px', borderBottom: '1px solid var(--tb-border)' }}>
                         <div className="sidebar-user-avatar" style={{ width: 40, height: 40 }}>
-                          {user?.photoUrl ? <img src={user.photoUrl} alt="" /> : initialsOf(user?.name ?? user?.email)}
+                          <SafeAvatarImg src={user?.photoUrl} alt="" fallback={initialsOf(user?.name ?? user?.email)} />
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--tb-text-primary)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
