@@ -212,9 +212,9 @@ export default function HistoryPage() {
 
   const filtered = useMemo(
     () =>
-      items.filter((item) => {
+      (Array.isArray(items) ? items : []).filter((item) => {
         if (filter === "all") return true;
-        return categorize(item.action) === filter;
+        return categorize(item?.action) === filter;
       }),
     [items, filter],
   );
@@ -232,10 +232,10 @@ export default function HistoryPage() {
   }, [filtered, lang, t]);
 
   const tabs: Array<{ key: FilterType; label: string; count: number }> = [
-    { key: "all", label: t("history.tabAll"), count: items.length },
-    { key: "security", label: t("history.tabSecurity"), count: items.filter((i) => categorize(i.action) === "security").length },
-    { key: "account", label: t("history.tabAccount"), count: items.filter((i) => categorize(i.action) === "account").length },
-    { key: "tickets", label: t("history.tabTickets"), count: items.filter((i) => categorize(i.action) === "tickets").length },
+    { key: "all", label: t("history.tabAll"), count: (Array.isArray(items) ? items : []).length },
+    { key: "security", label: t("history.tabSecurity"), count: (Array.isArray(items) ? items : []).filter((i) => categorize(i?.action) === "security").length },
+    { key: "account", label: t("history.tabAccount"), count: (Array.isArray(items) ? items : []).filter((i) => categorize(i?.action) === "account").length },
+    { key: "tickets", label: t("history.tabTickets"), count: (Array.isArray(items) ? items : []).filter((i) => categorize(i?.action) === "tickets").length },
   ];
 
   return (

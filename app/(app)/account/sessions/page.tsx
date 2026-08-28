@@ -64,8 +64,8 @@ export default function SessionsPage() {
     load();
   }, []);
 
-  const currentSession = sessions.find((s) => s.isCurrent);
-  const otherSessions = sessions.filter((s) => !s.isCurrent);
+  const currentSession = (Array.isArray(sessions) ? sessions : []).find((s) => s.isCurrent);
+  const otherSessions = (Array.isArray(sessions) ? sessions : []).filter((s) => !s.isCurrent);
 
   const revokeOne = async (id: string) => {
     setRevoking(id);

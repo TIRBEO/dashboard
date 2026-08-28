@@ -238,18 +238,18 @@ export function AppShell({ children }: { children: ReactNode }) {
   const NOTIF_PAGE = 10;
   const applyRetention = (items: NotificationItem[]) => {
     const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
-    return items.filter((n) => new Date(n.createdAt).getTime() >= cutoff);
+    return (items ?? []).filter((n) => n?.createdAt && new Date(n.createdAt).getTime() >= cutoff);
   };
 
   const fetchNotifications = useCallback(async () => {
     try {
       const r = await listNotifications(NOTIF_PAGE, 0);
-      const seen = applyRetention(r.notifications);
+      const seen = applyRetention(r?.notifications ?? []);
       setNotifications(seen);
       notificationsRef.current = seen;
-      setUnread(r.unread);
-      setNotifTotal(r.total);
-      setNotifHasMore(seen.length < r.total);
+      setUnread(r?.unread ?? 0);
+      setNotifTotal(r?.total ?? 0);
+      setNotifHasMore(seen.length < (r?.total ?? 0));
     } catch (e) { if (isUnauthorizedError(e)) redirectToAccounts(); }
   }, []);
 
@@ -258,15 +258,15 @@ export function AppShell({ children }: { children: ReactNode }) {
     setNotifLoading(true);
     try {
       const r = await listNotifications(NOTIF_PAGE, notifications.length);
-      const incoming = applyRetention(r.notifications);
+      const incoming = applyRetention(r?.notifications ?? []);
       setNotifications((prev) => { const merged = [...prev, ...incoming]; notificationsRef.current = merged; return merged; });
-      setNotifTotal(r.total);
-      setNotifHasMore(notifications.length + incoming.length < r.total && incoming.length > 0);
+      setNotifTotal(r?.total ?? 0);
+      setNotifHasMore(notifications.length + incoming.length < (r?.total ?? 0) && incoming.length > 0);
     } catch (e) { if (isUnauthorizedError(e)) redirectToAccounts(); } finally { setNotifLoading(false); }
   }, [notifLoading, notifHasMore, notifications.length]);
 
   const fetchTickets = useCallback(async () => {
-    try { const r = await listTickets({ limit: 10 }); setTickets(r.data); } catch (e) { if (isUnauthorizedError(e)) redirectToAccounts(); }
+    try { const r = await listTickets({ limit: 10 }); setTickets(Array.isArray(r?.data) ? r.data : []); } catch (e) { if (isUnauthorizedError(e)) redirectToAccounts(); }
   }, []);
 
   // Simple load-on-open only — no websocket, no auto-reload loop
@@ -332,7 +332,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => obs.disconnect();
   }, [notifOpen, notifHasMore, notifLoading]);
 
-  const badgeCounts = { inbox: unread, notifications: unread, tickets: tickets.filter((tk) => tk.status === "open").length };
+  const badgeCounts = { inbox: unread, notifications: unread, tickets: (Array.isArray(tickets) ? tickets : []).filter((tk) => tk?.status === "open").length };
 
   // Admin staff get a visible role badge — hidden entirely for normal users.
   const isAdmin = !!user?.adminRole;

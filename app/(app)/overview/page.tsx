@@ -62,15 +62,15 @@ export default function OverviewPage() {
   useEffect(() => {
     Promise.all([
       getCurrentUser().then(setUser).catch(() => {}),
-      listTickets({ limit: 5 }).then((r) => setTickets(r.data)).catch(() => {}),
+      listTickets({ limit: 5 }).then((r) => setTickets(Array.isArray(r?.data) ? r.data : [])).catch(() => {}),
       listNotifications(10, 0)
-        .then((r) => { setNotifications(r.notifications); setTotalNotifs(r.total); })
+        .then((r) => { setNotifications(Array.isArray(r?.notifications) ? r.notifications : []); setTotalNotifs(r?.total ?? 0); })
         .catch(() => {}),
     ]).finally(() => setLoading(false));
   }, []);
 
-  const unread = notifications.filter((n) => !n.read).length;
-  const openTickets = tickets.filter((t) => t.status === "open").length;
+  const unread = (Array.isArray(notifications) ? notifications : []).filter((n) => !n?.read).length;
+  const openTickets = (Array.isArray(tickets) ? tickets : []).filter((t) => t?.status === "open").length;
 
   const locale = LOCALES[lang] ?? LOCALES.en;
 

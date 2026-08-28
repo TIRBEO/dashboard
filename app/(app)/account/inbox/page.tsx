@@ -55,12 +55,12 @@ export default function InboxPage() {
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    return notifs.filter((notification) => {
-      if (filter === "unread" && notification.read) return false;
-      if (filter === "read" && !notification.read) return false;
+    return (Array.isArray(notifs) ? notifs : []).filter((notification) => {
+      if (filter === "unread" && notification?.read) return false;
+      if (filter === "read" && !notification?.read) return false;
       if (!query) return true;
 
-      return [notification.title, notification.body, notification.type]
+      return [notification?.title, notification?.body, notification?.type]
         .filter(Boolean)
         .some((value) => value!.toLowerCase().includes(query));
     });
@@ -79,22 +79,23 @@ export default function InboxPage() {
     try {
       const response = await listNotifications(PAGE_SIZE, offset);
 
+      const incoming = Array.isArray(response?.notifications) ? response.notifications : [];
       setNotifs((previous) =>
-        isInitial ? response.notifications : [...previous, ...response.notifications],
+        isInitial ? incoming : [...(Array.isArray(previous) ? previous : []), ...incoming],
       );
 
-      setTotal(response.total);
-      setUnread(response.unread);
+      setTotal(typeof response?.total === "number" ? response.total : 0);
+      setUnread(typeof response?.unread === "number" ? response.unread : 0);
 
       const loadedCount = isInitial
-        ? response.notifications.length
-        : offset + response.notifications.length;
+        ? incoming.length
+        : offset + incoming.length;
 
-      setHasMore(loadedCount < response.total);
+      setHasMore(loadedCount < (response?.total ?? 0));
 
       if (isInitial) {
         setExpandedId((current) =>
-          current && response.notifications.some((notification) => notification.id === current)
+          current && incoming.some((notification) => notification?.id === current)
             ? current
             : null,
         );

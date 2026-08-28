@@ -66,15 +66,18 @@ export default function TicketsPage() {
       q: debouncedQ || undefined,
     })
       .then((r) => {
-        setTickets(r.data);
-        setTotal(r.total);
+        setTickets(Array.isArray(r?.data) ? r.data : []);
+        setTotal(typeof r?.total === "number" ? r.total : 0);
       })
-      .catch(() => {})
+      .catch(() => {
+        setTickets([]);
+        setTotal(0);
+      })
       .finally(() => setLoading(false));
   }, [page, debouncedQ, status]);
 
   const totalPages = Math.max(1, Math.ceil(total / limit));
-  const openCount = useMemo(() => tickets.filter((x) => x.status === "open").length, [tickets]);
+  const openCount = useMemo(() => (Array.isArray(tickets) ? tickets : []).filter((x) => x?.status === "open").length, [tickets]);
 
   return (
     <div className="page-stack" style={{ maxWidth: 900 }}>
