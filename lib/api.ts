@@ -128,10 +128,18 @@ export interface NotificationItem {
 export interface Ticket {
   id: string;
   subject: string;
+  title?: string;
+  description?: string;
   status: string;
   priority?: string;
+  category?: string;
   createdAt: string;
   updatedAt: string;
+  customerId?: string;
+  assignedId?: string | null;
+  closedAt?: string | null;
+  messages?: any[];
+  attachments?: any[];
 }
 
 export async function getCurrentUser(): Promise<Profile> {
@@ -163,11 +171,15 @@ export async function deleteNotifications(ids?: string[]) {
   return api.delete('/api/notifications');
 }
 
-export async function listTickets(params: { limit?: number; status?: string } = {}) {
+export async function listTickets(params: { limit?: number; status?: string; page?: number; q?: string; priority?: string; category?: string } = {}) {
   const qs = new URLSearchParams();
   if (params.limit) qs.set('limit', String(params.limit));
   if (params.status) qs.set('status', params.status);
-  return api.get<{ data: Ticket[]; total: number }>(`/api/support/tickets?${qs}`);
+  if (params.page) qs.set('page', String(params.page));
+  if (params.q) qs.set('q', params.q);
+  if (params.priority) qs.set('priority', params.priority);
+  if (params.category) qs.set('category', params.category);
+  return api.get<{ data: Ticket[]; total: number; page?: number; limit?: number }>(`/api/support/tickets?${qs}`);
 }
 
 export async function getPreferences() {
@@ -192,6 +204,25 @@ export async function getTicket(id: string) {
 
 export async function replyToTicket(id: string, message: string) {
   return api.post(`/api/support/tickets/${id}/messages`, { message });
+}
+
+export async function uploadTicketAttachment(ticketId: string, file: File): Promise<{ url: string; id: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('ticketId', ticketId);
+  const bearer = getToken();
+  const csrf = getCsrf();
+  const headers: Record<string, string> = {};
+  if (bearer) headers['Authorization'] = `Bearer ${bearer}`;
+  if (csrf) headers['X-CSRF-Token'] = csrf;
+  const res = await fetch(`${API}/api/support/tickets/attachments`, {
+    method: 'POST',
+    headers,
+    body: formData,
+    credentials: 'include',
+  });
+  if (!res.ok) throw new ApiError(res.status, 'UPLOAD_FAILED', 'Attachment upload failed');
+  return res.json();
 }
 
 export async function deleteAccount(password?: string, reason?: string): Promise<{ ok?: boolean; scheduledAt?: string; message?: string }> {

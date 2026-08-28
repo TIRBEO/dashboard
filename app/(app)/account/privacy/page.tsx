@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   API,
   getPreferences,
@@ -14,30 +13,13 @@ import {
   Check,
   Download,
   Trash,
+  Shield,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { Switch } from "@/components/ui/switch";
 import { useI18n } from "@/lib/i18n";
 
-function Toggle({
-  checked,
-  onChange,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <button
-      className={`tb-toggle ${checked ? "checked" : ""}`}
-      onClick={() => onChange(!checked)}
-      type="button"
-    >
-      <div className="tb-toggle-knob" />
-    </button>
-  );
-}
-
 export default function PrivacyPage() {
-  const router = useRouter();
   const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -48,7 +30,9 @@ export default function PrivacyPage() {
   const [deleteError, setDeleteError] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [scheduledDeletion, setScheduledDeletion] = useState<string | null>(null);
+  const [scheduledDeletion, setScheduledDeletion] = useState<string | null>(
+    null
+  );
   const [cancelling, setCancelling] = useState(false);
 
   const [privacy, setPrivacy] = useState({
@@ -59,16 +43,22 @@ export default function PrivacyPage() {
   useEffect(() => {
     Promise.all([
       getPreferences().catch(() => null),
-      fetch(`${API}/api/users/me`, { credentials: 'include' }).then(r => r.json()).catch(() => null),
+      fetch(`${API}/api/users/me`, { credentials: "include" })
+        .then((r) => r.json())
+        .catch(() => null),
     ])
       .then(([prefs, user]: [any, any]) => {
-        if (prefs?.privacy) {
-          setPrivacy((prev) => ({
-            ...prev,
-            allowAnalytics: prefs.privacy.allowAnalytics ?? false,
-            allowCrashReports: prefs.privacy.allowCrashReports ?? true,
-          }));
-        }
+        // API returns: { ok: true, preferences: { privacy: { allowAnalytics, allowCrashReports } } }
+        // Also handle flat response or nested consents from /api/users/me
+        const p =
+          prefs?.preferences?.privacy ||
+          prefs?.privacy ||
+          prefs?.consents ||
+          {};
+        setPrivacy((prev) => ({
+          allowAnalytics: p.allowAnalytics ?? user?.consents?.allowAnalytics ?? prev.allowAnalytics,
+          allowCrashReports: p.allowCrashReports ?? user?.consents?.allowCrashReports ?? prev.allowCrashReports,
+        }));
         if (user?.scheduledDeletionAt) {
           setScheduledDeletion(user.scheduledDeletionAt);
         }
@@ -85,7 +75,17 @@ export default function PrivacyPage() {
       await updatePreferences({ privacy: updated });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
-    } catch {}
+    } catch {
+      // revert on error
+      try {
+        const p = await getPreferences();
+        const restored = p?.preferences?.privacy || p?.privacy || {};
+        setPrivacy({
+          allowAnalytics: restored.allowAnalytics ?? false,
+          allowCrashReports: restored.allowCrashReports ?? true,
+        });
+      } catch {}
+    }
     setSaving(false);
   };
 
@@ -144,296 +144,246 @@ export default function PrivacyPage() {
     setCancelling(false);
   };
 
+  const consentItems = [
+    {
+      key: "allowAnalytics" as const,
+      label: t("privacy.analytics"),
+      desc: t("privacy.analyticsDesc"),
+      icon: <BarChart3 size={14} />,
+    },
+    {
+      key: "allowCrashReports" as const,
+      label: t("privacy.crashReports"),
+      desc: t("privacy.crashReportsDesc"),
+      icon: <Shield size={14} />,
+    },
+  ];
+
   return (
-    <div className="page-stack">
-      <div className="page-header">
-        <div className="page-header-row">
-          <div className="page-header-left">
-            <h1 className="page-header-title">{t("privacy.title")}</h1>
-            <p className="page-header-description">
-              {t("privacy.subtitle")}
-            </p>
-          </div>
-          <div className="page-header-actions">
-            {saving && (
-              <span style={{ fontSize: 12, color: "var(--tb-text-muted)" }}>
-                {t("common.saving")}
-              </span>
-            )}
-            {saved && (
-              <span
-                style={{
-                  fontSize: 12,
-                  color: "var(--tb-green)",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                }}
-              >
-                <Check size={14} /> {t("common.saved")}
-              </span>
-            )}
-          </div>
+    <div className="mx-auto max-w-[720px] px-4 sm:px-6 py-8">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h1 className="text-[20px] font-semibold tracking-tight text-[var(--tb-text-primary)]">
+            {t("privacy.title")}
+          </h1>
+          <p className="text-[12px] text-[var(--tb-text-muted)] mt-1">
+            {t("privacy.subtitle")}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-[12px]">
+          {saving && (
+            <span className="text-[var(--tb-text-muted)]">
+              {t("common.saving")}
+            </span>
+          )}
+          {saved && (
+            <span className="inline-flex items-center gap-1 text-[var(--tb-green)]">
+              <Check size={13} /> {t("common.saved")}
+            </span>
+          )}
         </div>
       </div>
 
+      {/* Scheduled deletion banner */}
       {scheduledDeletion && (
-        <div style={{
-          background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10,
-          padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 10,
-        }}>
-          <AlertTriangle size={16} style={{ color: '#ef4444', flexShrink: 0 }} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 600, fontSize: 14, color: '#ef4444' }}>
+        <div className="mt-4 flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3">
+          <AlertTriangle
+            size={16}
+            className="text-red-500 shrink-0"
+          />
+          <div className="flex-1 min-w-0">
+            <div className="text-[13px] font-semibold text-red-500">
               Account scheduled for deletion
             </div>
-            <div style={{ fontSize: 13, color: '#991b1b', marginTop: 2 }}>
-              Your account will be permanently deleted on {new Date(scheduledDeletion).toLocaleDateString()}. All your data will be removed.
+            <div className="text-[12px] text-red-500/70 mt-0.5">
+              Your account will be permanently deleted on{" "}
+              {new Date(scheduledDeletion).toLocaleDateString()}. All your data
+              will be removed.
             </div>
           </div>
-          <button type="button" onClick={handleCancelDeletion} disabled={cancelling}
-            style={{ background: '#ef4444', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
-            {cancelling ? 'Cancelling...' : 'Cancel Deletion'}
+          <button
+            type="button"
+            onClick={handleCancelDeletion}
+            disabled={cancelling}
+            className="h-8 rounded-full bg-red-500 px-4 text-[12px] font-medium text-white hover:bg-red-600 disabled:opacity-50 whitespace-nowrap shrink-0"
+          >
+            {cancelling ? "Cancelling..." : "Cancel Deletion"}
           </button>
         </div>
       )}
 
-      {/* Data & analytics */}
-      <div className="dashboard-card">
-        <h3
-          className="section-title"
-          style={{ display: "flex", alignItems: "center", gap: 8 }}
-        >
-          <BarChart3 size={15} />
-          {t("privacy.dataAnalytics")}
-        </h3>
-        <p className="section-desc">
-          {t("privacy.subtitle")}
-        </p>
-        <div className="card-flush">
-          {loading
-            ? Array.from({ length: 2 }).map((_, i) => (
-                <div key={i} className="consent-row">
-                  <div>
-                    <Skeleton width={160} height={14} style={{ marginBottom: 4 }} />
-                    <Skeleton width={240} height={11} />
-                  </div>
-                  <Skeleton width={36} height={20} borderRadius={10} />
-                </div>
-              ))
-            : [
-                {
-                  key: "allowAnalytics" as const,
-                  label: t("privacy.analytics"),
-                  desc: t("privacy.analyticsDesc"),
-                  icon: <BarChart3 size={14} />,
-                },
-                {
-                  key: "allowCrashReports" as const,
-                  label: t("privacy.crashReports"),
-                  desc: t("privacy.crashReportsDesc"),
-                  icon: <AlertTriangle size={14} />,
-                },
-              ].map((item) => (
-                <div key={item.key} className="consent-row">
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                    <div
-                      style={{
-                        width: 28,
-                        height: 28,
-                        borderRadius: 6,
-                        background: "var(--tb-surface-3)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                        marginTop: 2,
-                        color: "var(--tb-text-muted)",
-                      }}
-                    >
-                      {item.icon}
-                    </div>
-                    <div>
-                      <div className="row-title">{item.label}</div>
-                      <div className="row-desc">{item.desc}</div>
-                    </div>
-                  </div>
-                  <Toggle
-                    checked={privacy[item.key]}
-                    onChange={(v) => save({ ...privacy, [item.key]: v })}
-                  />
-                </div>
-              ))}
-        </div>
-      </div>
-
-      {/* Data export */}
-      <div className="dashboard-card">
-        <h3
-          className="section-title"
-          style={{ display: "flex", alignItems: "center", gap: 8 }}
-        >
-          <Download size={15} />
-          {t("privacy.dataExport")}
-        </h3>
-        <p className="section-desc">
-          {t("privacy.dataExportDesc")}
-        </p>
-        <div style={{ padding: "0 18px 16px" }}>
-          <button
-            className="btn btn-secondary btn-sm"
-            onClick={handleExport}
-            disabled={exporting}
-          >
-            {exporting ? (
-              <>
-                <span className="btn-spinner" /> {t("privacy.preparing")}
-              </>
-            ) : (
-              <>
-                <Download size={14} /> {t("privacy.exportData")}
-              </>
-            )}
-          </button>
-          <p
-            style={{
-              fontSize: 12,
-              color: "var(--tb-text-muted)",
-              marginTop: 8,
-            }}
-          >
-            {t("privacy.exportNote")}
+      {/* ═══ Data & Analytics ═══ */}
+      <div className="mt-6 rounded-xl border border-[var(--tb-border)] bg-[var(--tb-surface-1)] overflow-hidden">
+        <div className="px-5 py-4 border-b border-[var(--tb-border)]">
+          <h3 className="flex items-center gap-2 text-[13px] font-semibold text-[var(--tb-text-primary)]">
+            <BarChart3 size={14} className="text-[var(--tb-text-muted)]" />{" "}
+            Data & analytics
+          </h3>
+          <p className="text-[12px] text-[var(--tb-text-muted)] mt-1">
+            {t("privacy.dataAnalytics")}
           </p>
         </div>
+
+        <div className="divide-y divide-[var(--tb-border)]">
+          {loading
+            ? Array.from({ length: 2 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between px-5 py-4"
+                >
+                  <div className="space-y-1.5">
+                    <Skeleton width={140} height={12} />
+                    <Skeleton width={240} height={10} />
+                  </div>
+                  <Skeleton width={36} height={20} borderRadius={999} />
+                </div>
+              ))
+            : consentItems.map((item) => (
+                <label
+                  key={item.key}
+                  className="flex items-center justify-between gap-4 px-5 py-4 cursor-pointer hover:bg-[var(--tb-surface-2)]/50 transition-colors"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="grid h-8 w-8 place-items-center rounded-lg border border-[var(--tb-border)] bg-[var(--tb-surface-2)] text-[var(--tb-text-muted)] shrink-0">
+                      {item.icon}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="text-[13px] font-medium text-[var(--tb-text-primary)]">
+                        {item.label}
+                      </div>
+                      <div className="text-[11px] leading-4 text-[var(--tb-text-muted)]">
+                        {item.desc}
+                      </div>
+                    </div>
+                  </div>
+                  <Switch
+                    checked={privacy[item.key]}
+                    onCheckedChange={(v) =>
+                      save({ ...privacy, [item.key]: v })
+                    }
+                  />
+                </label>
+              ))}
+        </div>
+
+        <div className="px-5 py-2.5 bg-[var(--tb-surface-2)]/50 border-t border-[var(--tb-border)] text-[11px] text-[var(--tb-text-muted)]">
+          Changes save automatically · Stored in{" "}
+          <code className="px-1 py-0.5 rounded bg-[var(--tb-surface-1)] border border-[var(--tb-border)] text-[10px]">
+            users.consents
+          </code>
+        </div>
       </div>
 
-      {/* Danger zone */}
-      <div
-        className="dashboard-card"
-        style={{ borderColor: "var(--tb-red-soft, rgba(239,68,68,0.3))" }}
-      >
-        <h3
-          className="section-title"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            color: "var(--tb-red, #ef4444)",
-          }}
-        >
-          <Trash size={15} />
-          {t("privacy.dangerZone")}
+      {/* ═══ Data Export ═══ */}
+      <div className="mt-4 rounded-xl border border-[var(--tb-border)] bg-[var(--tb-surface-1)] px-5 py-4">
+        <h3 className="flex items-center gap-2 text-[13px] font-semibold text-[var(--tb-text-primary)]">
+          <Download size={14} className="text-[var(--tb-text-muted)]" />{" "}
+          {t("privacy.dataExport")}
         </h3>
-        <p className="section-desc">
+        <p className="text-[12px] text-[var(--tb-text-muted)] mt-1">
+          {t("privacy.dataExportDesc")}
+        </p>
+        <button
+          onClick={handleExport}
+          disabled={exporting}
+          className="mt-3 inline-flex items-center gap-1.5 h-8 rounded-full border border-[var(--tb-border)] bg-[var(--tb-surface-2)] px-4 text-[12px] font-medium text-[var(--tb-text-secondary)] hover:bg-[var(--tb-surface-3)] hover:text-[var(--tb-text-primary)] disabled:opacity-50 transition-colors"
+        >
+          <Download size={13} />
+          {exporting ? t("privacy.preparing") : t("privacy.exportData")}
+        </button>
+        <p className="text-[11px] text-[var(--tb-text-muted)] mt-2">
+          {t("privacy.exportNote")}
+        </p>
+      </div>
+
+      {/* ═══ Danger Zone ═══ */}
+      <div className="mt-4 rounded-xl border border-red-500/20 bg-red-500/[0.04] px-5 py-4">
+        <h3 className="flex items-center gap-2 text-[13px] font-semibold text-red-500">
+          <Trash size={14} /> {t("privacy.dangerZone")}
+        </h3>
+        <p className="text-[12px] text-[var(--tb-text-muted)] mt-1">
           {t("privacy.dangerZoneDesc")}
         </p>
-        <div style={{ padding: "0 18px 16px" }}>
+        <div className="mt-3">
           {scheduledDeletion ? (
-            <div style={{ fontSize: 13, color: '#991b1b' }}>
-              Account deletion is scheduled. You can only cancel it.
+            <div className="text-[12px] text-red-500/70">
+              Account deletion is scheduled. You can only cancel it above.
             </div>
           ) : (
             <button
-              className="btn btn-danger btn-sm"
               onClick={() => setShowDeletePopup(true)}
+              className="inline-flex items-center gap-1.5 h-8 rounded-full bg-red-500 px-4 text-[12px] font-medium text-white hover:bg-red-600 transition-colors"
             >
-              <Trash size={14} /> {t("privacy.deleteAccount")}
+              <Trash size={13} /> {t("privacy.deleteAccount")}
             </button>
           )}
-          <p
-            style={{
-              fontSize: 12,
-              color: "var(--tb-text-muted)",
-              marginTop: 8,
-            }}
-          >
-            {scheduledDeletion ? 'Your account will be permanently deleted and all data removed.' : t("privacy.irreversible")}
+          <p className="text-[11px] text-[var(--tb-text-muted)] mt-2">
+            {scheduledDeletion
+              ? "Your account will be permanently deleted and all data removed."
+              : t("privacy.irreversible")}
           </p>
         </div>
       </div>
 
-      {/* Delete Account Popup */}
+      {/* ═══ Delete Account Dialog ═══ */}
       {showDeletePopup && (
         <div
-          className="tb-dialog-overlay"
+          className="fixed inset-0 z-50 grid place-items-center bg-black/60 backdrop-blur-sm p-4"
           onClick={() => {
             setShowDeletePopup(false);
             setDeleteConfirm("");
           }}
         >
-          <div className="tb-dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="tb-dialog-header">
-              <div>
-                <h3 className="tb-dialog-title" style={{ color: "var(--tb-red, #ef4444)" }}>
-                  {t("privacy.deleteAccount")}
-                </h3>
-                <p className="tb-dialog-desc">
-                  {t("privacy.irreversible")}
-                </p>
+          <div
+            className="w-full max-w-[420px] rounded-2xl border border-[var(--tb-border)] bg-[var(--tb-surface-1)] p-5 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-[14px] font-semibold text-red-500">
+              {t("privacy.deleteAccount")}
+            </h3>
+            <p className="text-[12px] text-[var(--tb-text-muted)] mt-1">
+              {t("privacy.irreversible")}
+            </p>
+
+            <p className="text-[12px] text-[var(--tb-text-secondary)] mt-4">
+              {t("privacy.typeDelete")}
+            </p>
+            <input
+              value={deleteConfirm}
+              onChange={(e) => setDeleteConfirm(e.target.value)}
+              placeholder={t("privacy.typeDeletePh")}
+              autoFocus
+              className="mt-2 h-9 w-full rounded-lg border border-[var(--tb-border)] bg-[var(--tb-input)] px-3 text-[13px] text-[var(--tb-text-primary)] outline-none focus:border-[var(--tb-border-strong)] transition-colors"
+            />
+            <input
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              placeholder="Enter password (if set)"
+              className="mt-2 h-9 w-full rounded-lg border border-[var(--tb-border)] bg-[var(--tb-input)] px-3 text-[13px] text-[var(--tb-text-primary)] outline-none focus:border-[var(--tb-border-strong)] transition-colors"
+            />
+            {deleteError && (
+              <div className="mt-2 text-[12px] text-red-500">
+                {deleteError}
               </div>
+            )}
+            <div className="mt-4 flex justify-end gap-2">
               <button
-                className="header-control"
                 onClick={() => {
                   setShowDeletePopup(false);
                   setDeleteConfirm("");
                 }}
-              >
-                <Trash size={16} />
-              </button>
-            </div>
-            <div className="tb-dialog-body">
-              <p
-                style={{
-                  fontSize: 13,
-                  color: "var(--tb-text-secondary)",
-                  marginBottom: 12,
-                }}
-              >
-                {t("privacy.typeDelete")}
-              </p>
-              <input
-                className="form-input"
-                value={deleteConfirm}
-                onChange={(e) => setDeleteConfirm(e.target.value)}
-                placeholder={t("privacy.typeDeletePh")}
-                autoFocus
-              />
-              <input
-                className="form-input"
-                type="password"
-                value={deletePassword}
-                onChange={(e) => setDeletePassword(e.target.value)}
-                placeholder="Enter password (if set)"
-                style={{ marginTop: 10 }}
-              />
-              {deleteError && (
-                <div style={{ marginTop: 10, fontSize: 12, color: "var(--tb-red, #ef4444)" }}>
-                  {deleteError}
-                </div>
-              )}
-            </div>
-            <div className="tb-dialog-footer">
-              <button
-                className="btn btn-ghost btn-sm"
-                onClick={() => {
-                  setShowDeletePopup(false);
-                  setDeleteConfirm("");
-                }}
+                className="h-8 rounded-full border border-[var(--tb-border)] bg-[var(--tb-surface-2)] px-4 text-[12px] text-[var(--tb-text-secondary)] hover:bg-[var(--tb-surface-3)] transition-colors"
               >
                 {t("common.cancel")}
               </button>
               <button
-                className="btn btn-danger btn-sm"
                 disabled={deleteConfirm !== "DELETE" || deleting}
                 onClick={handleDelete}
+                className="h-8 rounded-full bg-red-500 px-4 text-[12px] font-medium text-white disabled:opacity-40 hover:bg-red-600 transition-colors"
               >
-                {deleting ? (
-                  <>
-                    <span className="btn-spinner" /> {t("privacy.deleting")}
-                  </>
-                ) : (
-                  t("privacy.deleteAccount")
-                )}
+                {deleting ? t("privacy.deleting") : t("privacy.deleteAccount")}
               </button>
             </div>
           </div>

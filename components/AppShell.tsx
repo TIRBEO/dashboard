@@ -262,6 +262,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     try { const r = await listTickets({ limit: 10 }); setTickets(r.data); } catch (e) { if (isUnauthorizedError(e)) redirectToAccounts(); }
   }, []);
 
+  // Simple load-on-open only — no websocket, no auto-reload loop
   useEffect(() => {
     let alive = true;
     getCurrentUser()
@@ -279,10 +280,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     fetchNotifications();
     fetchTickets();
     registerServiceWorker();
-    pollTimer.current = setInterval(() => { if (document.visibilityState === "visible") fetchNotifications(); }, 30_000);
-    const onVisibility = () => { if (document.visibilityState === "visible") fetchNotifications(); };
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => { alive = false; if (pollTimer.current) clearInterval(pollTimer.current); document.removeEventListener("visibilitychange", onVisibility); };
+    return () => { alive = false; };
   }, []);
 
   // Profile page broadcasts edits (avatar/name) — apply instantly everywhere
@@ -297,103 +295,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("tb:user-updated", onUserUpdated);
   }, []);
 
-  // Real-time notification updates via WebSocket
-  useEffect(() => {
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
-    if (!wsUrl || !user?.id) return;
-    let ws: WebSocket | null = null;
-    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
-    let pingInterval: ReturnType<typeof setInterval> | null = null;
-    let retryCount = 0;
-    let alive = true;
-
-    const handleNotification = (notifData: any) => {
-      setNotifications((prev) => [notifData, ...prev]);
-      setUnread((u) => u + 1);
-      setBadgePulse(true);
-      if (pulseTimer.current) clearTimeout(pulseTimer.current);
-      pulseTimer.current = setTimeout(() => setBadgePulse(false), 700);
-      try { const { notifyNotificationsChanged } = require("@/lib/notification-events"); notifyNotificationsChanged(); } catch {}
-    };
-
-    const connect = () => {
-      if (!alive) return;
-      try {
-        ws = new WebSocket(wsUrl);
-        ws.onopen = () => {
-          retryCount = 0;
-          // Authenticate with session token
-          const token = localStorage.getItem('auth_token');
-          if (token && ws?.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type: 'auth', token }));
-          }
-        };
-        ws.onmessage = (event) => {
-          try {
-            const msg = JSON.parse(event.data);
-
-            // Handle ping → pong keep-alive
-            if (msg.type === 'ping') {
-              ws?.send(JSON.stringify({ type: 'pong' }));
-              return;
-            }
-
-            // Auth confirmed — subscribe to user channel
-            if (msg.type === 'auth_ok') {
-              ws?.send(JSON.stringify({ type: 'subscribe', channel: `user:${user.id}` }));
-              // Start periodic ping
-              pingInterval = setInterval(() => {
-                if (ws?.readyState === WebSocket.OPEN) {
-                  ws.send(JSON.stringify({ type: 'ping' }));
-                }
-              }, 25000);
-              return;
-            }
-
-            // Auth failed
-            if (msg.type === 'auth_error') return;
-
-            // Rate limit — just ignore
-            if (msg.type === 'rate_limit_exceeded') return;
-
-            // Direct notification from local WS server
-            if (msg.type === 'notification' && msg.data) {
-              handleNotification(msg.data);
-              return;
-            }
-
-            // Realtime platform event: { type: 'event', channel, event: { type: 'notification', payload: {...} } }
-            if (msg.type === 'event' && msg.event && typeof msg.event === 'object') {
-              const evt = msg.event as Record<string, unknown>;
-              if (evt.type === 'notification') {
-                const payload = (evt.payload || evt) as Record<string, unknown>;
-                if (payload && typeof payload === 'object' && 'title' in payload) {
-                  handleNotification(payload);
-                }
-              }
-              return;
-            }
-          } catch {}
-        };
-        ws.onclose = (event) => {
-          if (pingInterval) { clearInterval(pingInterval); pingInterval = null; }
-          if (alive && event.code !== 4001 && event.code !== 4003 && retryCount < 10) {
-            const delay = Math.min(1000 * Math.pow(2, retryCount), 30000);
-            retryCount++;
-            reconnectTimer = setTimeout(connect, delay);
-          }
-        };
-        ws.onerror = () => { ws?.close(); };
-      } catch {}
-    };
-    connect();
-    return () => {
-      alive = false;
-      if (reconnectTimer) clearTimeout(reconnectTimer);
-      if (pingInterval) clearInterval(pingInterval);
-      ws?.close();
-    };
-  }, [user?.id]);
+  // WebSocket disabled for simple dev mode — load once on open only.
+  // If you need realtime later, re-enable here with explicit opt-in.
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
