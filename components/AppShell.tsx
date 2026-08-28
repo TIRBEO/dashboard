@@ -115,7 +115,7 @@ function SafeAvatarImg({ src, alt, fallback }: { src?: string | null; alt: strin
   const [failed, setFailed] = useState(false);
   useEffect(() => { setFailed(false); }, [src]);
   if (!src || failed) return <>{fallback}</>;
-  return <img src={src} alt={alt} style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={() => setFailed(true)} referrerPolicy="no-referrer" crossOrigin="anonymous" loading="eager" />;
+  return <img src={src} alt={alt} style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={() => setFailed(true)} referrerPolicy="no-referrer" loading="eager" />;
 }
 
 function translateText(t: I18nT, text?: string, lang?: string) {

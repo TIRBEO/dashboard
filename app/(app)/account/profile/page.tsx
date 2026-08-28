@@ -235,7 +235,7 @@ export default function ProfilePage() {
               onClick={() => fileRef.current?.click()}
             >
               {user?.photoUrl && !imgFailed ? (
-                <img src={user.photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setImgFailed(true)} referrerPolicy="no-referrer" crossOrigin="anonymous" />
+                <img src={user.photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={() => setImgFailed(true)} referrerPolicy="no-referrer" />
               ) : (
                 <User size={28} style={{ opacity: 0.6 }} />
               )}
