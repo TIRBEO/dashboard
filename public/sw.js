@@ -99,6 +99,12 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // Bypass cross-origin requests (API on https://api.tirbeo.app, Discord CDN, Umami, etc.)
+  // Let the browser handle them directly so CORS works; don't let SW intercept and reject.
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
   // Skip non-GET requests for caching (but handle POST for sync)
   if (request.method !== 'GET' && request.method !== 'POST') {
     return;

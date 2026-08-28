@@ -286,7 +286,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       });
     fetchNotifications();
     fetchTickets();
-    registerServiceWorker();
+    // Disabled SW registration — old SW was intercepting api.tirbeo.app + cdn.discordapp.com and breaking CORS via respondWith NetworkError
+    // Clean up any previously installed SW + caches so h1-check.js and api fetches go direct to network
+    if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(()=>{});
+      if ("caches" in window) caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(()=>{});
+    }
     return () => { alive = false; };
   }, []);
 
