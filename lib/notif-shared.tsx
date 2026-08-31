@@ -25,9 +25,9 @@ const TYPE_RULES: Array<{
   labelKey?: string;
   label?: string;
 }> = [
-  { match: "security", icon: Shield, color: "#ef4444", labelKey: "inbox.typeSecurity" },
+  { match: "security", icon: Shield, color: "var(--tb-red)", labelKey: "inbox.typeSecurity" },
   { match: "login", icon: Key, color: "#8b5cf6", labelKey: "inbox.typeLogin" },
-  { match: "forms", icon: MessageSquare, color: "#3b82f6", labelKey: "inbox.typeForms" },
+  { match: "forms", icon: MessageSquare, color: "var(--tb-blue)", labelKey: "inbox.typeForms" },
   { match: "product", icon: Rocket, color: "#f59e0b", labelKey: "inbox.typeProduct" },
   { match: "system", icon: Rocket, color: "#f59e0b", labelKey: "inbox.typeProduct" },
   { match: "digest", icon: Mail, color: "#f59e0b", labelKey: "inbox.typeProduct" },

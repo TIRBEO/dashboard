@@ -3,7 +3,7 @@ import type { Dict } from "@/lib/i18n";
 export const ja: any = {
   common: {
     loading: "読み込み中", saving: "保存中...", saved: "保存済み", autoSaved: "変更は自動保存されます",
-    viewAll: "すべて見る", new: "新規", close: "閉じる", cancel: "キャンセル", save: "保存", delete: "削除",
+    viewAll: "すべて見る", new: "新規", close: "閉じる", cancel: "キャンセル", save: "保存", delete: "削除", deleting: "削除中…",
     markRead: "既読にする", loadMore: "もっと読み込む", noNotifications: "通知はありません", noTickets: "チケットはありません",
     justNow: "たった今", agoM: "{n}分前", agoH: "{n}時間前", yesterday: "昨日", total: "合計",
     unsavedWarn: "未保存の変更があります。このページを離れる前に保存してください。",
@@ -44,6 +44,7 @@ export const ja: any = {
   },
   session: { expired: "セッションが期限切れになりました。一部の機能が動作しない場合があります。", signInAgain: "再サインイン" },
   notif: {
+    scheduleTitle: "Schedule & email summaries",
     title: "通知", subtitle: "通知を受け取る方法とタイミングを設定します。", retention: "通知は30日後に自動的に削除されます。", empty: "通知はありません", total: "合計",
     channelsTitle: "チャンネル", channelsDesc: "通知を受け取る場所を選択します。",
     email: "メール", push: "プッシュ",
@@ -68,6 +69,7 @@ export const ja: any = {
     months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
   },
   inbox: {
+    when: "When", where: "Where", device: "Device", category: "Category",
     title: "受信トレイ", descUnread: "{total}件中{unread}件未読", descTotal: "{total}件のメッセージ", markAllRead: "すべて既読にする", tabAll: "すべて", tabUnread: "未読", tabRead: "既読",
     deselect: "選択解除", selectAll: "すべて選択", select: "選択", read: "既読",
     searchPlaceholder: "通知を検索...", noMatching: "一致する通知はありません",
@@ -157,6 +159,7 @@ export const ja: any = {
     connectedAccounts: "連携アカウント", noneConnected: "連携されたアカウントはありません。", verified: "確認済み", unverified: "未確認",
   },
   history: {
+    chipMethod: "Method", chipReason: "Reason", via: "via",
     title: "アクティビティ履歴", subtitle: "セキュリティとアカウントのイベントの記録です。",
     noActivity: "まだアクティビティはありません", noActivityDesc: "実行した操作がここに表示されます。",
     act: {

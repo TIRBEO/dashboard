@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -7,6 +8,19 @@ import { TirbeoThemeProvider } from '@tirbeo/theme';
 import { Providers } from '@/components/providers';
 
 import './globals.css';
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+const jetMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  display: 'swap',
+  variable: '--font-jet-mono',
+});
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || 'https://tirbeo.com';
@@ -128,8 +142,7 @@ export const viewport: Viewport = {
 
   themeColor: [
     {
-      media: '(prefers-color-scheme: dark)',
-      color: '#0a0a0a',
+      media: '(prefers-color-scheme: dark)',        color: '#000000',
     },
     {
       media: '(prefers-color-scheme: light)',
@@ -208,6 +221,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
+      className={`${inter.variable} ${jetMono.variable}`}
     >
       <head>
         {/*
@@ -236,6 +250,31 @@ export default function RootLayout({
           rel="preconnect"
           href="https://cloud.umami.is"
           crossOrigin=""
+        />
+
+        {/*
+         * Suppress browser extension errors (h1-check.js / detectStore) before scripts run
+         */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.addEventListener('error', function(e) {
+                var m = String(e.message || '');
+                var s = String((e.filename || e.srcElement?.src) || '');
+                if (m.includes('detectStore') || s.includes('h1-check')) {
+                  e.stopImmediatePropagation();
+                  e.preventDefault();
+                  return false;
+                }
+              }, true);
+                               window.addEventListener('unhandledrejection', function(e) {
+                                 var m = String(e.reason?.message || e.reason || '');
+                                 if (m.includes('detectStore') || m.includes('h1-check') || m.includes('can\'t access property')) {
+                                   e.preventDefault();
+                                 }
+                               }, true);
+            `,
+          }}
         />
       </head>
 
@@ -267,14 +306,14 @@ export default function RootLayout({
         </TirbeoThemeProvider>
 
         {/*
-         * Vercel Analytics
+         * Vercel Analytics — disabled in dev to avoid OpaqueResponseBlocking
          */}
-        <Analytics />
+        {process.env.NODE_ENV === 'production' && <Analytics />}
 
         {/*
-         * Vercel Speed Insights / Core Web Vitals
+         * Vercel Speed Insights / Core Web Vitals — disabled in dev
          */}
-        <SpeedInsights />
+        {process.env.NODE_ENV === 'production' && <SpeedInsights />}
 
         {/*
          * Umami Analytics

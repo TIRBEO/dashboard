@@ -3,7 +3,7 @@ import type { Dict } from "@/lib/i18n";
 export const zh: any = {
   common: {
     loading: "加载中", saving: "保存中...", saved: "已保存", autoSaved: "更改已自动保存",
-    viewAll: "查看全部", new: "新建", close: "关闭", cancel: "取消", save: "保存", delete: "删除",
+    viewAll: "查看全部", new: "新建", close: "关闭", cancel: "取消", save: "保存", delete: "删除", deleting: "删除中…",
     markRead: "标记为已读", loadMore: "加载更多", noNotifications: "暂无通知", noTickets: "暂无工单",
     justNow: "刚刚", agoM: "{n}分钟前", agoH: "{n}小时前", yesterday: "昨天", total: "共",
     unsavedWarn: "您有未保存的更改——离开此页面之前请先保存。",
@@ -44,6 +44,7 @@ export const zh: any = {
   },
   session: { expired: "您的会话已过期。某些功能可能无法使用。", signInAgain: "重新登录" },
   notif: {
+    scheduleTitle: "Schedule & email summaries",
     title: "通知", subtitle: "配置接收通知的方式和时间。", retention: "通知将在30天后自动删除。", empty: "暂无通知", total: "共",
     channelsTitle: "渠道", channelsDesc: "选择您希望接收通知的方式。",
     email: "邮件", push: "推送",
@@ -68,6 +69,7 @@ export const zh: any = {
     months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
   },
   inbox: {
+    when: "When", where: "Where", device: "Device", category: "Category",
     title: "收件箱", descUnread: "{total}条中{unread}条未读", descTotal: "{total}条消息", markAllRead: "全部标为已读", tabAll: "全部", tabUnread: "未读", tabRead: "已读",
     deselect: "取消选择", selectAll: "全选", select: "选择", read: "已读",
     searchPlaceholder: "搜索通知...", noMatching: "没有匹配的通知",
@@ -157,6 +159,7 @@ export const zh: any = {
     connectedAccounts: "已连接的账户", noneConnected: "未连接任何账户。", verified: "已验证", unverified: "未验证",
   },
   history: {
+    chipMethod: "Method", chipReason: "Reason", via: "via",
     title: "活动历史", subtitle: "安全和账户事件的记录。",
     noActivity: "暂无活动", noActivityDesc: "您执行的操作将显示在这里。",
     act: {

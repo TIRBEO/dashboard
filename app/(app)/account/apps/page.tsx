@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { api, API } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
 import { GoogleIcon, GitHubIcon, DiscordIcon } from "@/components/SocialIcons";
+import { Dialog, DialogHeader, DialogBody, DialogFooter, BtnCancel, BtnDanger, BtnPrimary, InfoCard, WarningBlock } from "@/components/ui/Dialog";
 import {
   Check,
   X,
@@ -13,6 +14,8 @@ import {
   Loader2,
   Shield,
   Mail,
+  Plug,
+  Calendar,
 } from "lucide-react";
 
 const PROVIDER_META: Record<string, { icon: React.ReactNode; color?: string; bg: string; border: string }> = {
@@ -22,7 +25,11 @@ const PROVIDER_META: Record<string, { icon: React.ReactNode; color?: string; bg:
 };
 
 export default function ConnectedAppsPage() {
-  return <Suspense fallback={<div style={{ padding: 24 }}>Loading...</div>}><ConnectedAppsInner /></Suspense>;
+  return (
+    <Suspense fallback={<div className="py-24 text-center text-[14px] text-tb-text-muted">Loading...</div>}>
+      <ConnectedAppsInner />
+    </Suspense>
+  );
 }
 
 function ConnectedAppsInner() {
@@ -34,11 +41,7 @@ function ConnectedAppsInner() {
   const [connecting, setConnecting] = useState<string | null>(null);
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
-
-  // Disconnect confirmation
   const [showDisconnect, setShowDisconnect] = useState<string | null>(null);
-
-  // Merge conflict
   const [mergeToken, setMergeToken] = useState<string | null>(null);
   const [mergeEmail, setMergeEmail] = useState("");
   const [mergeProvider, setMergeProvider] = useState("");
@@ -62,78 +65,35 @@ function ConnectedAppsInner() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Handle merge token from URL
   useEffect(() => {
     const mt = searchParams.get("merge_token");
     const email = searchParams.get("email");
     const provider = searchParams.get("provider");
-    if (mt) {
-      setMergeToken(mt);
-      setMergeEmail(email || "");
-      setMergeProvider(provider || "unknown");
-      setShowMerge(true);
-      // Clean URL
-      router.replace("/account/apps");
-    }
+    if (mt) { setMergeToken(mt); setMergeEmail(email || ""); setMergeProvider(provider || "unknown"); setShowMerge(true); router.replace("/account/apps"); }
     const connected = searchParams.get("connected");
-    if (connected) {
-      showToast(`${connected.charAt(0).toUpperCase() + connected.slice(1)} connected successfully!`);
-      router.replace("/account/apps");
-    }
+    if (connected) { showToast(`${connected.charAt(0).toUpperCase() + connected.slice(1)} connected successfully!`); router.replace("/account/apps"); }
   }, [searchParams, router, showToast]);
 
-  const handleConnect = (provider: string) => {
-    setConnecting(provider);
-    window.location.href = `${API}/api/auth/${provider}?link=1`;
-  };
+  const handleConnect = (provider: string) => { setConnecting(provider); window.location.href = `${API}/api/auth/${provider}?link=1`; };
 
   const handleDisconnect = async (provider: string) => {
     setDisconnecting(provider);
-    try {
-      await api.request("/api/integrations", {
-        method: "DELETE",
-        body: JSON.stringify({ provider }),
-      });
-      await load();
-      showToast(`${provider.charAt(0).toUpperCase() + provider.slice(1)} disconnected`);
-    } catch (e: any) {
-      showToast(e?.message || "Failed to disconnect", "error");
-    }
-    setDisconnecting(null);
-    setShowDisconnect(null);
+    try { await api.request("/api/integrations", { method: "DELETE", body: JSON.stringify({ provider }) }); await load(); showToast(`${provider.charAt(0).toUpperCase() + provider.slice(1)} disconnected`); }
+    catch (e: any) { showToast(e?.message || "Failed to disconnect", "error"); }
+    setDisconnecting(null); setShowDisconnect(null);
   };
 
   const handleMerge = async () => {
     if (!mergeToken) return;
     setMerging(true);
-    try {
-      const res = await api.post<any>("/api/integrations/merge", {
-        merge_token: mergeToken,
-        action: "merge",
-      });
-      if (res?.ok) {
-        showToast(t("apps.mergeSuccess"));
-        await load();
-      } else {
-        showToast(res?.error || "Merge failed", "error");
-      }
-    } catch (e: any) {
-      showToast(e?.message || "Failed to merge", "error");
-    }
-    setMerging(false);
-    setShowMerge(false);
-    setMergeToken(null);
+    try { const res = await api.post<any>("/api/integrations/merge", { merge_token: mergeToken, action: "merge" }); if (res?.ok) { showToast(t("apps.mergeSuccess")); await load(); } else { showToast(res?.error || "Merge failed", "error"); } }
+    catch (e: any) { showToast(e?.message || "Failed to merge", "error"); }
+    setMerging(false); setShowMerge(false); setMergeToken(null);
   };
 
   const handleCancelMerge = async () => {
-    if (mergeToken) {
-      try {
-        await api.post("/api/integrations/merge", { merge_token: mergeToken, action: "cancel" });
-      } catch { /* silent */ }
-    }
-    setShowMerge(false);
-    setMergeToken(null);
-    showToast(t("apps.mergeCancelled"));
+    if (mergeToken) { try { await api.post("/api/integrations/merge", { merge_token: mergeToken, action: "cancel" }); } catch {} }
+    setShowMerge(false); setMergeToken(null); showToast(t("apps.mergeCancelled"));
   };
 
   const getConnectedEmail = (provider: string) => {
@@ -144,9 +104,7 @@ function ConnectedAppsInner() {
   const getConnectedDate = (provider: string) => {
     const integration = integrations.find((i: any) => i.provider === provider && i.connected);
     if (!integration?.updatedAt) return null;
-    return new Date(integration.updatedAt).toLocaleDateString(undefined, {
-      year: "numeric", month: "short", day: "numeric",
-    });
+    return new Date(integration.updatedAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
   };
 
   const PROVIDERS = [
@@ -156,230 +114,170 @@ function ConnectedAppsInner() {
   ];
 
   return (
-    <div className="page-stack">
-      {/* Toast */}
+    <div className="flex flex-col gap-6 max-w-[1200px] mx-auto">
+      {/* ── Toast ── */}
       {toast && (
-        <div style={{
-          position: "fixed", top: 20, right: 20, zIndex: 9999,
-          padding: "12px 20px", borderRadius: 10,
-          background: toast.type === "success" ? "var(--tb-green-soft, #d4edda)" : "var(--tb-red-soft, #f8d7da)",
-          color: toast.type === "success" ? "var(--tb-green, #28a745)" : "var(--tb-red, #dc3545)",
-          border: `1px solid ${toast.type === "success" ? "var(--tb-green, #28a745)" : "var(--tb-red, #dc3545)"}`,
-          fontSize: 14, fontWeight: 500, boxShadow: "0 4px 12px rgba(0,0,0,.15)",
-          transition: "opacity 200ms",
-        }}>
+        <div
+          className={`fixed top-5 right-5 z-[9999] px-5 py-3 rounded-xl text-[15px] font-medium animate-in fade-in slide-in-from-top-2 duration-200 shadow-[0_4px_12px_rgba(0,0,0,.15)] ${toast.type === 'success' ? 'bg-tb-green-soft text-tb-green border border-tb-green' : 'bg-tb-red-soft text-tb-red border border-tb-red'}`}
+        >
           {toast.msg}
         </div>
       )}
 
-      <div className="page-header">
-        <div className="page-header-row">
-          <div className="page-header-left">
-            <h1 className="page-header-title">{t("apps.title")}</h1>
-            <p className="page-header-description">{t("apps.subtitle")}</p>
-          </div>
+      {/* ── Page Header ── */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="min-w-0">
+          <h1 className="text-[24px] font-semibold text-tb-text-primary tracking-tight flex items-center gap-2.5">
+            <Plug size={22} className="text-tb-text-muted" />
+            {t("apps.title")}
+          </h1>
+          <p className="text-sm text-tb-text-muted mt-1">{t("apps.subtitle")}</p>
         </div>
       </div>
 
-      {/* Provider Cards */}
+      {/* ═══ Provider Cards ═══ */}
       {loading ? (
-        <div className="dashboard-card">
+        <div className="rounded-2xl border border-tb-border bg-tb-surface-1 p-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="consent-row" style={{ opacity: 0.5 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 10, background: "var(--tb-surface-2, #f5f5f5)" }} />
+            <div key={i} className={`flex items-center justify-between py-4 opacity-50 ${i < 3 ? 'border-b border-tb-border' : ''}`}>
+              <div className="flex items-center gap-3.5">
+                <div className="w-11 h-11 rounded-xl bg-tb-surface-2" />
                 <div>
-                  <div style={{ width: 100, height: 16, borderRadius: 4, background: "var(--tb-surface-2, #f5f5f5)" }} />
-                  <div style={{ width: 160, height: 12, borderRadius: 4, background: "var(--tb-surface-2, #f5f5f5)", marginTop: 6 }} />
+                  <div className="w-24 h-4 rounded bg-tb-surface-2" />
+                  <div className="w-40 h-3 rounded mt-1.5 bg-tb-surface-2" />
                 </div>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="dashboard-card" style={{ padding: 0, overflow: "hidden" }}>
-          <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--tb-border)", fontSize: 14, fontWeight: 600, color: "var(--tb-text-secondary, #666)" }}>
-            {t("apps.available")}
+        <div className="rounded-2xl border border-tb-border bg-tb-surface-1 overflow-hidden">
+          <div className="px-6 py-4 border-b border-tb-border">
+            <h3 className="text-[15px] font-semibold text-tb-text-secondary">{t("apps.available")}</h3>
           </div>
-          {PROVIDERS.map((p) => {
-            const connected = integrations.some((i: any) => i.provider === p.id && i.connected);
-            const connectedEmail = getConnectedEmail(p.id);
-            const connectedDate = getConnectedDate(p.id);
-            const meta = PROVIDER_META[p.id];
-            return (
-              <div key={p.id} className="consent-row" style={{ gap: 16, padding: "16px 20px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 14, flex: 1, minWidth: 0 }}>
-                  <div style={{
-                    width: 44, height: 44, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
-                    background: meta?.bg || "var(--tb-surface-2)", color: meta?.color || "var(--tb-text-primary)",
-                    border: `1px solid ${meta?.border || "var(--tb-border)"}`, flexShrink: 0,
-                  }}>
-                    {meta?.icon || p.name[0]}
-                  </div>
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                      <span style={{ fontWeight: 600, fontSize: 15, color: "var(--tb-text-primary)" }}>{p.name}</span>
-                      {connected ? (
-                        <span style={{
-                          display: "inline-flex", alignItems: "center", gap: 4,
-                          padding: "2px 8px", borderRadius: 99, fontSize: 11, fontWeight: 600,
-                          background: "var(--tb-green-soft, #d4edda)", color: "var(--tb-green, #28a745)",
-                        }}>
-                          <Check size={10} /> {t("apps.connected")}
-                        </span>
-                      ) : (
-                        <span style={{
-                          display: "inline-flex", alignItems: "center", gap: 4,
-                          padding: "2px 8px", borderRadius: 99, fontSize: 11, fontWeight: 600,
-                          background: "var(--tb-surface-2, #f5f5f5)", color: "var(--tb-text-muted, #999)",
-                        }}>
-                          {t("apps.notConnected")}
-                        </span>
-                      )}
+          <div>
+            {PROVIDERS.map((p, i) => {
+              const connected = integrations.some((int: any) => int.provider === p.id && int.connected);
+              const connectedEmail = getConnectedEmail(p.id);
+              const connectedDate = getConnectedDate(p.id);
+              const meta = PROVIDER_META[p.id];
+              return (
+                <div
+                  key={p.id}
+                  className={`flex items-center justify-between gap-4 px-6 py-4 transition-all duration-100 hover:bg-tb-surface-2 ${i < PROVIDERS.length - 1 ? 'border-b border-tb-border' : ''}`}
+                >
+                  <div className="flex items-center gap-3.5 flex-1 min-w-0">
+                    <div
+                      className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+                      style={{ background: meta?.bg || 'var(--tb-surface-2)', color: meta?.color || 'var(--tb-text-primary)', border: `1px solid ${meta?.border || 'var(--tb-border)'}` }}
+                    >
+                      {meta?.icon || p.name[0]}
                     </div>
-                    <div style={{ fontSize: 13, color: "var(--tb-text-muted, #999)", marginTop: 2 }}>{p.desc}</div>
-                    {connected && connectedEmail && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, fontSize: 12, color: "var(--tb-text-muted, #888)" }}>
-                        <Mail size={12} />
-                        <span>{connectedEmail}</span>
-                        {connectedDate && (
-                          <span style={{ color: "var(--tb-text-muted, #bbb)", marginLeft: 4 }}>
-                            · {t("apps.connectedOn")} {connectedDate}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[16px] font-semibold text-tb-text-primary">{p.name}</span>
+                        {connected ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[12px] font-semibold bg-tb-green-soft text-tb-green">
+                            <Check size={10} /> {t("apps.connected")}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[12px] font-semibold bg-tb-surface-2 text-tb-text-muted">
+                            {t("apps.notConnected")}
                           </span>
                         )}
                       </div>
+                      <div className="text-[14px] text-tb-text-muted mt-0.5">{p.desc}</div>
+                      {connected && connectedEmail && (
+                        <div className="flex items-center gap-1.5 mt-1.5 text-[13px] text-tb-text-muted">
+                          <Mail size={12} className="flex-shrink-0" />
+                          <span>{connectedEmail}</span>
+                          {connectedDate && (
+                            <span className="text-tb-text-disabled ml-1">
+                              · {t("apps.connectedOn")} {connectedDate}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0">
+                    {connected ? (
+                      <button
+                        onClick={() => setShowDisconnect(p.id)}
+                        disabled={disconnecting === p.id}
+                        className="inline-flex items-center gap-1.5 px-3 h-8 rounded-lg text-[14px] font-medium border border-tb-red text-tb-red hover:bg-tb-red-soft transition-all duration-150 disabled:opacity-40 whitespace-nowrap"
+                      >
+                        {disconnecting === p.id ? <Loader2 size={14} className="animate-spin" /> : <Unlink size={14} />}
+                        {t("apps.disconnect")}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleConnect(p.id)}
+                        disabled={connecting === p.id}
+                        className="inline-flex items-center gap-1.5 px-3 h-8 rounded-lg text-[14px] font-medium transition-all duration-150 active:scale-[0.97] disabled:opacity-40 whitespace-nowrap bg-tb-text-primary text-tb-bg"
+                      >
+                        {connecting === p.id ? <Loader2 size={14} className="animate-spin" /> : <Link2 size={14} />}
+                        {t("apps.connect")}
+                      </button>
                     )}
                   </div>
                 </div>
-                <div style={{ flexShrink: 0 }}>
-                  {connected ? (
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => setShowDisconnect(p.id)}
-                      disabled={disconnecting === p.id}
-                      style={{ display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}
-                    >
-                      {disconnecting === p.id ? <Loader2 size={14} className="animate-spin" /> : <Unlink size={14} />}
-                      {t("apps.disconnect")}
-                    </button>
-                  ) : (
-                    <button
-                      className="btn btn-primary btn-sm"
-                      onClick={() => handleConnect(p.id)}
-                      disabled={connecting === p.id}
-                      style={{ display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}
-                    >
-                      {connecting === p.id ? <Loader2 size={14} className="animate-spin" /> : <Link2 size={14} />}
-                      {t("apps.connect")}
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Disconnect Confirmation Dialog */}
-      {showDisconnect && (
-        <div style={{
-          position: "fixed", inset: 0, zIndex: 10000,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)",
-        }} onClick={() => setShowDisconnect(null)}>
-          <div style={{
-            background: "var(--tb-surface-1, #fff)", borderRadius: 16,
-            padding: 28, maxWidth: 420, width: "90%",
-            border: "1px solid var(--tb-border)", boxShadow: "0 20px 60px rgba(0,0,0,.3)",
-          }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: 10,
-                background: "var(--tb-red-soft, #fee)", display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                <AlertTriangle size={20} color="var(--tb-red, #dc3545)" />
-              </div>
-              <h3 style={{ fontSize: 17, fontWeight: 600, color: "var(--tb-text-primary)", margin: 0 }}>
-                {t("apps.disconnectConfirm")}
-              </h3>
-            </div>
-            <p style={{ fontSize: 14, color: "var(--tb-text-secondary, #666)", margin: "0 0 20px", lineHeight: 1.5 }}>
-              {t("apps.disconnectDesc")}
-            </p>
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button className="btn btn-ghost btn-sm" onClick={() => setShowDisconnect(null)}>
-                {t("apps.cancelButton")}
-              </button>
-              <button
-                className="btn btn-danger btn-sm"
-                onClick={() => showDisconnect && handleDisconnect(showDisconnect)}
-                disabled={!!disconnecting}
-                style={{ display: "flex", alignItems: "center", gap: 6 }}
-              >
-                {disconnecting ? <Loader2 size={14} className="animate-spin" /> : <Unlink size={14} />}
-                {t("apps.disconnect")}
-              </button>
-            </div>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* Merge Conflict Dialog */}
-      {showMerge && (
-        <div style={{
-          position: "fixed", inset: 0, zIndex: 10000,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)",
-        }} onClick={handleCancelMerge}>
-          <div style={{
-            background: "var(--tb-surface-1, #fff)", borderRadius: 16,
-            padding: 28, maxWidth: 440, width: "90%",
-            border: "1px solid var(--tb-border)", boxShadow: "0 20px 60px rgba(0,0,0,.3)",
-          }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: 10,
-                background: "#fff3cd", display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                <Shield size={20} color="#856404" />
-              </div>
-              <h3 style={{ fontSize: 17, fontWeight: 600, color: "var(--tb-text-primary)", margin: 0 }}>
-                {t("apps.mergeTitle")}
-              </h3>
-            </div>
-            <p style={{ fontSize: 14, color: "var(--tb-text-secondary, #666)", margin: "0 0 16px", lineHeight: 1.5 }}>
-              {t("apps.mergeDesc")}
-            </p>
-            {mergeEmail && (
-              <div style={{
-                padding: "10px 14px", borderRadius: 8,
-                background: "var(--tb-surface-2, #f8f9fa)", border: "1px solid var(--tb-border)",
-                marginBottom: 20, fontSize: 13,
-              }}>
-                <span style={{ color: "var(--tb-text-muted, #999)" }}>{t("apps.mergeEmail")}: </span>
-                <span style={{ fontWeight: 600, color: "var(--tb-text-primary)" }}>{mergeEmail}</span>
-                <span style={{ color: "var(--tb-text-muted, #bbb)", marginLeft: 8 }}>
-                  ({mergeProvider})
-                </span>
-              </div>
-            )}
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-              <button className="btn btn-ghost btn-sm" onClick={handleCancelMerge}>
-                {t("apps.cancelButton")}
-              </button>
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={handleMerge}
-                disabled={merging}
-                style={{ display: "flex", alignItems: "center", gap: 6 }}
-              >
-                {merging ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                {t("apps.mergeButton")}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ═══ Disconnect Confirmation Dialog ═══ */}
+      <Dialog open={!!showDisconnect} onClose={() => setShowDisconnect(null)}>
+        <DialogHeader title={t("apps.disconnectConfirm")} description={t("apps.disconnectDesc")} onClose={() => setShowDisconnect(null)} />
+        <DialogBody>
+          <WarningBlock>
+            This will revoke access to your {showDisconnect ? showDisconnect.charAt(0).toUpperCase() + showDisconnect.slice(1) : ''} account. You won{'\u2019'}t be able to sign in with it until you reconnect.
+          </WarningBlock>
+          {showDisconnect && (() => {
+            const p = PROVIDERS.find((pr) => pr.id === showDisconnect);
+            return p ? (
+              <InfoCard
+                icon={PROVIDER_META[p.id]?.icon || <Plug size={18} />}
+                iconBg={PROVIDER_META[p.id]?.bg || 'var(--tb-surface-2)'}
+                title={p.name}
+                subtitle={getConnectedEmail(p.id) || p.desc}
+              />
+            ) : null;
+          })()}
+        </DialogBody>
+        <DialogFooter>
+          <BtnCancel onClick={() => setShowDisconnect(null)}>Keep connected</BtnCancel>
+          <BtnDanger onClick={() => showDisconnect && handleDisconnect(showDisconnect)} loading={!!disconnecting}>
+            {t("apps.disconnect")}
+          </BtnDanger>
+        </DialogFooter>
+      </Dialog>
+
+      {/* ═══ Merge Conflict Dialog ═══ */}
+      <Dialog open={showMerge} onClose={handleCancelMerge}>
+        <DialogHeader title={t("apps.mergeTitle")} description={t("apps.mergeDesc")} onClose={handleCancelMerge} />
+        <DialogBody>
+          <WarningBlock>
+            This will merge your {mergeProvider} account with your existing account. Data from both accounts will be combined and the duplicate account will be removed.
+          </WarningBlock>
+          {mergeEmail && (
+            <InfoCard
+              icon={<Shield size={18} />}
+              iconBg="rgba(234,179,8,0.15)"
+              title={mergeEmail}
+              subtitle={`${t('apps.mergeEmail')} · ${mergeProvider}`}
+            />
+          )}
+        </DialogBody>
+        <DialogFooter>
+          <BtnCancel onClick={handleCancelMerge}>Don't merge accounts</BtnCancel>
+          <BtnPrimary onClick={handleMerge} disabled={merging} loading={merging}>
+            {t("apps.mergeButton")}
+          </BtnPrimary>
+        </DialogFooter>
+      </Dialog>
     </div>
   );
 }

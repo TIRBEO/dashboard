@@ -40,7 +40,9 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   if (!res.ok) {
     let body: any;
     try { body = await res.json(); } catch { body = {}; }
-    throw new ApiError(res.status, (typeof body?.error === 'string' ? body.error : body?.error?.code) || 'UNKNOWN', body?.error?.message || body?.message || res.statusText, body);
+    const errorCode = typeof body?.error === 'string' ? body.error : (body?.error?.code || body?.code || 'UNKNOWN');
+    const errorMessage = typeof body?.error === 'string' ? body.error : (body?.error?.message || body?.message || body?.error || res.statusText);
+    throw new ApiError(res.status, errorCode, errorMessage, body);
   }
   if (res.status === 204) return undefined as T;
   const raw = await res.text();
@@ -190,8 +192,11 @@ export async function updatePreferences(data: Record<string, any>) {
   return api.patch('/api/preferences', data);
 }
 
-export async function getUserActivity(limit = 30) {
-  return api.get<Array<{ id: string; action: string; targetType: string; targetId: string; metadata: any; severity: string; createdAt: string }>>(`/api/user/activity?limit=${limit}`);
+export async function getUserActivity(limit = 20, offset = 0) {
+  return api.get<{
+    events: Array<{ id: string; action: string; targetType?: string | null; targetId?: string | null; metadata: any; severity?: string; createdAt: string }>;
+    total: number;
+  }>(`/api/user/activity?limit=${limit}&offset=${offset}`);
 }
 
 export async function createTicket(data: { title: string; message: string; category?: string; priority?: string }) {
@@ -215,7 +220,7 @@ export async function uploadTicketAttachment(ticketId: string, file: File): Prom
   const headers: Record<string, string> = {};
   if (bearer) headers['Authorization'] = `Bearer ${bearer}`;
   if (csrf) headers['X-CSRF-Token'] = csrf;
-  const res = await fetch(`${API}/api/support/tickets/attachments`, {
+  const res = await fetch(`${API}/api/support/tickets/${ticketId}/attachments`, {
     method: 'POST',
     headers,
     body: formData,
@@ -227,6 +232,14 @@ export async function uploadTicketAttachment(ticketId: string, file: File): Prom
 
 export async function deleteAccount(password?: string, reason?: string): Promise<{ ok?: boolean; scheduledAt?: string; message?: string }> {
   return api.post('/api/user/delete-account', { password, reason }) as any;
+}
+
+export async function requestDeleteOtp(): Promise<{ ok?: boolean; message?: string }> {
+  return api.post('/api/user/delete-account', { step: 'request' }) as any;
+}
+
+export async function verifyDeleteOtp(code: string, reason?: string): Promise<{ ok?: boolean; scheduledAt?: string; message?: string }> {
+  return api.post('/api/user/delete-account', { step: 'verify', code, reason }) as any;
 }
 
 export async function cancelDeletion(): Promise<{ ok?: boolean; message?: string }> {

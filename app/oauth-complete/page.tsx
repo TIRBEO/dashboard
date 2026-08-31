@@ -2,8 +2,9 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { api, getCurrentUser, ApiError } from "@/lib/api";
-import { Loader2, CheckCircle2, Camera, ArrowRight, AlertCircle, Lock } from "lucide-react";
+import { Loader2, CheckCircle2, Camera, ArrowRight, AlertCircle, Lock, Check, X } from "lucide-react";
 import { GoogleIcon, GitHubIcon, DiscordIcon } from "@/components/SocialIcons";
+import { useI18n } from "@/lib/i18n";
 
 const PROVIDER_LABELS: Record<string, string> = { google: "Google", github: "GitHub", discord: "Discord" };
 
@@ -22,26 +23,23 @@ function sanitizeTarget(raw: string | null): string {
   }
 }
 
-function LoadingFallback() {
-  return (
-    <div className="min-h-screen flex items-center justify-center p-6" style={{ background: "var(--tb-bg, #0b0b0d)", color: "var(--tb-text-primary, #f2f2f2)" }}>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-        <Loader2 size={24} className="animate-spin" />
-        <span style={{ fontSize: 14, color: "var(--tb-text-muted, #858589)" }}>Loading…</span>
-      </div>
-    </div>
-  );
-}
-
 export default function OAuthCompletePage() {
   return (
-    <Suspense fallback={<LoadingFallback />}>
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center p-6 bg-[var(--tb-bg,#0b0b0d)] text-[var(--tb-text-primary,#f2f2f2)]">
+        <div className="flex flex-col items-center gap-3.5">
+          <Loader2 size={24} className="animate-spin" />
+          <span className="text-sm text-[var(--tb-text-muted,#858589)]">Loading...</span>
+        </div>
+      </div>
+    }>
       <OAuthCompleteInner />
     </Suspense>
   );
 }
 
 function OAuthCompleteInner() {
+  const { t } = useI18n();
   const searchParams = useSearchParams();
   const signupToken = searchParams.get("signup") || "";
   const finishMode = searchParams.get("finish") === "1";
@@ -54,14 +52,14 @@ function OAuthCompleteInner() {
   const [error, setError] = useState("");
 
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [unameStatus, setUnameStatus] = useState<"idle"|"checking"|"available"|"taken"|"reserved"|"invalid">("idle");
 
-  // Optional password for brand-new accounts (set via popup)
   const [showPw, setShowPw] = useState(false);
   const [pw, setPw] = useState("");
   const [pw2, setPw2] = useState("");
   const [pwError, setPwError] = useState("");
 
-  // Optional profile photo
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -79,7 +77,7 @@ function OAuthCompleteInner() {
             if (r.name) setName(r.name);
           }
         } catch (e) {
-          if (!cancelled) setError(e instanceof ApiError ? e.message : "This sign-in link has expired. Please sign in again.");
+          if (!cancelled) setError(e instanceof ApiError ? e.message : t("oauth.errExpired"));
         }
       } else if (finishMode) {
         try {
@@ -89,61 +87,74 @@ function OAuthCompleteInner() {
             if (u.name) setName(u.name);
           }
         } catch {
-          if (!cancelled) setError("Your session could not be verified. Please sign in again.");
+          if (!cancelled) setError(t("oauth.errSession"));
         }
       } else if (!cancelled) {
-        setError("Nothing to do here. Head back to the sign-in page.");
+        setError(t("oauth.errNothing"));
       }
       if (!cancelled) setChecking(false);
     })();
     return () => { cancelled = true; };
-  }, [signupToken, finishMode]);
+  }, [signupToken, finishMode, t]);
 
   const pickPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    const allowed = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-    if (!allowed.includes(f.type)) { setError("Please select a JPEG, PNG, GIF, or WebP image."); return; }
-    if (f.size > 5 * 1024 * 1024) { setError("Image must be less than 5MB."); return; }
-    setError("");
+    if (f.size > 5 * 1024 * 1024) { setError(t("oauth.errGeneric")); return; }
     setPhoto(f);
-    setPhotoPreview(URL.createObjectURL(f));
-    if (fileRef.current) fileRef.current.value = "";
+    const reader = new FileReader();
+    reader.onload = () => setPhotoPreview(reader.result as string);
+    reader.readAsDataURL(f);
   };
 
-  const uploadAvatarBestEffort = async () => {
-    if (!photo) return;
-    try {
-      const fd = new FormData();
-      fd.append("avatar", photo);
-      await api.request("/api/profile/avatar", { method: "POST", body: fd });
-    } catch { /* non-blocking */ }
-  };
+  // Username availability check
+  useEffect(() => {
+    if (!signupToken) return;
+    if (!username.trim()) { setUnameStatus('idle'); return; }
+    const val = username.trim().toLowerCase();
+    if (val.length < 3 || val.length > 30 || !/^[a-z0-9]([a-z0-9_-]*[a-z0-9])?$/.test(val)) {
+      setUnameStatus('invalid'); return;
+    }
+    setUnameStatus('checking');
+    const timer = setTimeout(async () => {
+      try {
+        const r = await api.get<{ available?: boolean; taken?: boolean; reserved?: boolean; exists?: boolean }>(
+          `/api/profile/check-username?username=${encodeURIComponent(val)}`
+        );
+        if (r.reserved) setUnameStatus('reserved');
+        else if (r.taken || r.exists) setUnameStatus('taken');
+        else if (r.available) setUnameStatus('available');
+        else setUnameStatus('invalid');
+      } catch { setUnameStatus('idle'); }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [signupToken, username]);
 
   const submit = async () => {
-    setError("");
     if (!consent) return;
-    if (signupToken && pw.length > 0) {
-      if (pw.length < 8) { setError("Password must be at least 8 characters."); return; }
-      if (pw !== pw2) { setError("Passwords do not match."); return; }
-    }
-    setSaving(true);
+    if (signupToken && !name.trim()) { setError(t("oauth.errNameRequired")); return; }
+    if (signupToken && !username.trim()) { setError(t("oauth.errUsernameRequired")); return; }
+    if (signupToken && unameStatus === 'invalid') { setError(t("oauth.errUsernameInvalid")); return; }
+    if (signupToken && unameStatus === 'taken') { setError(t("oauth.errUsernameTaken")); return; }
+    if (signupToken && unameStatus === 'reserved') { setError(t("oauth.errUsernameReserved")); return; }
+    if (signupToken && unameStatus !== 'available') { setError(t("oauth.errUsernamePending")); return; }
+    setSaving(true); setError("");
     try {
       if (signupToken) {
-        const r = await api.post<{ ok: boolean; redirect_to: string }>("/api/auth/oauth/complete", {
-          token: signupToken,
-          policyAccepted: true,
-          name: name.trim() || undefined,
-          ...(pw ? { password: pw } : {}),
-        });
-        await uploadAvatarBestEffort();
-        window.location.href = r?.redirect_to || redirectTo;
+        const payload: Record<string, string> = {
+          token: signupToken as string,
+          name: name.trim(),
+          username: username.trim().toLowerCase(),
+          policyAccepted: "true",
+        };
+        if (pw) payload.password = pw;
+        await api.post("/api/auth/oauth/complete", payload);
       } else {
         await api.post("/api/auth/oauth-consent", { policyAccepted: true });
-        window.location.href = redirectTo;
       }
+      window.location.href = redirectTo;
     } catch (e: any) {
-      setError(e?.message || "Something went wrong. Please try again.");
+      setError(e?.message || t("oauth.errGeneric"));
       setSaving(false);
     }
   };
@@ -153,95 +164,110 @@ function OAuthCompleteInner() {
   const initial = (info?.name || info?.email || "?").trim().charAt(0).toUpperCase();
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6" style={{ background: "var(--tb-bg, #0b0b0d)", color: "var(--tb-text-primary, #f2f2f2)" }}>
-      <div className="w-full" style={{ maxWidth: 460 }}>
-        <div className="dashboard-card" style={{ padding: 28 }}>
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[var(--tb-bg,#0b0b0d)] text-[var(--tb-text-primary,#f2f2f2)]">
+      <div className="w-full max-w-[460px]">
+        <div className="dashboard-card p-7">
           {checking ? (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "32px 0" }}>
+            <div className="flex flex-col items-center gap-3.5 py-8">
               <Loader2 size={24} className="animate-spin" />
-              <span style={{ fontSize: 14, color: "var(--tb-text-muted, #858589)" }}>Finishing sign-in…</span>
+              <span className="text-sm text-[var(--tb-text-muted,#858589)]">{t("oauth.finishingSignIn")}</span>
             </div>
           ) : error && !info ? (
-            <div style={{ textAlign: "center", padding: "16px 0" }}>
-              <AlertCircle size={26} style={{ color: "var(--tb-red, #ef4444)" }} />
-              <h1 style={{ fontSize: 18, fontWeight: 700, margin: "12px 0 6px" }}>Sign-in could not be completed</h1>
-              <p style={{ fontSize: 13.5, color: "var(--tb-text-muted, #999)", lineHeight: 1.55 }}>{error}</p>
-              <a href="/login" className="btn btn-primary btn-sm" style={{ display: "inline-flex", marginTop: 18 }}>Back to sign in</a>
+            <div className="text-center py-4">
+              <AlertCircle size={26} className="text-[var(--tb-red,#ef4444)] mx-auto" />
+              <h1 className="text-lg font-bold mt-3 mb-1.5">{t("oauth.signInIncomplete")}</h1>
+              <p className="text-[13.5px] text-[var(--tb-text-muted,#999)] leading-[1.55]">{error}</p>
+              <a href="/login" className="btn btn-primary btn-sm inline-flex mt-4">{t("oauth.backToSignIn")}</a>
             </div>
           ) : (
             <>
               {/* Header */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", marginBottom: 22 }}>
-                <div style={{
-                  width: 56, height: 56, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 14,
-                  background: "var(--tb-surface-2)", border: "1px solid var(--tb-border)",
-                }}>
+              <div className="flex flex-col items-center text-center mb-5">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3.5 bg-tb-surface-2 border border-tb-border">
                   {info?.provider === "google" ? <GoogleIcon size={26} /> : info?.provider === "github" ? <GitHubIcon size={26} /> : info?.provider === "discord" ? <DiscordIcon size={26} /> : <CheckCircle2 size={26} />}
                 </div>
-                <h1 style={{ fontSize: 21, fontWeight: 700, margin: 0 }}>
-                  {signupToken ? "Create your Tirbeo account" : "You're signed in"}
+                <h1 className="text-[21px] font-bold m-0">
+                  {signupToken ? t("oauth.createAccount") : t("oauth.signedIn")}
                 </h1>
-                <p style={{ fontSize: 13.5, color: "var(--tb-text-muted, #999)", lineHeight: 1.55, margin: "8px 0 0" }}>
+                <p className="text-[13.5px] text-[var(--tb-text-muted,#999)] leading-[1.55] mt-2">
                   {signupToken ? (
-                    <>No Tirbeo account exists yet — clicking below will create one linked to your {providerLabel} sign-in.<br />
-                      <strong style={{ color: "var(--tb-text-primary)" }}>{info?.email}</strong></>
+                    <>{t("oauth.noAccountExists").replace("{provider}", providerLabel || "your provider")}<br />
+                      <strong className="text-tb-text-primary">{info?.email}</strong></>
                   ) : (
-                    "One last step before we take you to your workspace."
+                    t("oauth.lastStep")
                   )}
                 </p>
               </div>
 
               {/* Profile photo */}
               {signupToken && (
-                <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
-                  <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={pickPhoto} style={{ display: "none" }} />
+                <div className="flex items-center gap-3.5 mb-4">
+                  <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/gif,image/webp" onChange={pickPhoto} className="hidden" />
                   <button
                     type="button"
                     onClick={() => fileRef.current?.click()}
-                    style={{
-                      width: 62, height: 62, borderRadius: "50%", overflow: "hidden", cursor: "pointer", position: "relative",
-                      border: "2px dashed var(--tb-border-strong, #444)", background: "var(--tb-surface-2)",
-                      display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                    }}
-                    aria-label="Choose profile photo"
+                    className="w-[62px] h-[62px] rounded-full overflow-hidden cursor-pointer relative border-2 border-dashed border-[var(--tb-border-strong,#444)] bg-tb-surface-2 flex items-center justify-center shrink-0"
+                    aria-label={t("oauth.choosePhoto")}
                   >
                     {avatarSrc ? (
-                      <img src={avatarSrc} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <img src={avatarSrc} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                     ) : (
-                      <span style={{ fontSize: 20, fontWeight: 600, color: "var(--tb-text-muted)" }}>{initial}</span>
+                      <span className="text-xl font-semibold text-tb-text-muted">{initial}</span>
                     )}
-                    <span style={{
-                      position: "absolute", bottom: -2, right: -2, width: 20, height: 20, borderRadius: "50%",
-                      background: "var(--tb-surface-1, #fff)", border: "1px solid var(--tb-border)",
-                      display: "flex", alignItems: "center", justifyContent: "center", color: "var(--tb-text-secondary)",
-                    }}><Camera size={11} /></span>
+                    <span className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-[var(--tb-surface-1,#fff)] border border-tb-border flex items-center justify-center text-tb-text-secondary"><Camera size={11} /></span>
                   </button>
                   <div>
-                    <div style={{ fontSize: 13.5, fontWeight: 500 }}>Profile photo</div>
-                    <div style={{ fontSize: 12, color: "var(--tb-text-muted, #888)", marginTop: 2 }}>Optional — JPEG, PNG, GIF, WebP • Max 5MB</div>
+                    <div className="text-[13.5px] font-medium">{t("oauth.profilePhoto")}</div>
+                    <div className="text-xs text-[var(--tb-text-muted,#888)] mt-0.5">{t("oauth.photoOptional")}</div>
                     {(photoPreview) && (
-                      <button type="button" onClick={() => { setPhoto(null); setPhotoPreview(null); }} style={{ fontSize: 12, color: "var(--tb-red, #ef4444)", background: "none", border: "none", cursor: "pointer", padding: 0, marginTop: 3 }}>
-                        Remove photo
+                      <button type="button" onClick={() => { setPhoto(null); setPhotoPreview(null); }} className="text-xs text-[var(--tb-red,#ef4444)] bg-transparent border-none cursor-pointer p-0 mt-0.5">
+                        {t("oauth.removePhoto")}
                       </button>
                     )}
                   </div>
                 </div>
               )}
 
-              {/* Optional password (new accounts only) — opens as a popup */}
+              {/* Name + Username + Password */}
               {signupToken && (
-                <div style={{ marginBottom: 16 }}>
-                  <input
-                    className="form-input"
-                    type="text"
-                    placeholder="Your name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    autoFocus
-                    style={{ marginBottom: 8 }}
-                  />
-                  <button type="button" className="btn btn-secondary btn-sm" onClick={() => { setShowPw(true); setPwError(""); }} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
-                    <Lock size={13} /> {pw ? "Password added — change or remove" : "Add a password (optional)"}
+                <div className="mb-4">
+                  <div className="mb-2">
+                    <label className="block text-[13px] font-medium text-tb-text-secondary mb-1.5">{t("oauth.name")} <span className="text-[var(--tb-red,#ef4444)]">*</span></label>
+                    <input
+                      className="form-input"
+                      type="text"
+                      placeholder={t("oauth.namePh")}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      autoFocus
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label className="block text-[13px] font-medium text-tb-text-secondary mb-1.5">{t("oauth.usernameLabel")} <span className="text-[var(--tb-red,#ef4444)]">*</span></label>
+                    <div className="relative">
+                      <input
+                        className={`form-input pr-8 ${unameStatus === 'available' ? '!border-[var(--tb-green)]' : unameStatus === 'taken' || unameStatus === 'reserved' || unameStatus === 'invalid' ? '!border-[var(--tb-red)]' : ''}`}
+                        type="text"
+                        placeholder={t("oauth.usernamePh")}
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
+                        maxLength={30}
+                      />
+                      <span className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                        {unameStatus === 'checking' && <Loader2 size={14} className="animate-spin text-tb-text-muted" />}
+                        {unameStatus === 'available' && <Check size={14} className="text-[var(--tb-green)]" />}
+                        {(unameStatus === 'taken' || unameStatus === 'reserved' || unameStatus === 'invalid') && username.trim().length > 0 && <X size={14} className="text-[var(--tb-red)]" />}
+                      </span>
+                    </div>
+                    {unameStatus === 'available' && <p className="text-xs text-[var(--tb-green)] mt-1.5">{t("oauth.usernameAvailable")}</p>}
+                    {unameStatus === 'taken' && <p className="text-xs text-[var(--tb-red)] mt-1.5">{t("oauth.usernameTaken")}</p>}
+                    {unameStatus === 'reserved' && <p className="text-xs text-[var(--tb-red)] mt-1.5">{t("oauth.usernameReserved")}</p>}
+                    {unameStatus === 'invalid' && username.trim().length > 0 && username.trim().length < 3 && <p className="text-xs text-[var(--tb-red)] mt-1.5">{t("oauth.usernameTooShort")}</p>}
+                    {unameStatus === 'invalid' && username.trim().length >= 3 && <p className="text-xs text-[var(--tb-red)] mt-1.5">{t("oauth.usernameInvalidChars")}</p>}
+                    {username.trim().length === 0 && <p className="text-xs text-tb-text-muted mt-1.5">{t("oauth.usernameHint")}</p>}
+                  </div>
+                  <button type="button" className="btn btn-secondary btn-sm w-full flex items-center justify-center gap-1.5" onClick={() => { setShowPw(true); setPwError(""); }}>
+                    <Lock size={13} /> {pw ? t("oauth.passwordAdded") : t("oauth.addPasswordOptional")}
                   </button>
                 </div>
               )}
@@ -252,77 +278,65 @@ function OAuthCompleteInner() {
                 role="checkbox"
                 aria-checked={consent}
                 onClick={() => setConsent(!consent)}
-                style={{
-                  width: "100%", display: "flex", alignItems: "flex-start", gap: 10, textAlign: "left", cursor: "pointer",
-                  padding: 12, borderRadius: 12,
-                  background: consent ? "var(--tb-surface-2)" : "transparent",
-                  border: `1px solid ${consent ? "var(--tb-border-strong)" : "var(--tb-border)"}`,
-                  color: "inherit",
-                }}
+                className={`w-full flex items-start gap-2.5 text-left cursor-pointer p-3 rounded-xl transition-all duration-150 ${consent ? 'bg-tb-surface-2 border border-tb-border-strong' : 'bg-transparent border border-tb-border'} text-inherit`}
               >
-                <span style={{
-                  marginTop: 2, width: 18, height: 18, flexShrink: 0, borderRadius: 5,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  background: consent ? "var(--tb-green, #28a745)" : "transparent",
-                  border: `1.5px solid ${consent ? "var(--tb-green, #28a745)" : "var(--tb-border-strong, #555)"}`,
-                  color: "#fff",
-                }}>{consent && <CheckCircle2 size={12} />}</span>
-                <span style={{ fontSize: 13, lineHeight: 1.5, color: "var(--tb-text-secondary, #aaa)" }}>
-                  I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy, including data processing for my account. <span style={{ color: "var(--tb-red, #ef4444)" }}>*</span>
+                <span
+                  className={`mt-0.5 w-[18px] h-[18px] shrink-0 rounded-[5px] flex items-center justify-center text-white transition-all duration-150 ${consent ? 'bg-[var(--tb-green,#28a745)] border-[1.5px] border-[var(--tb-green,#28a745)]' : 'bg-transparent border-[1.5px] border-[var(--tb-border-strong,#555)]'}`}
+                >{consent && <CheckCircle2 size={12} />}</span>
+                <span className="text-[13px] leading-[1.5] text-tb-text-secondary">
+                  {t("oauth.consentLabel")} <span className="text-[var(--tb-red,#ef4444)]">*</span>
                 </span>
               </button>
 
-              {error && <p style={{ fontSize: 12.5, color: "var(--tb-red, #ef4444)", margin: "10px 0 0" }}>{error}</p>}
+              {error && <p className="text-[12.5px] text-[var(--tb-red,#ef4444)] mt-2.5">{error}</p>}
 
               <button
                 type="button"
-                className="btn btn-primary btn-sm"
+                className="btn btn-primary btn-sm w-full flex items-center justify-center gap-1.5 mt-4 h-10"
                 onClick={submit}
-                disabled={!consent || saving}
-                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 16, height: 40 }}
+                disabled={!consent || saving || (!!signupToken && unameStatus !== 'available')}
               >
-                {saving ? <Loader2 size={15} className="animate-spin" /> : (<>{signupToken ? "Create account & continue" : "Continue"} <ArrowRight size={14} /></>)}
+                {saving ? <Loader2 size={15} className="animate-spin" /> : (<>{signupToken ? t("oauth.createAndContinue") : t("oauth.continueBtn")} <ArrowRight size={14} /></>)}
               </button>
 
-              <p style={{ fontSize: 12, color: "var(--tb-text-muted, #666)", textAlign: "center", lineHeight: 1.5, margin: "14px 0 0" }}>
-                You can manage passwords and connected services anytime from your dashboard settings.
+              <p className="text-xs text-[var(--tb-text-muted,#666)] text-center leading-[1.5] mt-3.5">
+                {t("oauth.dashboardNote")}
               </p>
             </>
           )}
         </div>
       </div>
 
-      {/* ═══ Add-password popup ═══ */}
+      {/* Add-password popup */}
       {showPw && (
         <div
-          className="tb-dialog-overlay"
+          className="fixed inset-0 z-[1000] flex items-center justify-center p-5 bg-black/60 backdrop-blur-[2px]"
           onClick={() => { setShowPw(false); setPwError(""); }}
-          style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(2px)" }}
         >
-          <div className="dashboard-card" onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 380, padding: 24 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-              <div style={{ width: 34, height: 34, borderRadius: 10, background: "var(--tb-surface-2)", display: "flex", alignItems: "center", justifyContent: "center" }}><Lock size={16} /></div>
-              <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Add a password</h2>
+          <div className="dashboard-card w-full max-w-[380px] p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-2.5 mb-1.5">
+              <div className="w-[34px] h-[34px] rounded-[10px] bg-tb-surface-2 flex items-center justify-center"><Lock size={16} /></div>
+              <h2 className="text-base font-bold m-0">{t("oauth.addPwTitle")}</h2>
             </div>
-            <p style={{ fontSize: 12.5, color: "var(--tb-text-muted, #999)", lineHeight: 1.5, margin: "0 0 14px" }}>
-              Your email is already verified by {providerLabel || "your provider"} — no code needed. Adding a password lets you sign in with email too.
+            <p className="text-[12.5px] text-[var(--tb-text-muted,#999)] leading-[1.5] mb-3.5">
+              {t("oauth.addPwDesc").replace("{provider}", providerLabel || "your provider")}
             </p>
-            <input className="form-input" type="password" placeholder="New password (min 8 characters)" value={pw} onChange={e => setPw(e.target.value)} autoComplete="new-password" autoFocus style={{ marginBottom: 8 }} />
-            <input className="form-input" type="password" placeholder="Confirm password" value={pw2} onChange={e => setPw2(e.target.value)} autoComplete="new-password" />
-            {pwError && <p style={{ fontSize: 12, color: "var(--tb-red, #ef4444)", marginTop: 8 }}>{pwError}</p>}
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => { setShowPw(false); setPw(""); setPw2(""); setPwError(""); }}>Skip</button>
+            <input className="form-input mb-2" type="password" placeholder={t("oauth.newPwPh")} value={pw} onChange={e => setPw(e.target.value)} autoComplete="new-password" autoFocus />
+            <input className="form-input" type="password" placeholder={t("oauth.confirmPh")} value={pw2} onChange={e => setPw2(e.target.value)} autoComplete="new-password" />
+            {pwError && <p className="text-xs text-[var(--tb-red,#ef4444)] mt-2">{pwError}</p>}
+            <div className="flex justify-end gap-2 mt-4">
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => { setShowPw(false); setPw(""); setPw2(""); setPwError(""); }}>{t("oauth.skip")}</button>
               <button
                 type="button"
                 className="btn btn-primary btn-sm"
                 disabled={!pw || !pw2}
                 onClick={() => {
-                  if (pw.length < 8) { setPwError("Password must be at least 8 characters."); return; }
-                  if (pw !== pw2) { setPwError("Passwords do not match."); return; }
+                  if (pw.length < 8) { setPwError(t("oauth.errPasswordMin")); return; }
+                  if (pw !== pw2) { setPwError(t("oauth.errPasswordMismatch")); return; }
                   setPwError(""); setShowPw(false);
                 }}
               >
-                Save password
+                {t("oauth.savePassword")}
               </button>
             </div>
           </div>

@@ -3,7 +3,7 @@ import type { Dict } from "@/lib/i18n";
 export const ne: any = {
   common: {
     loading: "लोड हुँदैछ", saving: "सेभ हुँदैछ...", saved: "सेभ भयो", autoSaved: "परिवर्तनहरू स्वतः सेभ हुन्छन्",
-    viewAll: "सबै हेर्नुहोस्", new: "नयाँ", close: "बन्द गर्नुहोस्", cancel: "रद्द गर्नुहोस्", save: "सेभ गर्नुहोस्", delete: "मेटाउनुहोस्",
+    viewAll: "सबै हेर्नुहोस्", new: "नयाँ", close: "बन्द गर्नुहोस्", cancel: "रद्द गर्नुहोस्", save: "सेभ गर्नुहोस्", delete: "मेटाउनुहोस्", deleting: "मेटाउँदै…",
     markRead: "पढेको चिन्ह लगाउनुहोस्", loadMore: "थप लोड गर्नुहोस्", noNotifications: "कुनै सूचना छैन", noTickets: "कुनै टिकट छैन",
     justNow: "भर्खरै", agoM: "{n} मिनेट अघि", agoH: "{n} घण्टा अघि", yesterday: "हिजो", total: "जम्मा",
     unsavedWarn: "तपाईंसँग असुरक्षित परिवर्तनहरू छन् — यो पृष्ठ छोड्नु अघि सेभ गर्नुहोस्।",
@@ -44,6 +44,7 @@ export const ne: any = {
   },
   session: { expired: "तपाईंको सत्र समाप्त भयो। केही सुविधाहरूले काम नगर्न सक्छन्।", signInAgain: "फेरि साइन इन गर्नुहोस्" },
   notif: {
+    scheduleTitle: "Schedule & email summaries",
     title: "सूचनाहरू", subtitle: "सूचनाहरू कसरी र कहिले प्राप्त गर्ने भनेर कन्फिगर गर्नुहोस्।", retention: "३० दिनपछि सूचनाहरू स्वतः मेटिन्छन्।", empty: "कुनै सूचना छैन", total: "जम्मा",
     channelsTitle: "च्यानलहरू", channelsDesc: "तपाईं कहाँ सूचनाहरू प्राप्त गर्न चाहनुहुन्छ छान्नुहोस्।",
     email: "इमेल", push: "पुश",
@@ -68,6 +69,7 @@ export const ne: any = {
     months: ["जनवरी", "फेब्रुअरी", "मार्च", "अप्रिल", "मे", "जुन", "जुलाई", "अगस्ट", "सेप्टेम्बर", "अक्टोबर", "नोभेम्बर", "डिसेम्बर"],
   },
   inbox: {
+    when: "When", where: "Where", device: "Device", category: "Category",
     title: "इनबक्स", descUnread: "{total} मध्ये {unread} नपढेका", descTotal: "{total} सन्देशहरू", markAllRead: "सबै पढेको चिन्ह लगाउनुहोस्", tabAll: "सबै", tabUnread: "नपढेको", tabRead: "पढेको",
     deselect: "चयन हटाउनुहोस्", selectAll: "सबै चयन गर्नुहोस्", select: "चयन", read: "पढेको",
     searchPlaceholder: "सूचनाहरू खोज्नुहोस्...", noMatching: "कुनै मिल्ने सूचना छैन",
@@ -157,6 +159,7 @@ export const ne: any = {
     connectedAccounts: "जोडिएका खाताहरू", noneConnected: "कुनै खाता जोडिएको छैन।", verified: "प्रमाणित", unverified: "प्रमाणित नगरिएको",
   },
   history: {
+    chipMethod: "Method", chipReason: "Reason", via: "via",
     title: "गतिविधि इतिहास", subtitle: "सुरक्षा र खाता घटनाहरूको अभिलेख।",
     noActivity: "अहिलेसम्म कुनै गतिविधि छैन", noActivityDesc: "तपाईंले गरेका कार्यहरू यहाँ देखिनेछन्।",
     act: {

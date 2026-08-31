@@ -3,7 +3,7 @@ import type { Dict } from "@/lib/i18n";
 export const ko: any = {
   common: {
     loading: "로딩 중", saving: "저장 중...", saved: "저장됨", autoSaved: "변경사항이 자동 저장됩니다",
-    viewAll: "모두 보기", new: "새로 만들기", close: "닫기", cancel: "취소", save: "저장", delete: "삭제",
+    viewAll: "모두 보기", new: "새로 만들기", close: "닫기", cancel: "취소", save: "저장", delete: "삭제", deleting: "삭제 중…",
     markRead: "읽음 표시", loadMore: "더 보기", noNotifications: "알림 없음", noTickets: "티켓 없음",
     justNow: "방금 전", agoM: "{n}분 전", agoH: "{n}시간 전", yesterday: "어제", total: "총",
     unsavedWarn: "저장하지 않은 변경 사항이 있습니다. 이 페이지를 떠나기 전에 저장하세요.",
@@ -44,6 +44,7 @@ export const ko: any = {
   },
   session: { expired: "세션이 만료되었습니다. 일부 기능이 작동하지 않을 수 있습니다.", signInAgain: "다시 로그인" },
   notif: {
+    scheduleTitle: "Schedule & email summaries",
     title: "알림", subtitle: "알림을 받을 방법과 시기를 구성하세요.", retention: "알림은 30일 후 자동으로 삭제됩니다.", empty: "알림 없음", total: "총",
     channelsTitle: "채널", channelsDesc: "알림을 받을 위치를 선택하세요.",
     email: "이메일", push: "푸시",
@@ -68,6 +69,7 @@ export const ko: any = {
     months: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
   },
   inbox: {
+    when: "When", where: "Where", device: "Device", category: "Category",
     title: "받은편지함", descUnread: "총 {total}개 중 {unread}개 읽지 않음", descTotal: "메시지 {total}개", markAllRead: "모두 읽음 표시", tabAll: "전체", tabUnread: "읽지 않음", tabRead: "읽음",
     deselect: "선택 해제", selectAll: "전체 선택", select: "선택", read: "읽음",
     searchPlaceholder: "알림 검색...", noMatching: "일치하는 알림이 없습니다",
@@ -157,6 +159,7 @@ export const ko: any = {
     connectedAccounts: "연결된 계정", noneConnected: "연결된 계정이 없습니다.", verified: "확인됨", unverified: "미확인",
   },
   history: {
+    chipMethod: "Method", chipReason: "Reason", via: "via",
     title: "활동 기록", subtitle: "보안 및 계정 이벤트 기록입니다.",
     noActivity: "아직 활동이 없습니다", noActivityDesc: "수행한 작업이 여기에 표시됩니다.",
     act: {

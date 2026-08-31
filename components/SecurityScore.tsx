@@ -401,7 +401,7 @@ function CompactScore({
                     background: next.critical
                       ? "rgba(239,68,68,0.12)"
                       : "var(--tb-surface-3)",
-                    color: next.critical ? "#ef4444" : "var(--tb-text-muted)",
+                    color: next.critical ? "var(--tb-red)" : "var(--tb-text-muted)",
                   }}
                 >
                   <next.icon size={10} />

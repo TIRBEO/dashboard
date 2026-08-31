@@ -100,483 +100,264 @@ export interface Dict {
     openTickets: string;
     noNotifYet: string;
     noTicketsYet: string;
+    statActivity: string;
+    activityTitle: string;
+    recentActivity: string;
+    allActivity: string;
+    noRecentActivity: string;
+    eventsLast7Days: string;
+    catSecurity: string;
+    catAccount: string;
+    catSupport: string;
+    cancelDeletionTitle: string;
+    cancelDeletionDesc: string;
+    keepAccount: string;
+    keepDeletion: string;
+    cancelling: string;
+    yesKeepAccount: string;
+    trendAllClear: string;
+    trendActive: string;
+    trendNeedsAttention: string;
+    trendSteady: string;
+    fromLabel: string;
+    activityDefault: string;
   };
   prefs: {
-    title: string;
-    subtitle: string;
-    general: string;
-    language: string;
-    timezone: string;
-    dateFormat: string;
-    timeFormat: string;
-    h12: string;
-    h24: string;
-    timezoneUTC: string;
-    kathmandu: string;
-    eastern: string;
-    central: string;
-    mountain: string;
-    pacific: string;
-    london: string;
-    berlin: string;
-    tokyo: string;
-    shanghai: string;
-    kolkata: string;
-    emailTitle: string;
-    emailDesc: string;
-    tipsUpdates: string;
-    tipsUpdatesDesc: string;
+    title: string; subtitle: string; general: string;
+    language: string; timezone: string; dateFormat: string; timeFormat: string;
+    h12: string; h24: string;
+    timezoneUTC: string; kathmandu: string; eastern: string; central: string;
+    mountain: string; pacific: string; london: string; berlin: string; tokyo: string;
+    shanghai: string; kolkata: string;
+    emailTitle: string; emailDesc: string; tipsUpdates: string; tipsUpdatesDesc: string;
   };
-  session: {
-    expired: string;
-    signInAgain: string;
-  };
+  session: { expired: string; signInAgain: string };
   notif: {
-    title: string;
-    subtitle: string;
-    retention: string;
-    empty: string;
-    total: string;
-    channelsTitle: string;
-    channelsDesc: string;
-    email: string;
-    push: string;
-    emailDesc: string;
-    pushDesc: string;
-    browserBlocked: string;
-    categoriesTitle: string;
-    categoriesDesc: string;
-    catForms: string;
-    catFormsDesc: string;
-    catProduct: string;
-    catProductDesc: string;
-    catSupport: string;
-    catSupportDesc: string;
-    scheduleTitle?: string;
-    colCategory: string;
-    colEmail: string;
-    colPush: string;
-    enableDigest: string;
-    enableDigestDesc: string;
-    frequency: string;
-    frequencyDesc: string;
-    daily: string;
-    weekly: string;
-    monthly: string;
+    title: string; subtitle: string; retention: string; empty: string; total: string;
+    channelsTitle: string; channelsDesc: string; email: string; push: string;
+    emailDesc: string; pushDesc: string; browserBlocked: string;
+    categoriesTitle: string; categoriesDesc: string;
+    catForms: string; catFormsDesc: string; catProduct: string; catProductDesc: string;
+    catSupport: string; catSupportDesc: string;
+    scheduleTitle?: string; colCategory: string; colEmail: string; colPush: string;
+    enableDigest: string; enableDigestDesc: string; frequency: string; frequencyDesc: string;
+    daily: string; weekly: string; monthly: string;
+    tipsTitle: string; enableTips: string; tipsDesc: string; tipsEnabled: string; tipsMuted: string;
+    autoSaved: string; saving: string; saved: string;
+    emailDisabledTitle: string; emailDisabledDesc: string; reEnableEmail: string;
+    unsubscribedAll: string; reEnable: string;
   };
   search: {
-    placeholder: string;
-    pages: string;
-    overview: string;
-    notificationsSettings: string;
-    activityHistory: string;
-    supportTickets: string;
-    navigate: string;
-    open: string;
-    close: string;
+    placeholder: string; pages: string; overview: string;
+    notificationsSettings: string; activityHistory: string; supportTickets: string;
+    navigate: string; open: string; close: string;
   };
   calendar: {
-    prevMonth: string;
-    nextMonth: string;
-    backToToday: string;
-    today: string;
-    yesterday: string;
-    tomorrow: string;
-    daysAgo: string;
-    inDays: string;
+    prevMonth: string; nextMonth: string; backToToday: string;
+    today: string; yesterday: string; tomorrow: string; daysAgo: string; inDays: string;
     months: string[];
   };
   inbox: {
-    title: string;
-    descUnread: string;
-    descTotal: string;
-    markAllRead: string;
-    tabAll: string;
-    tabUnread: string;
-    tabRead: string;
-    deselect?: string;
-    selectAll?: string;
-    select?: string;
-    read?: string;
+    title: string; descUnread: string; descTotal: string; markAllRead: string;
+    tabAll: string; tabUnread: string; tabRead: string;
+    deselect?: string; selectAll?: string; select?: string; read?: string;
+    searchPlaceholder: string; noMatching: string; noMatchingDesc: string;
+    allCaughtUp: string; allCaughtUpDesc: string; inboxEmpty: string; inboxEmptyDesc: string;
+    loadMore: string; back: string; open: string; noContent: string; viewDetails: string;
+    selectMessage: string; selectMessageDesc: string;
+    typeSecurity: string; typeForms: string; typeProduct: string; typeSupport: string; typeLogin: string; typeNotification: string;
+    when?: string; where?: string; device?: string; category?: string;
     delete: string;
-    when?: string;
-    where?: string;
-    device?: string;
-    category?: string;
-    searchPlaceholder: string;
-    noMatching: string;
-    noMatchingDesc: string;
-    allCaughtUp: string;
-    allCaughtUpDesc: string;
-    inboxEmpty: string;
-    inboxEmptyDesc: string;
-    loadMore: string;
-    back: string;
-    open: string;
-    noContent: string;
-    viewDetails: string;
-    selectMessage: string;
-    selectMessageDesc: string;
-    typeSecurity: string;
-    typeForms: string;
-    typeProduct: string;
-    typeSupport: string;
-    typeLogin: string;
-    typeNotification: string;
   };
   sessions: {
-    title: string;
-    subtitle: string;
-    revokeAllOthers: string;
-    noActive: string;
-    noActiveDesc: string;
-    currentDevice: string;
-    current: string;
-    active: string;
-    unknownDevice: string;
-    unknownIp: string;
-    revoke: string;
-    revokeAllTitle: string;
-    revokeAllDesc: string;
-    revokeSessionTitle: string;
-    revokeSessionDesc: string;
-    revoking: string;
-    unknown: string;
-    unknownBrowser: string;
-    unknownOS: string;
-    local: string;
-    lastActive: string;
-    on: string;
+    title: string; subtitle: string; revokeAllOthers: string;
+    noActive: string; noActiveDesc: string;
+    currentDevice: string; current: string; active: string;
+    unknownDevice: string; unknownIp: string;
+    revoke: string; revokeAllTitle: string; revokeAllDesc: string;
+    revokeSessionTitle: string; revokeSessionDesc: string;
+    revoking: string; unknown: string; unknownBrowser: string; unknownOS: string;
+    local: string; lastActive: string; on: string;
   };
   apps: {
-    title: string;
-    subtitle: string;
-    available: string;
-    disconnect: string;
-    connect: string;
-    googleDesc: string;
-    githubDesc: string;
-    discordDesc: string;
-    connected: string;
-    notConnected: string;
-    connectedOn: string;
-    disconnectConfirm: string;
-    disconnectDesc: string;
-    mergeTitle: string;
-    mergeDesc: string;
-    mergeEmail: string;
-    mergeButton: string;
-    cancelButton: string;
-    mergeSuccess: string;
-    mergeCancelled: string;
-    noProviders: string;
-    providerEmail: string;
+    title: string; subtitle: string; available: string; disconnect: string; connect: string;
+    googleDesc: string; githubDesc: string; discordDesc: string;
+    connected: string; notConnected: string; connectedOn: string;
+    disconnectConfirm: string; disconnectDesc: string;
+    mergeTitle: string; mergeDesc: string; mergeEmail: string;
+    mergeButton: string; cancelButton: string;
+    mergeSuccess: string; mergeCancelled: string;
+    noProviders: string; providerEmail: string;
   };
   security: {
-    title: string;
-    subtitle: string;
-    twoFactor: string;
-    twoFactorOn: string;
-    twoFactorOff: string;
-    status: string;
-    enabled: string;
-    notEnabled: string;
-    disable2fa: string;
-    enable2fa: string;
-    setupLoading: string;
-    setupTitle: string;
-    setupDesc: string;
-    key: string;
-    code: string;
-    copy: string;
-    enter6: string;
-    verifyEnable: string;
-    verifying: string;
-    disableTitle: string;
-    disableDesc: string;
-    disabling: string;
-    backupTitle: string;
-    backupDesc: string;
-    copyAll: string;
-    done: string;
-    copied: string;
-    password: string;
-    passwordLabel: string;
-    changed: string;
-    change: string;
-    changeTitle: string;
-    changeDesc: string;
-    current: string;
-    new: string;
-    confirm: string;
-    currentPh: string;
-    newPh: string;
-    confirmPh: string;
-    changePassword: string;
-    pwdMismatch: string;
-    failed: string;
-    secondaryEmail: string;
-    secondaryDesc: string;
-    email: string;
-    noSecondaryEmail: string;
-    addEmail: string;
-    lastActive: string;
-    verified: string;
-    remove: string;
-    changeEmail: string;
-    verifyEmail: string;
-    newEmailLabel: string;
-    newEmailPh: string;
-    sentTo: string;
-    sendCode: string;
-    sending: string;
-    verify: string;
-    enterCode: string;
-    enterValidEmail: string;
-    sendFailed: string;
-    enterCodeErr: string;
-    invalidCode: string;
-    disable2faFailed: string;
-    activeSessions: string;
-    noActiveSessions: string;
-    unknownDevice: string;
-    loginHistory: string;
-    noLoginHistory: string;
-    thStatus: string;
-    thDate: string;
-    thMethod: string;
-    thIpDevice: string;
-    success: string;
-    failedStart: string;
+    title: string; subtitle: string;
+    twoFactor: string; twoFactorOn: string; twoFactorOff: string;
+    status: string; enabled: string; notEnabled: string; disable2fa: string; enable2fa: string;
+    setupLoading: string; setupTitle: string; setupDesc: string;
+    key: string; code: string; copy: string; enter6: string;
+    verifyEnable: string; verifying: string; disableTitle: string;
+    disableDesc: string; disabling: string;
+    backupTitle: string; backupDesc: string; copyAll: string; done: string; copied: string;
+    password: string; passwordLabel: string; changed: string; change: string;
+    changeTitle: string; changeDesc: string; current: string; new: string; confirm: string;
+    currentPh: string; newPh: string; confirmPh: string; changePassword: string;
+    pwdMismatch: string; failed: string;
+    secondaryEmail: string; secondaryDesc: string; email: string;
+    noSecondaryEmail: string; addEmail: string; lastActive: string; verified: string; remove: string;
+    changeEmail: string; verifyEmail: string; newEmailLabel: string; newEmailPh: string;
+    sentTo: string; sendCode: string; sending: string; verify: string;
+    enterCode: string; enterValidEmail: string; sendFailed: string;
+    enterCodeErr: string; invalidCode: string; disable2faFailed: string;
+    activeSessions: string; noActiveSessions: string; unknownDevice: string;
+    loginHistory: string; noLoginHistory: string;
+    thStatus: string; thDate: string; thMethod: string; thIpDevice: string;
+    success: string; failedStart: string;
+    twoFactorEnabledDesc: string; twoFactorDisabledDesc: string; settingUp: string;
+    addPwTitle: string; addPwDesc: string; notSet: string; noRecoveryEmail: string;
+    currentBadge: string; revokeAllOthers: string; revokeBtn: string;
+    recentActivity: string; noRecentActivity: string;
+    srcSecurity: string; srcAudit: string; srcAuth: string;
+    skipForNow: string; keep2faEnabled: string; savedCodes: string; saveCodesWarning: string;
+    setCurrentPw: string; enterCurrentPw: string; newPwPh: string; confirmPwPh: string; reenterPw: string;
+    keepCurrentPw: string; dontChangeEmail: string; sendVerificationCode: string; keepRecoveryEmail: string; removeEmailBtn: string;
+    unknownIP: string; loginCount: string; sessionCount: string;
+    removeRecoveryTitle: string; removeRecoveryDesc: string; sendCodeBtn: string; removeEmailConfirm: string;
+    pwdMinLength: string;
   };
   privacy: {
-    title: string;
-    subtitle: string;
-    dataAnalytics: string;
-    analytics: string;
-    analyticsDesc: string;
-    crashReports: string;
-    crashReportsDesc: string;
-
-    dataExport: string;
-    dataExportDesc: string;
-    preparing: string;
-    exportData: string;
-    exportNote: string;
-    dangerZone: string;
-    dangerZoneDesc: string;
-    deleteAccount: string;
-    irreversible: string;
-    typeDelete: string;
-    typeDeletePh: string;
-    deleting: string;
+    title: string; subtitle: string;
+    dataAnalytics: string; analytics: string; analyticsDesc: string;
+    crashReports: string; crashReportsDesc: string;
+    dataExport: string; dataExportDesc: string; preparing: string;
+    exportData: string; exportNote: string;
+    dangerZone: string; dangerZoneDesc: string;
+    deleteAccount: string; irreversible: string;
+    typeDelete: string; typeDeletePh: string; deleting: string;
   };
   profile: {
-    title: string;
-    subtitle: string;
-    saveChanges: string;
-    noNameSet: string;
-    personal: string;
-    work: string;
-    links: string;
-    fullName: string;
-    fullNamePh: string;
-    username: string;
-    usernamePh: string;
-    bio: string;
-    bioPh: string;
-    gender: string;
-    selectOption: string;
-    male: string;
-    female: string;
-    other: string;
-    preferNot: string;
-    birthday: string;
-    country: string;
-    countryPh: string;
-    occupation: string;
-    occupationPh: string;
-    company: string;
-    companyPh: string;
-    role: string;
-    rolePh: string;
-    roleAtCompanyPh: string;
-    industry: string;
-    industryPh: string;
-    companySize: string;
-    justMe: string;
-
-    website: string;
-    websitePh: string;
-    linkedin: string;
-    linkedinPh: string;
-    github: string;
-    githubPh: string;
-    usernameChecking: string;
-    usernameAvailable: string;
-    usernameTaken: string;
-    usernameReserved: string;
-    usernameInvalid: string;
-    twitter: string;
-    twitterPh: string;
-    accountInfo: string;
-    email: string;
-    recoveryEmail: string;
-    memberSince: string;
-    lastActive: string;
-    connectedAccounts: string;
-    noneConnected: string;
-    verified: string;
-    unverified: string;
+    title: string; subtitle: string; saveChanges: string; noNameSet: string;
+    personal: string; work: string; links: string; fullName: string; fullNamePh: string;
+    username: string; usernamePh: string; bio: string; bioPh: string;
+    gender: string; selectOption: string; male: string; female: string; other: string; preferNot: string;
+    birthday: string; country: string; countryPh: string; occupation: string; occupationPh: string;
+    company: string; companyPh: string; role: string; rolePh: string; roleAtCompanyPh: string;
+    industry: string; industryPh: string; companySize: string; justMe: string;
+    website: string; websitePh: string; linkedin: string; linkedinPh: string;
+    github: string; githubPh: string;
+    usernameChecking: string; usernameAvailable: string; usernameTaken: string;
+    usernameReserved: string; usernameInvalid: string;
+    twitter: string; twitterPh: string; accountInfo: string; email: string;
+    recoveryEmail: string; memberSince: string; lastActive: string;
+    connectedAccounts: string; noneConnected: string; verified: string; unverified: string;
+    errorNameRequired: string; errorSaveFailed: string; errorInvalidImageType: string;
+    errorImageTooLarge: string; errorUploadUrl: string; errorNetwork: string; errorUploadGeneric: string;
   };
   history: {
-    title: string;
-    subtitle: string;
-    noActivity: string;
-    noActivityDesc: string;
-    tabAll?: string;
-    tabSecurity?: string;
-    tabAccount?: string;
-    tabTickets?: string;
-    today?: string;
-    yesterday?: string;
-    chipMethod?: string;
-    chipReason?: string;
-    via?: string;
+    title: string; subtitle: string; noActivity: string; noActivityDesc: string;
+    tabAll?: string; tabSecurity?: string; tabAccount?: string; tabTickets?: string;
+    today?: string; yesterday?: string; chipMethod?: string; chipReason?: string; via?: string;
     act: {
-      login: string;
-      logout: string;
-      signup: string;
-      passwordChanged: string;
-      profileUpdated: string;
-      twofaEnabled: string;
-      twofaDisabled: string;
-      sessionRevoked: string;
-      emailVerified: string;
-      accountDeleted: string;
-      dataExported: string;
-      notificationRead: string;
-      ticketCreated: string;
-      ticketReplied: string;
-      ticketClosed: string;
-      unknown: string;
-      login2fa?: string;
-      loginOtp?: string;
-      loginFailed?: string;
-      deviceSeen?: string;
-      sessionsRevokedAll?: string;
-      passwordReset?: string;
-      oauthMerged?: string;
-      mergeLogin?: string;
-      passkeyRegistered?: string;
-      passkeyDeleted?: string;
-      passkeyAuth?: string;
-      recoveryEmailVerified?: string;
-      recoveryEmailUpdated?: string;
-      phoneAdded?: string;
-      phoneVerified?: string;
-      phoneRemoved?: string;
-      dataExportRequested?: string;
-      deleteAccountRequested?: string;
-      suspiciousLoginDenied?: string;
-      backupCodesRegenerated?: string;
-      avatarUpdated?: string;
-      usernameUpdated?: string;
-      unknownDevice?: string;
+      login: string; logout: string; signup: string; passwordChanged: string;
+      profileUpdated: string; twofaEnabled: string; twofaDisabled: string;
+      sessionRevoked: string; emailVerified: string; accountDeleted: string;
+      dataExported: string; notificationRead: string; ticketCreated: string;
+      ticketReplied: string; ticketClosed: string; unknown: string;
+      login2fa?: string; loginOtp?: string; loginFailed?: string;
+      deviceSeen?: string; sessionsRevokedAll?: string; passwordReset?: string;
+      oauthMerged?: string; mergeLogin?: string;
+      passkeyRegistered?: string; passkeyDeleted?: string; passkeyAuth?: string;
+      recoveryEmailVerified?: string; recoveryEmailUpdated?: string;
+      phoneAdded?: string; phoneVerified?: string; phoneRemoved?: string;
+      dataExportRequested?: string; deleteAccountRequested?: string;
+      suspiciousLoginDenied?: string; backupCodesRegenerated?: string;
+      avatarUpdated?: string; usernameUpdated?: string; unknownDevice?: string;
     };
   };
   tickets: {
-    title: string;
-    countOne: string;
-    countMany: string;
-    newTicket: string;
-    noTickets: string;
-    noTicketsDesc: string;
-    createTicket: string;
-    subject: string;
-    subjectPh: string;
-    category: string;
-    priority: string;
-    message: string;
-    messagePh: string;
-    describeIssue: string;
-    cancel: string;
-    creating: string;
-    catGeneral: string;
-    catBug: string;
-    catFeature: string;
-    catBilling: string;
-    catOther: string;
-    catAccount: string;
-    prioLow: string;
-    prioNormal: string;
-    prioHigh: string;
-    prioUrgent: string;
-    statusOpen: string;
-    statusClosed: string;
-    statusInProgress: string;
-    priorityLabel: string;
+    title: string; countOne: string; countMany: string; newTicket: string;
+    noTickets: string; noTicketsDesc: string; createTicket: string;
+    subject: string; subjectPh: string; category: string; priority: string;
+    message: string; messagePh: string; describeIssue: string; cancel: string; creating: string;
+    catGeneral: string; catBug: string; catFeature: string; catBilling: string; catOther: string; catAccount: string;
+    prioLow: string; prioNormal: string; prioHigh: string; prioUrgent: string;
+    statusOpen: string; statusClosed: string; statusInProgress: string; priorityLabel: string;
   };
   ticketDetail: {
-    notFound: string;
-    backToTickets: string;
-    noMessages: string;
-    you: string;
-    support: string;
-    writeReply: string;
-    send: string;
-    supportTeam: string;
-    sendHint: string;
+    notFound: string; backToTickets: string; noMessages: string;
+    you: string; support: string; supportTeam: string; sendHint: string;
+    writeReply: string; send: string;
   };
   newTicket: {
-    title: string;
-    subtitle: string;
-    backToTickets: string;
-    subject: string;
-    subjectPh: string;
-    category: string;
-    priority: string;
-    message: string;
-    messagePh: string;
-    countLabel: string;
-    ctrlEnter: string;
-    cancel: string;
-    creating: string;
-    submitTicket: string;
-    requiredError: string;
-    createFailed: string;
-    catGeneral: string;
-    catGeneralDesc: string;
-    catBug: string;
-    catBugDesc: string;
-    catFeature: string;
-    catFeatureDesc: string;
-    catAccount: string;
-    catAccountDesc: string;
-    catBilling: string;
-    catBillingDesc: string;
-    catOther: string;
-    catOtherDesc: string;
-    prioLow: string;
-    prioLowDesc: string;
-    prioNormal: string;
-    prioNormalDesc: string;
-    prioHigh: string;
-    prioHighDesc: string;
-    prioUrgent: string;
-    prioUrgentDesc: string;
+    title: string; subtitle: string; backToTickets: string; subject: string; subjectPh: string;
+    category: string; priority: string; message: string; messagePh: string;
+    countLabel: string; ctrlEnter: string; cancel: string; creating: string;
+    submitTicket: string; requiredError: string; createFailed: string;
+    catGeneral: string; catGeneralDesc: string; catBug: string; catBugDesc: string;
+    catFeature: string; catFeatureDesc: string; catAccount: string; catAccountDesc: string;
+    catBilling: string; catBillingDesc: string; catOther: string; catOtherDesc: string;
+    prioLow: string; prioLowDesc: string; prioNormal: string; prioNormalDesc: string;
+    prioHigh: string; prioHighDesc: string; prioUrgent: string; prioUrgentDesc: string;
+  };
+  oauth: {
+    loading: string; finishingSignIn: string; signInIncomplete: string; backToSignIn: string;
+    createAccount: string; signedIn: string; noAccountExists: string; lastStep: string;
+    profilePhoto: string; photoOptional: string; choosePhoto: string; removePhoto: string;
+    name: string; namePh: string; usernameLabel: string; usernamePh: string;
+    usernameAvailable: string; usernameTaken: string; usernameReserved: string;
+    usernameTooShort: string; usernameInvalidChars: string; usernameHint: string;
+    passwordAdded: string; addPasswordOptional: string; agreeToTerms: string;
+    createAndContinue: string; continueBtn: string; dashboardNote: string;
+    addPwTitle: string; addPwDesc: string; newPwPh: string; confirmPh: string;
+    skip: string; savePassword: string; consentLabel: string;
+    errExpired: string; errSession: string; errNothing: string;
+    errNameRequired: string; errUsernameRequired: string; errUsernameInvalid: string;
+    errUsernameTaken: string; errUsernameReserved: string; errUsernamePending: string;
+    errGeneric: string; errPasswordMin: string; errPasswordMismatch: string;
   };
   notifTexts: Record<string, string>;
-}
+};
 
 const en: Dict = {
   common: {
     loading: "Loading", saving: "Saving...", saved: "Saved", autoSaved: "Changes auto-saved",
     viewAll: "View all", new: "New", close: "Close", cancel: "Cancel", save: "Save", delete: "Delete",
     markRead: "Mark read", loadMore: "Load more", noNotifications: "No notifications", noTickets: "No tickets",
-    justNow: "Just now", agoM: "{n}m ago", agoH: "{n}h ago", yesterday: "Yesterday", total: "total",
-    unsavedWarn: "You have unsaved changes — save before leaving this page.",
+    justNow: "Just now", agoM: "{n}m ago", agoH: "{n}h ago", yesterday: "Yesterday", total: "total",    unsavedWarn: "You have unsaved changes — save before leaving this page.",
   },
+
+  oauth: {
+    loading: "Loading…", finishingSignIn: "Finishing sign-in…",
+    signInIncomplete: "Sign-in could not be completed", backToSignIn: "Back to sign in",
+    createAccount: "Create your Tirbeo account", signedIn: "You\u2019re signed in",
+    noAccountExists: "No Tirbeo account exists yet — clicking below will create one linked to your {provider} sign-in.",
+    lastStep: "One last step before we take you to your workspace.",
+    profilePhoto: "Profile photo", photoOptional: "Optional — JPEG, PNG, GIF, WebP • Max 5MB",
+    choosePhoto: "Choose profile photo", removePhoto: "Remove photo",
+    name: "Name", namePh: "Your name", usernameLabel: "Username", usernamePh: "Choose a username",
+    usernameAvailable: "Username available", usernameTaken: "Username already taken — try another",
+    usernameReserved: "This username is reserved", usernameTooShort: "Username must be at least 3 characters",
+    usernameInvalidChars: "Only lowercase letters, numbers, hyphens, and underscores allowed",
+    usernameHint: "3–30 characters: letters, numbers, hyphens, underscores",
+    passwordAdded: "Password added — change or remove", addPasswordOptional: "Add a password (optional)",
+    agreeToTerms: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy, including data processing for my account.",
+    createAndContinue: "Create account & continue", continueBtn: "Continue",
+    dashboardNote: "You can manage passwords and connected services anytime from your dashboard settings.",
+    addPwTitle: "Add a password",
+    addPwDesc: "Your email is already verified by {provider} — no code needed. Adding a password lets you sign in with email too.",
+    newPwPh: "New password (min 8 characters)", confirmPh: "Confirm password",
+    skip: "Skip", savePassword: "Save password", consentLabel: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy, including data processing for my account.",
+    errExpired: "This sign-in link has expired. Please sign in again.",
+    errSession: "Your session could not be verified. Please sign in again.",
+    errNothing: "Nothing to do here. Head back to the sign-in page.",
+    errNameRequired: "Please enter your name.", errUsernameRequired: "Username is required.",
+    errUsernameInvalid: "Username format is invalid — use 3–30 lowercase letters, numbers, hyphens, or underscores.",
+    errUsernameTaken: "This username is already taken — please choose another.",
+    errUsernameReserved: "This username is reserved — please choose another.",
+    errUsernamePending: "Please wait for username validation to complete.",
+    errGeneric: "Something went wrong. Please try again.",
+    errPasswordMin: "Password must be at least 8 characters.", errPasswordMismatch: "Passwords do not match.",
+  },
+
   nav: {
     workspace: "Workspace", account: "Account", support: "Support",
     getStarted: "Get Started", inbox: "Inbox", profile: "Profile", preferences: "Preferences",
@@ -600,6 +381,14 @@ const en: Dict = {
     sApps: "Connected Apps", sAppsDesc: "Google, GitHub, Discord", sPrivacy: "Privacy", sPrivacyDesc: "Analytics, data export",
     sSessions: "Sessions", sSessionsDesc: "Manage active sessions", sHistory: "History", sHistoryDesc: "Activity log",
     openInbox: "Open inbox", openTickets: "Open tickets", noNotifYet: "No notifications yet.", noTicketsYet: "No tickets yet.",
+    statActivity: "Activity events", activityTitle: "Activity", recentActivity: "Recent",
+    allActivity: "All activity", noRecentActivity: "No recent activity",
+    eventsLast7Days: "events · last 7 days", catSecurity: "Security", catAccount: "Account", catSupport: "Support",
+    cancelDeletionTitle: "Cancel deletion?", cancelDeletionDesc: "Your account will be restored immediately. You can delete again after 7 days.",
+    keepAccount: "Keep your account", keepDeletion: "Keep deletion", cancelling: "Cancelling...",
+    yesKeepAccount: "Yes, keep my account",
+    trendAllClear: "All clear", trendActive: "Active", trendNeedsAttention: "Needs attention", trendSteady: "Steady",
+    fromLabel: "from", activityDefault: "Activity",
   },
   prefs: {
     title: "Preferences", subtitle: "Customize your experience.", general: "General",
@@ -627,6 +416,10 @@ const en: Dict = {
     enableDigest: "Enable digest", enableDigestDesc: "Receive a digest instead of real-time alerts.",
     frequency: "Frequency", frequencyDesc: "How often you want to receive the digest.",
     daily: "Daily", weekly: "Weekly", monthly: "Monthly",
+    tipsTitle: "Tips & updates", enableTips: "Enable tips", tipsDesc: "Tips to get the most out of Tirbeo. Max 1 per 3 days.", tipsEnabled: "Tips enabled \u2014 you\u2019ll get occasional helpful emails + in-app tips", tipsMuted: "Tips muted",
+    autoSaved: "Auto-saved", saving: "Saving\u2026", saved: "Saved",
+    emailDisabledTitle: "Email disabled \u2014 only security alerts will arrive", emailDisabledDesc: "Re-enable to get Forms / Support / Product emails.", reEnableEmail: "Re-enable email",
+    unsubscribedAll: "Unsubscribed from all emails", reEnable: "Re-enable",
   },
   search: {
     placeholder: "Search pages, settings, actions...", pages: "Pages", overview: "Overview",
@@ -703,6 +496,7 @@ const en: Dict = {
     noActiveSessions: "No active sessions.", unknownDevice: "Unknown device", loginHistory: "Login history",
     noLoginHistory: "No recent logins.", thStatus: "Status", thDate: "Date", thMethod: "Method",
     thIpDevice: "IP / Device", success: "Success", failedStart: "Failed",
+    twoFactorEnabledDesc: "Two-factor authentication is enabled for your account.", twoFactorDisabledDesc: "Two-factor authentication is not enabled for your account.", settingUp: "Setting up...", addPwTitle: "Add a password to your account", addPwDesc: "You signed up with a social login. Adding a password lets you sign in with email too.", notSet: "Not set", noRecoveryEmail: "No recovery email", currentBadge: "Current", revokeAllOthers: "Revoke all others", revokeBtn: "Revoke", recentActivity: "Recent Activity", noRecentActivity: "No recent activity", srcSecurity: "Security", srcAudit: "Audit", srcAuth: "Auth", skipForNow: "Skip for now", keep2faEnabled: "Keep 2FA enabled", savedCodes: "I\u2019ve saved my codes", saveCodesWarning: "Save these codes somewhere safe. Each code can only be used once.", setCurrentPw: "Current password", enterCurrentPw: "Enter current password", newPwPh: "Enter new password", confirmPwPh: "Re-enter new password", reenterPw: "Confirm new password", keepCurrentPw: "Keep current password", dontChangeEmail: "Don\u2019t change email", sendVerificationCode: "Send verification code", keepRecoveryEmail: "Keep my recovery email", removeEmailBtn: "Remove email", unknownIP: "Unknown IP", loginCount: "{n} login recorded", sessionCount: "{n} session active",    removeRecoveryTitle: "Remove recovery email", removeRecoveryDesc: "A verification code will be sent to {email}.", sendCodeBtn: "Send verification code", removeEmailConfirm: "Remove email", pwdMinLength: "Password must be at least 8 characters.",
   },
   privacy: {
     title: "Privacy", subtitle: "Control how your data is used.",
@@ -727,6 +521,7 @@ const en: Dict = {
     companySize: "Company size", justMe: "Just me", website: "Website", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github username", usernameChecking: "Checking availability…", usernameAvailable: "Username is available", usernameTaken: "This username is already taken", usernameReserved: "This username is reserved", usernameInvalid: "Use 3–30 letters, numbers or hyphens", twitter: "Twitter / X", twitterPh: "@username", accountInfo: "Account info", email: "Email",
     recoveryEmail: "Recovery email", memberSince: "Member since", lastActive: "Last active",
     connectedAccounts: "Connected accounts", noneConnected: "No accounts connected.", verified: "Verified", unverified: "Not verified",
+    errorNameRequired: "Name is required", errorSaveFailed: "Failed to save changes", errorInvalidImageType: "Please use a JPEG, PNG, GIF, or WebP image.", errorImageTooLarge: "Image must be under 5MB.", errorUploadUrl: "Upload succeeded but no image URL was returned.", errorNetwork: "Network error. Check your connection and try again.", errorUploadGeneric: "Could not upload photo. Please try again.",
   },
   history: {
     title: "Activity history", subtitle: "A record of security and account events.",
@@ -831,6 +626,14 @@ const es: Dict = {
     sApps: "Aplicaciones conectadas", sAppsDesc: "Google, GitHub, Discord", sPrivacy: "Privacidad", sPrivacyDesc: "Analítica, exportación de datos",
     sSessions: "Sesiones", sSessionsDesc: "Gestiona sesiones activas", sHistory: "Historial", sHistoryDesc: "Registro de actividad",
     openInbox: "Abrir bandeja de entrada", openTickets: "Abrir tickets", noNotifYet: "Aún no hay notificaciones.", noTicketsYet: "Aún no hay tickets.",
+    statActivity: "Eventos de actividad", activityTitle: "Actividad", recentActivity: "Reciente",
+    allActivity: "Toda la actividad", noRecentActivity: "Sin actividad reciente",
+    eventsLast7Days: "eventos · últimos 7 días", catSecurity: "Seguridad", catAccount: "Cuenta", catSupport: "Soporte",
+    cancelDeletionTitle: "¿Cancelar eliminación?", cancelDeletionDesc: "Tu cuenta se restaurará inmediatamente. Puedes eliminarla de nuevo después de 7 días.",
+    keepAccount: "Mantener tu cuenta", keepDeletion: "Mantener eliminación", cancelling: "Cancelando...",
+    yesKeepAccount: "Sí, mantener mi cuenta",
+    trendAllClear: "Todo limpio", trendActive: "Activo", trendNeedsAttention: "Necesita atención", trendSteady: "Estable",
+    fromLabel: "desde", activityDefault: "Actividad",
   },
   prefs: {
     title: "Preferencias", subtitle: "Personaliza tu experiencia.", general: "General",
@@ -857,6 +660,10 @@ const es: Dict = {
     enableDigest: "Activar resumen", enableDigestDesc: "Recibe un resumen en lugar de alertas en tiempo real.",
     frequency: "Frecuencia", frequencyDesc: "Con qué frecuencia quieres recibir el resumen.",
     daily: "Diario", weekly: "Semanal", monthly: "Mensual",
+    tipsTitle: "Tips & updates", enableTips: "Enable tips", tipsDesc: "Tips to get the most out of Tirbeo. Max 1 per 3 days.", tipsEnabled: "Tips enabled — you’ll get occasional helpful emails + in-app tips", tipsMuted: "Tips muted",
+    autoSaved: "Auto-saved", saving: "Saving…", saved: "Saved",
+    emailDisabledTitle: "Email disabled — only security alerts will arrive", emailDisabledDesc: "Re-enable to get Forms / Support / Product emails.", reEnableEmail: "Re-enable email",
+    unsubscribedAll: "Unsubscribed from all emails", reEnable: "Re-enable",
   },
   search: {
     placeholder: "Buscar páginas, ajustes, acciones...", pages: "Páginas", overview: "Resumen",
@@ -932,7 +739,8 @@ const es: Dict = {
     noActiveSessions: "Sin sesiones activas.", unknownDevice: "Dispositivo desconocido", loginHistory: "Historial de inicio de sesión",
     noLoginHistory: "Sin inicios de sesión recientes.", thStatus: "Estado", thDate: "Fecha", thMethod: "Método",
     thIpDevice: "IP / Dispositivo", success: "Correcto", failedStart: "Fallido",
-  },
+      twoFactorEnabledDesc: "Two-factor authentication is enabled.", twoFactorDisabledDesc: "Two-factor authentication is not enabled.", settingUp: "Setting up...", addPwTitle: "Add a password to your account", addPwDesc: "You signed up with a social login. Adding a password lets you sign in with email too.", notSet: "Not set", noRecoveryEmail: "No recovery email", currentBadge: "Current", revokeAllOthers: "Revoke all others", revokeBtn: "Revoke", recentActivity: "Recent Activity", noRecentActivity: "No recent activity", srcSecurity: "Security", srcAudit: "Audit", srcAuth: "Auth", skipForNow: "Skip for now", keep2faEnabled: "Keep 2FA enabled", savedCodes: "I've saved my codes", saveCodesWarning: "Save these codes somewhere safe. Each code can only be used once.", setCurrentPw: "Current password", enterCurrentPw: "Enter current password", newPwPh: "Enter new password", confirmPwPh: "Re-enter new password", reenterPw: "Confirm new password", keepCurrentPw: "Keep current password", dontChangeEmail: "Don't change email", sendVerificationCode: "Send verification code", keepRecoveryEmail: "Keep my recovery email", removeEmailBtn: "Remove email", unknownIP: "Unknown IP", loginCount: "{n} login recorded", sessionCount: "{n} session active", removeRecoveryTitle: "Remove recovery email", removeRecoveryDesc: "A verification code will be sent to {email}.", sendCodeBtn: "Send verification code", removeEmailConfirm: "Remove email", pwdMinLength: "Password must be at least 8 characters.",
+    },
   privacy: {
     title: "Privacidad", subtitle: "Controla cómo se usan tus datos.",
     dataAnalytics: "Datos y analítica", analytics: "Analítica", analyticsDesc: "Ayuda a Tirbeo a mejorar compartiendo datos de uso.",
@@ -955,7 +763,8 @@ const es: Dict = {
     roleAtCompanyPh: "Tu rol en la empresa", industry: "Sector", industryPh: "p. ej. Tecnología",
     companySize: "Tamaño de la empresa", justMe: "Solo yo", website: "Sitio web", websitePh: "https://tusitio.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/usuario", github: "GitHub", githubPh: "usuario de github", usernameChecking: "Comprobando disponibilidad…", usernameAvailable: "El nombre de usuario está disponible", usernameTaken: "Este nombre de usuario ya está en uso", usernameReserved: "Este nombre de usuario está reservado", usernameInvalid: "Usa de 3 a 30 letras, números o guiones", twitter: "Twitter / X", twitterPh: "@usuario", accountInfo: "Información de la cuenta", email: "Correo",
     recoveryEmail: "Correo de recuperación", memberSince: "Miembro desde", lastActive: "Última actividad",
-    connectedAccounts: "Cuentas conectadas", noneConnected: "No hay cuentas conectadas.", verified: "Verificado", unverified: "No verificado",
+    connectedAccounts: "Cuentas conectadas", noneConnected: "No hay cuentas conectadas.",     errorNameRequired: "Name is required", errorSaveFailed: "Failed to save changes", errorInvalidImageType: "Please use a JPEG, PNG, GIF, or WebP image.", errorImageTooLarge: "Image must be under 5MB.", errorUploadUrl: "Upload succeeded but no image URL was returned.", errorNetwork: "Network error. Check your connection and try again.", errorUploadGeneric: "Could not upload photo. Please try again.",
+    verified: "Verificado", unverified: "No verificado",
   },
   history: {
     title: "Historial de actividad", subtitle: "Un registro de los eventos de seguridad y cuenta.",
@@ -1000,6 +809,38 @@ const es: Dict = {
     prioLow: "Baja", prioLowDesc: "Sin prisa", prioNormal: "Normal", prioNormalDesc: "Tiempo de respuesta estándar",
     prioHigh: "Alta", prioHighDesc: "Necesita atención pronto", prioUrgent: "Urgente", prioUrgentDesc: "Problema crítico",
   },
+    oauth: {
+    loading: "Loading…", finishingSignIn: "Finishing sign-in…",
+    signInIncomplete: "Sign-in could not be completed", backToSignIn: "Back to sign in",
+    createAccount: "Create your Tirbeo account", signedIn: "You're signed in",
+    noAccountExists: "No Tirbeo account exists yet — clicking below will create one linked to your {provider} sign-in.",
+    lastStep: "One last step before we take you to your workspace.",
+    profilePhoto: "Profile photo", photoOptional: "Optional — JPEG, PNG, GIF, WebP • Max 5MB",
+    choosePhoto: "Choose profile photo", removePhoto: "Remove photo",
+    name: "Name", namePh: "Your name", usernameLabel: "Username", usernamePh: "Choose a username",
+    usernameAvailable: "Username available", usernameTaken: "Username already taken — try another",
+    usernameReserved: "This username is reserved", usernameTooShort: "Username must be at least 3 characters",
+    usernameInvalidChars: "Only lowercase letters, numbers, hyphens, and underscores allowed",
+    usernameHint: "3–30 characters: letters, numbers, hyphens, underscores",
+    passwordAdded: "Password added — change or remove", addPasswordOptional: "Add a password (optional)",
+    agreeToTerms: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy, including data processing for my account.",
+    createAndContinue: "Create account & continue", continueBtn: "Continue",
+    dashboardNote: "You can manage passwords and connected services anytime from your dashboard settings.",
+    addPwTitle: "Add a password", addPwDesc: "Your email is already verified by {provider} — no code needed. Adding a password lets you sign in with email too.",
+    newPwPh: "New password (min 8 characters)", confirmPh: "Confirm password",
+    skip: "Skip", savePassword: "Save password", consentLabel: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy.",
+    errExpired: "This sign-in link has expired. Please sign in again.",
+    errSession: "Your session could not be verified. Please sign in again.",
+    errNothing: "Nothing to do here. Head back to the sign-in page.",
+    errNameRequired: "Please enter your name.", errUsernameRequired: "Username is required.",
+    errUsernameInvalid: "Username format is invalid — use 3–30 lowercase letters, numbers, hyphens, or underscores.",
+    errUsernameTaken: "This username is already taken — please choose another.",
+    errUsernameReserved: "This username is reserved — please choose another.",
+    errUsernamePending: "Please wait for username validation to complete.",
+    errGeneric: "Something went wrong. Please try again.",
+    errPasswordMin: "Password must be at least 8 characters.", errPasswordMismatch: "Passwords do not match.",
+  },
+
   notifTexts: {
     "Sessions signed out": "Sesiones cerradas",
     "Signed in to your account": "Has iniciado sesión en tu cuenta",
@@ -1047,6 +888,14 @@ const fr: Dict = {
     sApps: "Applications connectées", sAppsDesc: "Google, GitHub, Discord", sPrivacy: "Confidentialité", sPrivacyDesc: "Analytique, export de données",
     sSessions: "Sessions", sSessionsDesc: "Gérez vos sessions actives", sHistory: "Historique", sHistoryDesc: "Journal d'activité",
     openInbox: "Ouvrir la boîte de réception", openTickets: "Ouvrir les tickets", noNotifYet: "Aucune notification pour le moment.", noTicketsYet: "Aucun ticket pour le moment.",
+    statActivity: "Événements d'activité", activityTitle: "Activité", recentActivity: "Récent",
+    allActivity: "Toute l'activité", noRecentActivity: "Aucune activité récente",
+    eventsLast7Days: "événements · 7 derniers jours", catSecurity: "Sécurité", catAccount: "Compte", catSupport: "Support",
+    cancelDeletionTitle: "Annuler la suppression ?", cancelDeletionDesc: "Votre compte sera restauré immédiatement.",
+    keepAccount: "Conserver votre compte", keepDeletion: "Conserver la suppression", "cancelling": "Annulation...",
+    yesKeepAccount: "Oui, conserver mon compte",
+    trendAllClear: "Tout est clair", trendActive: "Actif", trendNeedsAttention: "Attention requise", trendSteady: "Stable",
+    fromLabel: "depuis", activityDefault: "Activité",
   },
   prefs: {
     title: "Préférences", subtitle: "Personnalisez votre expérience.", general: "Général",
@@ -1073,6 +922,10 @@ const fr: Dict = {
     enableDigest: "Activer le résumé", enableDigestDesc: "Recevez un résumé au lieu d'alertes en temps réel.",
     frequency: "Fréquence", frequencyDesc: "À quelle fréquence vous souhaitez recevoir le résumé.",
     daily: "Quotidien", weekly: "Hebdomadaire", monthly: "Mensuel",
+    tipsTitle: "Tips & updates", enableTips: "Enable tips", tipsDesc: "Tips to get the most out of Tirbeo. Max 1 per 3 days.", tipsEnabled: "Tips enabled — you’ll get occasional helpful emails + in-app tips", tipsMuted: "Tips muted",
+    autoSaved: "Auto-saved", saving: "Saving…", saved: "Saved",
+    emailDisabledTitle: "Email disabled — only security alerts will arrive", emailDisabledDesc: "Re-enable to get Forms / Support / Product emails.", reEnableEmail: "Re-enable email",
+    unsubscribedAll: "Unsubscribed from all emails", reEnable: "Re-enable",
   },
   search: {
     placeholder: "Rechercher des pages, des paramètres, des actions...", pages: "Pages", overview: "Vue d'ensemble",
@@ -1148,7 +1001,8 @@ const fr: Dict = {
     noActiveSessions: "Aucune session active.", unknownDevice: "Appareil inconnu", loginHistory: "Historique de connexion",
     noLoginHistory: "Aucune connexion récente.", thStatus: "Statut", thDate: "Date", thMethod: "Méthode",
     thIpDevice: "IP / Appareil", success: "Réussi", failedStart: "Échec",
-  },
+      twoFactorEnabledDesc: "Two-factor authentication is enabled.", twoFactorDisabledDesc: "Two-factor authentication is not enabled.", settingUp: "Setting up...", addPwTitle: "Add a password to your account", addPwDesc: "You signed up with a social login. Adding a password lets you sign in with email too.", notSet: "Not set", noRecoveryEmail: "No recovery email", currentBadge: "Current", revokeAllOthers: "Revoke all others", revokeBtn: "Revoke", recentActivity: "Recent Activity", noRecentActivity: "No recent activity", srcSecurity: "Security", srcAudit: "Audit", srcAuth: "Auth", skipForNow: "Skip for now", keep2faEnabled: "Keep 2FA enabled", savedCodes: "I've saved my codes", saveCodesWarning: "Save these codes somewhere safe. Each code can only be used once.", setCurrentPw: "Current password", enterCurrentPw: "Enter current password", newPwPh: "Enter new password", confirmPwPh: "Re-enter new password", reenterPw: "Confirm new password", keepCurrentPw: "Keep current password", dontChangeEmail: "Don't change email", sendVerificationCode: "Send verification code", keepRecoveryEmail: "Keep my recovery email", removeEmailBtn: "Remove email", unknownIP: "Unknown IP", loginCount: "{n} login recorded", sessionCount: "{n} session active", removeRecoveryTitle: "Remove recovery email", removeRecoveryDesc: "A verification code will be sent to {email}.", sendCodeBtn: "Send verification code", removeEmailConfirm: "Remove email", pwdMinLength: "Password must be at least 8 characters.",
+    },
   privacy: {
     title: "Confidentialité", subtitle: "Contrôlez l'utilisation de vos données.",
     dataAnalytics: "Données et analytique", analytics: "Analytique", analyticsDesc: "Aidez Tirbeo à s'améliorer en partageant des données d'utilisation.",
@@ -1171,7 +1025,8 @@ const fr: Dict = {
     roleAtCompanyPh: "Votre rôle dans l'entreprise", industry: "Secteur", industryPh: "p. ex. Technologie",
     companySize: "Taille de l'entreprise", justMe: "Moi uniquement", website: "Site web", websitePh: "https://votresite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/utilisateur", github: "GitHub", githubPh: "nom d'utilisateur github", usernameChecking: "Vérification de la disponibilité…", usernameAvailable: "Ce nom d'utilisateur est disponible", usernameTaken: "Ce nom d'utilisateur est déjà pris", usernameReserved: "Ce nom d'utilisateur est réservé", usernameInvalid: "Utilisez 3 à 30 lettres, chiffres ou tirets", twitter: "Twitter / X", twitterPh: "@utilisateur", accountInfo: "Informations du compte", email: "E-mail",
     recoveryEmail: "E-mail de récupération", memberSince: "Membre depuis", lastActive: "Dernière activité",
-    connectedAccounts: "Comptes connectés", noneConnected: "Aucun compte connecté.", verified: "Vérifié", unverified: "Non vérifié",
+    connectedAccounts: "Comptes connectés", noneConnected: "Aucun compte connecté.",     errorNameRequired: "Name is required", errorSaveFailed: "Failed to save changes", errorInvalidImageType: "Please use a JPEG, PNG, GIF, or WebP image.", errorImageTooLarge: "Image must be under 5MB.", errorUploadUrl: "Upload succeeded but no image URL was returned.", errorNetwork: "Network error. Check your connection and try again.", errorUploadGeneric: "Could not upload photo. Please try again.",
+    verified: "Vérifié", unverified: "Non vérifié",
   },
   history: {
     title: "Historique d'activité", subtitle: "Un journal des événements de sécurité et de compte.",
@@ -1216,6 +1071,38 @@ const fr: Dict = {
     prioLow: "Basse", prioLowDesc: "Pas pressé", prioNormal: "Normale", prioNormalDesc: "Délai de réponse standard",
     prioHigh: "Haute", prioHighDesc: "Nécessite une attention rapide", prioUrgent: "Urgente", prioUrgentDesc: "Problème critique",
   },
+    oauth: {
+    loading: "Loading…", finishingSignIn: "Finishing sign-in…",
+    signInIncomplete: "Sign-in could not be completed", backToSignIn: "Back to sign in",
+    createAccount: "Create your Tirbeo account", signedIn: "You're signed in",
+    noAccountExists: "No Tirbeo account exists yet — clicking below will create one linked to your {provider} sign-in.",
+    lastStep: "One last step before we take you to your workspace.",
+    profilePhoto: "Profile photo", photoOptional: "Optional — JPEG, PNG, GIF, WebP • Max 5MB",
+    choosePhoto: "Choose profile photo", removePhoto: "Remove photo",
+    name: "Name", namePh: "Your name", usernameLabel: "Username", usernamePh: "Choose a username",
+    usernameAvailable: "Username available", usernameTaken: "Username already taken — try another",
+    usernameReserved: "This username is reserved", usernameTooShort: "Username must be at least 3 characters",
+    usernameInvalidChars: "Only lowercase letters, numbers, hyphens, and underscores allowed",
+    usernameHint: "3–30 characters: letters, numbers, hyphens, underscores",
+    passwordAdded: "Password added — change or remove", addPasswordOptional: "Add a password (optional)",
+    agreeToTerms: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy, including data processing for my account.",
+    createAndContinue: "Create account & continue", continueBtn: "Continue",
+    dashboardNote: "You can manage passwords and connected services anytime from your dashboard settings.",
+    addPwTitle: "Add a password", addPwDesc: "Your email is already verified by {provider} — no code needed. Adding a password lets you sign in with email too.",
+    newPwPh: "New password (min 8 characters)", confirmPh: "Confirm password",
+    skip: "Skip", savePassword: "Save password", consentLabel: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy.",
+    errExpired: "This sign-in link has expired. Please sign in again.",
+    errSession: "Your session could not be verified. Please sign in again.",
+    errNothing: "Nothing to do here. Head back to the sign-in page.",
+    errNameRequired: "Please enter your name.", errUsernameRequired: "Username is required.",
+    errUsernameInvalid: "Username format is invalid — use 3–30 lowercase letters, numbers, hyphens, or underscores.",
+    errUsernameTaken: "This username is already taken — please choose another.",
+    errUsernameReserved: "This username is reserved — please choose another.",
+    errUsernamePending: "Please wait for username validation to complete.",
+    errGeneric: "Something went wrong. Please try again.",
+    errPasswordMin: "Password must be at least 8 characters.", errPasswordMismatch: "Passwords do not match.",
+  },
+
   notifTexts: {
     "Sessions signed out": "Sessions déconnectées",
     "Signed in to your account": "Connexion à votre compte",
@@ -1263,6 +1150,14 @@ const de: Dict = {
     sApps: "Verbundene Apps", sAppsDesc: "Google, GitHub, Discord", sPrivacy: "Datenschutz", sPrivacyDesc: "Analysen, Datenexport",
     sSessions: "Sitzungen", sSessionsDesc: "Aktive Sitzungen verwalten", sHistory: "Verlauf", sHistoryDesc: "Aktivitätsprotokoll",
     openInbox: "Posteingang öffnen", openTickets: "Tickets öffnen", noNotifYet: "Noch keine Benachrichtigungen.", noTicketsYet: "Noch keine Tickets.",
+    statActivity: "Aktivitätsereignisse", activityTitle: "Aktivität", recentActivity: "Kürzlich",
+    allActivity: "Gesamte Aktivität", noRecentActivity: "Keine kürzliche Aktivität",
+    eventsLast7Days: "Ereignisse · letzte 7 Tage", catSecurity: "Sicherheit", catAccount: "Konto", catSupport: "Support",
+    cancelDeletionTitle: "Löschung abbrechen?", cancelDeletionDesc: "Ihr Konto wird sofort wiederhergestellt.",
+    keepAccount: "Konto behalten", keepDeletion: "Löschung beibehalten", "cancelling": "Wird abgebrochen...",
+    yesKeepAccount: "Ja, mein Konto behalten",
+    trendAllClear: "Alles klar", trendActive: "Aktiv", trendNeedsAttention: "Aufmerksamkeit nötig", trendSteady: "Stabil",
+    fromLabel: "von", activityDefault: "Aktivität",
   },
   prefs: {
     title: "Einstellungen", subtitle: "Passen Sie Ihre Erfahrung an.", general: "Allgemein",
@@ -1289,6 +1184,10 @@ const de: Dict = {
     enableDigest: "Zusammenfassung aktivieren", enableDigestDesc: "Erhalten Sie eine Zusammenfassung statt Echtzeit-Alerts.",
     frequency: "Häufigkeit", frequencyDesc: "Wie oft Sie die Zusammenfassung erhalten möchten.",
     daily: "Täglich", weekly: "Wöchentlich", monthly: "Monatlich",
+    tipsTitle: "Tips & updates", enableTips: "Enable tips", tipsDesc: "Tips to get the most out of Tirbeo. Max 1 per 3 days.", tipsEnabled: "Tips enabled — you’ll get occasional helpful emails + in-app tips", tipsMuted: "Tips muted",
+    autoSaved: "Auto-saved", saving: "Saving…", saved: "Saved",
+    emailDisabledTitle: "Email disabled — only security alerts will arrive", emailDisabledDesc: "Re-enable to get Forms / Support / Product emails.", reEnableEmail: "Re-enable email",
+    unsubscribedAll: "Unsubscribed from all emails", reEnable: "Re-enable",
   },
   search: {
     placeholder: "Seiten, Einstellungen, Aktionen suchen...", pages: "Seiten", overview: "Übersicht",
@@ -1364,7 +1263,8 @@ const de: Dict = {
     noActiveSessions: "Keine aktiven Sitzungen.", unknownDevice: "Unbekanntes Gerät", loginHistory: "Anmeldeverlauf",
     noLoginHistory: "Keine kürzlichen Anmeldungen.", thStatus: "Status", thDate: "Datum", thMethod: "Methode",
     thIpDevice: "IP / Gerät", success: "Erfolgreich", failedStart: "Fehlgeschlagen",
-  },
+      twoFactorEnabledDesc: "Two-factor authentication is enabled.", twoFactorDisabledDesc: "Two-factor authentication is not enabled.", settingUp: "Setting up...", addPwTitle: "Add a password to your account", addPwDesc: "You signed up with a social login. Adding a password lets you sign in with email too.", notSet: "Not set", noRecoveryEmail: "No recovery email", currentBadge: "Current", revokeAllOthers: "Revoke all others", revokeBtn: "Revoke", recentActivity: "Recent Activity", noRecentActivity: "No recent activity", srcSecurity: "Security", srcAudit: "Audit", srcAuth: "Auth", skipForNow: "Skip for now", keep2faEnabled: "Keep 2FA enabled", savedCodes: "I've saved my codes", saveCodesWarning: "Save these codes somewhere safe. Each code can only be used once.", setCurrentPw: "Current password", enterCurrentPw: "Enter current password", newPwPh: "Enter new password", confirmPwPh: "Re-enter new password", reenterPw: "Confirm new password", keepCurrentPw: "Keep current password", dontChangeEmail: "Don't change email", sendVerificationCode: "Send verification code", keepRecoveryEmail: "Keep my recovery email", removeEmailBtn: "Remove email", unknownIP: "Unknown IP", loginCount: "{n} login recorded", sessionCount: "{n} session active", removeRecoveryTitle: "Remove recovery email", removeRecoveryDesc: "A verification code will be sent to {email}.", sendCodeBtn: "Send verification code", removeEmailConfirm: "Remove email", pwdMinLength: "Password must be at least 8 characters.",
+    },
   privacy: {
     title: "Datenschutz", subtitle: "Kontrollieren Sie, wie Ihre Daten verwendet werden.",
     dataAnalytics: "Daten und Analysen", analytics: "Analysen", analyticsDesc: "Helfen Sie Tirbeo, sich zu verbessern, indem Sie Nutzungsdaten teilen.",
@@ -1387,7 +1287,8 @@ const de: Dict = {
     roleAtCompanyPh: "Ihre Rolle im Unternehmen", industry: "Branche", industryPh: "z. B. Technologie",
     companySize: "Unternehmensgröße", justMe: "Nur ich", website: "Website", websitePh: "https://deinewebsite.de", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/benutzername", github: "GitHub", githubPh: "github-benutzername", usernameChecking: "Verfügbarkeit wird geprüft…", usernameAvailable: "Benutzername ist verfügbar", usernameTaken: "Dieser Benutzername ist bereits vergeben", usernameReserved: "Dieser Benutzername ist reserviert", usernameInvalid: "Erlaubt sind 3–30 Buchstaben, Zahlen oder Bindestriche", twitter: "Twitter / X", twitterPh: "@benutzername", accountInfo: "Kontoinformationen", email: "E-Mail",
     recoveryEmail: "Wiederherstellungs-E-Mail", memberSince: "Mitglied seit", lastActive: "Zuletzt aktiv",
-    connectedAccounts: "Verbundene Konten", noneConnected: "Keine Konten verbunden.", verified: "Verifiziert", unverified: "Nicht verifiziert",
+    connectedAccounts: "Verbundene Konten", noneConnected: "Keine Konten verbunden.",     errorNameRequired: "Name is required", errorSaveFailed: "Failed to save changes", errorInvalidImageType: "Please use a JPEG, PNG, GIF, or WebP image.", errorImageTooLarge: "Image must be under 5MB.", errorUploadUrl: "Upload succeeded but no image URL was returned.", errorNetwork: "Network error. Check your connection and try again.", errorUploadGeneric: "Could not upload photo. Please try again.",
+    verified: "Verifiziert", unverified: "Nicht verifiziert",
   },
   history: {
     title: "Aktivitätsverlauf", subtitle: "Ein Protokoll von Sicherheits- und Kontovorgängen.",
@@ -1432,6 +1333,38 @@ const de: Dict = {
     prioLow: "Niedrig", prioLowDesc: "Keine Eile", prioNormal: "Normal", prioNormalDesc: "Standard-Antwortzeit",
     prioHigh: "Hoch", prioHighDesc: "Benötigt bald Aufmerksamkeit", prioUrgent: "Dringend", prioUrgentDesc: "Kritisches Problem",
   },
+    oauth: {
+    loading: "Loading…", finishingSignIn: "Finishing sign-in…",
+    signInIncomplete: "Sign-in could not be completed", backToSignIn: "Back to sign in",
+    createAccount: "Create your Tirbeo account", signedIn: "You're signed in",
+    noAccountExists: "No Tirbeo account exists yet — clicking below will create one linked to your {provider} sign-in.",
+    lastStep: "One last step before we take you to your workspace.",
+    profilePhoto: "Profile photo", photoOptional: "Optional — JPEG, PNG, GIF, WebP • Max 5MB",
+    choosePhoto: "Choose profile photo", removePhoto: "Remove photo",
+    name: "Name", namePh: "Your name", usernameLabel: "Username", usernamePh: "Choose a username",
+    usernameAvailable: "Username available", usernameTaken: "Username already taken — try another",
+    usernameReserved: "This username is reserved", usernameTooShort: "Username must be at least 3 characters",
+    usernameInvalidChars: "Only lowercase letters, numbers, hyphens, and underscores allowed",
+    usernameHint: "3–30 characters: letters, numbers, hyphens, underscores",
+    passwordAdded: "Password added — change or remove", addPasswordOptional: "Add a password (optional)",
+    agreeToTerms: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy, including data processing for my account.",
+    createAndContinue: "Create account & continue", continueBtn: "Continue",
+    dashboardNote: "You can manage passwords and connected services anytime from your dashboard settings.",
+    addPwTitle: "Add a password", addPwDesc: "Your email is already verified by {provider} — no code needed. Adding a password lets you sign in with email too.",
+    newPwPh: "New password (min 8 characters)", confirmPh: "Confirm password",
+    skip: "Skip", savePassword: "Save password", consentLabel: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy.",
+    errExpired: "This sign-in link has expired. Please sign in again.",
+    errSession: "Your session could not be verified. Please sign in again.",
+    errNothing: "Nothing to do here. Head back to the sign-in page.",
+    errNameRequired: "Please enter your name.", errUsernameRequired: "Username is required.",
+    errUsernameInvalid: "Username format is invalid — use 3–30 lowercase letters, numbers, hyphens, or underscores.",
+    errUsernameTaken: "This username is already taken — please choose another.",
+    errUsernameReserved: "This username is reserved — please choose another.",
+    errUsernamePending: "Please wait for username validation to complete.",
+    errGeneric: "Something went wrong. Please try again.",
+    errPasswordMin: "Password must be at least 8 characters.", errPasswordMismatch: "Passwords do not match.",
+  },
+
   notifTexts: {
     "Sessions signed out": "Sitzungen abgemeldet",
     "Signed in to your account": "Bei Ihrem Konto angemeldet",
@@ -1479,6 +1412,14 @@ const ja: Dict = {
     sApps: "連携アプリ", sAppsDesc: "Google、GitHub、Discord", sPrivacy: "プライバシー", sPrivacyDesc: "分析、データエクスポート",
     sSessions: "セッション", sSessionsDesc: "アクティブなセッションを管理", sHistory: "履歴", sHistoryDesc: "アクティビティログ",
     openInbox: "受信トレイを開く", openTickets: "チケットを開く", noNotifYet: "通知はまだありません。", noTicketsYet: "チケットはまだありません。",
+    statActivity: "アクティビティイベント", activityTitle: "アクティビティ", recentActivity: "最近",
+    allActivity: "すべてのアクティビティ", noRecentActivity: "最近のアクティビティなし",
+    eventsLast7Days: "件 · 過去7日間", catSecurity: "セキュリティ", catAccount: "アカウント", catSupport: "サポート",
+    cancelDeletionTitle: "削除をキャンセルしますか？", cancelDeletionDesc: "アカウントはすぐに復元されます。7日後に再度削除できます。",
+    keepAccount: "アカウントを維持", keepDeletion: "削除を維持", "cancelling": "キャンセル中...",
+    yesKeepAccount: "はい、アカウントを維持します",
+    trendAllClear: "すべて正常", trendActive: "アクティブ", trendNeedsAttention: "対応が必要", trendSteady: "安定",
+    fromLabel: "から", activityDefault: "アクティビティ",
   },
   prefs: {
     title: "設定", subtitle: "エクスペリエンスをカスタマイズします。", general: "一般",
@@ -1505,6 +1446,10 @@ const ja: Dict = {
     enableDigest: "ダイジェストを有効化", enableDigestDesc: "リアルタイムのアラートの代わりにダイジェストを受け取ります。",
     frequency: "頻度", frequencyDesc: "ダイジェストを受け取る頻度。",
     daily: "毎日", weekly: "毎週", monthly: "毎月",
+    tipsTitle: "Tips & updates", enableTips: "Enable tips", tipsDesc: "Tips to get the most out of Tirbeo. Max 1 per 3 days.", tipsEnabled: "Tips enabled — you’ll get occasional helpful emails + in-app tips", tipsMuted: "Tips muted",
+    autoSaved: "Auto-saved", saving: "Saving…", saved: "Saved",
+    emailDisabledTitle: "Email disabled — only security alerts will arrive", emailDisabledDesc: "Re-enable to get Forms / Support / Product emails.", reEnableEmail: "Re-enable email",
+    unsubscribedAll: "Unsubscribed from all emails", reEnable: "Re-enable",
   },
   search: {
     placeholder: "ページ、設定、操作を検索...", pages: "ページ", overview: "概要",
@@ -1580,7 +1525,8 @@ const ja: Dict = {
     noActiveSessions: "アクティブなセッションはありません。", unknownDevice: "不明なデバイス", loginHistory: "ログイン履歴",
     noLoginHistory: "最近のログインはありません。", thStatus: "ステータス", thDate: "日付", thMethod: "方法",
     thIpDevice: "IP / デバイス", success: "成功", failedStart: "失敗",
-  },
+      twoFactorEnabledDesc: "Two-factor authentication is enabled.", twoFactorDisabledDesc: "Two-factor authentication is not enabled.", settingUp: "Setting up...", addPwTitle: "Add a password to your account", addPwDesc: "You signed up with a social login. Adding a password lets you sign in with email too.", notSet: "Not set", noRecoveryEmail: "No recovery email", currentBadge: "Current", revokeAllOthers: "Revoke all others", revokeBtn: "Revoke", recentActivity: "Recent Activity", noRecentActivity: "No recent activity", srcSecurity: "Security", srcAudit: "Audit", srcAuth: "Auth", skipForNow: "Skip for now", keep2faEnabled: "Keep 2FA enabled", savedCodes: "I've saved my codes", saveCodesWarning: "Save these codes somewhere safe. Each code can only be used once.", setCurrentPw: "Current password", enterCurrentPw: "Enter current password", newPwPh: "Enter new password", confirmPwPh: "Re-enter new password", reenterPw: "Confirm new password", keepCurrentPw: "Keep current password", dontChangeEmail: "Don't change email", sendVerificationCode: "Send verification code", keepRecoveryEmail: "Keep my recovery email", removeEmailBtn: "Remove email", unknownIP: "Unknown IP", loginCount: "{n} login recorded", sessionCount: "{n} session active", removeRecoveryTitle: "Remove recovery email", removeRecoveryDesc: "A verification code will be sent to {email}.", sendCodeBtn: "Send verification code", removeEmailConfirm: "Remove email", pwdMinLength: "Password must be at least 8 characters.",
+    },
   privacy: {
     title: "プライバシー", subtitle: "データの使用方法を管理します。",
     dataAnalytics: "データと分析", analytics: "分析", analyticsDesc: "利用状況データを共有してTirbeoの改善に協力します。",
@@ -1603,7 +1549,8 @@ const ja: Dict = {
     roleAtCompanyPh: "会社での役割", industry: "業界", industryPh: "例：テクノロジー",
     companySize: "会社の規模", justMe: "個人のみ", website: "ウェブサイト", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github ユーザー名", usernameChecking: "利用可能か確認中…", usernameAvailable: "このユーザー名は利用できます", usernameTaken: "このユーザー名は既に使用されています", usernameReserved: "このユーザー名は予約されています", usernameInvalid: "英数字とハイフンで3〜30文字で入力してください", twitter: "Twitter / X", twitterPh: "@ユーザー名", accountInfo: "アカウント情報", email: "メール",
     recoveryEmail: "回復用メール", memberSince: "登録日", lastActive: "最終アクティブ",
-    connectedAccounts: "連携アカウント", noneConnected: "連携されたアカウントはありません。", verified: "確認済み", unverified: "未確認",
+    connectedAccounts: "連携アカウント", noneConnected: "連携されたアカウントはありません。",     errorNameRequired: "Name is required", errorSaveFailed: "Failed to save changes", errorInvalidImageType: "Please use a JPEG, PNG, GIF, or WebP image.", errorImageTooLarge: "Image must be under 5MB.", errorUploadUrl: "Upload succeeded but no image URL was returned.", errorNetwork: "Network error. Check your connection and try again.", errorUploadGeneric: "Could not upload photo. Please try again.",
+    verified: "確認済み", unverified: "未確認",
   },
   history: {
     title: "アクティビティ履歴", subtitle: "セキュリティとアカウントのイベントの記録です。",
@@ -1648,6 +1595,38 @@ const ja: Dict = {
     prioLow: "低", prioLowDesc: "急ぎません", prioNormal: "通常", prioNormalDesc: "標準的な応答時間",
     prioHigh: "高", prioHighDesc: "早めの対応が必要", prioUrgent: "緊急", prioUrgentDesc: "重大な問題",
   },
+    oauth: {
+    loading: "Loading…", finishingSignIn: "Finishing sign-in…",
+    signInIncomplete: "Sign-in could not be completed", backToSignIn: "Back to sign in",
+    createAccount: "Create your Tirbeo account", signedIn: "You're signed in",
+    noAccountExists: "No Tirbeo account exists yet — clicking below will create one linked to your {provider} sign-in.",
+    lastStep: "One last step before we take you to your workspace.",
+    profilePhoto: "Profile photo", photoOptional: "Optional — JPEG, PNG, GIF, WebP • Max 5MB",
+    choosePhoto: "Choose profile photo", removePhoto: "Remove photo",
+    name: "Name", namePh: "Your name", usernameLabel: "Username", usernamePh: "Choose a username",
+    usernameAvailable: "Username available", usernameTaken: "Username already taken — try another",
+    usernameReserved: "This username is reserved", usernameTooShort: "Username must be at least 3 characters",
+    usernameInvalidChars: "Only lowercase letters, numbers, hyphens, and underscores allowed",
+    usernameHint: "3–30 characters: letters, numbers, hyphens, underscores",
+    passwordAdded: "Password added — change or remove", addPasswordOptional: "Add a password (optional)",
+    agreeToTerms: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy, including data processing for my account.",
+    createAndContinue: "Create account & continue", continueBtn: "Continue",
+    dashboardNote: "You can manage passwords and connected services anytime from your dashboard settings.",
+    addPwTitle: "Add a password", addPwDesc: "Your email is already verified by {provider} — no code needed. Adding a password lets you sign in with email too.",
+    newPwPh: "New password (min 8 characters)", confirmPh: "Confirm password",
+    skip: "Skip", savePassword: "Save password", consentLabel: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy.",
+    errExpired: "This sign-in link has expired. Please sign in again.",
+    errSession: "Your session could not be verified. Please sign in again.",
+    errNothing: "Nothing to do here. Head back to the sign-in page.",
+    errNameRequired: "Please enter your name.", errUsernameRequired: "Username is required.",
+    errUsernameInvalid: "Username format is invalid — use 3–30 lowercase letters, numbers, hyphens, or underscores.",
+    errUsernameTaken: "This username is already taken — please choose another.",
+    errUsernameReserved: "This username is reserved — please choose another.",
+    errUsernamePending: "Please wait for username validation to complete.",
+    errGeneric: "Something went wrong. Please try again.",
+    errPasswordMin: "Password must be at least 8 characters.", errPasswordMismatch: "Passwords do not match.",
+  },
+
   notifTexts: {
     "Sessions signed out": "セッションのサインアウト",
     "Signed in to your account": "アカウントにログインしました",
@@ -1695,6 +1674,14 @@ const ko: Dict = {
     sApps: "연결된 앱", sAppsDesc: "Google, GitHub, Discord", sPrivacy: "개인정보", sPrivacyDesc: "분석, 데이터 내보내기",
     sSessions: "세션", sSessionsDesc: "활성 세션 관리", sHistory: "기록", sHistoryDesc: "활동 기록",
     openInbox: "받은편지함 열기", openTickets: "티켓 열기", noNotifYet: "아직 알림이 없습니다.", noTicketsYet: "아직 티켓이 없습니다.",
+    statActivity: "활동 이벤트", activityTitle: "활동", recentActivity: "최근",
+    allActivity: "모든 활동", noRecentActivity: "최근 활동 없음",
+    eventsLast7Days: "이벤트 · 최근 7일", catSecurity: "보안", catAccount: "계정", catSupport: "지원",
+    cancelDeletionTitle: "삭제 취소?", cancelDeletionDesc: "계정이 즉시 복원됩니다. 7일 후에 다시 삭제할 수 있습니다.",
+    keepAccount: "계정 유지", keepDeletion: "삭제 유지", "cancelling": "취소 중...",
+    yesKeepAccount: "예, 계정을 유지합니다",
+    trendAllClear: "모두 정상", trendActive: "활성", trendNeedsAttention: "주의 필요", trendSteady: "안정",
+    fromLabel: "에서", activityDefault: "활동",
   },
   prefs: {
     title: "환경설정", subtitle: "환경을 맞춤화하세요.", general: "일반",
@@ -1721,6 +1708,10 @@ const ko: Dict = {
     enableDigest: "요약 활성화", enableDigestDesc: "실시간 알림 대신 요약을 받습니다.",
     frequency: "빈도", frequencyDesc: "요약을 받을 빈도.",
     daily: "매일", weekly: "매주", monthly: "매월",
+    tipsTitle: "Tips & updates", enableTips: "Enable tips", tipsDesc: "Tips to get the most out of Tirbeo. Max 1 per 3 days.", tipsEnabled: "Tips enabled — you’ll get occasional helpful emails + in-app tips", tipsMuted: "Tips muted",
+    autoSaved: "Auto-saved", saving: "Saving…", saved: "Saved",
+    emailDisabledTitle: "Email disabled — only security alerts will arrive", emailDisabledDesc: "Re-enable to get Forms / Support / Product emails.", reEnableEmail: "Re-enable email",
+    unsubscribedAll: "Unsubscribed from all emails", reEnable: "Re-enable",
   },
   search: {
     placeholder: "페이지, 설정, 작업 검색...", pages: "페이지", overview: "개요",
@@ -1796,7 +1787,8 @@ const ko: Dict = {
     noActiveSessions: "활성 세션이 없습니다.", unknownDevice: "알 수 없는 기기", loginHistory: "로그인 기록",
     noLoginHistory: "최근 로그인이 없습니다.", thStatus: "상태", thDate: "날짜", thMethod: "방법",
     thIpDevice: "IP / 기기", success: "성공", failedStart: "실패",
-  },
+      twoFactorEnabledDesc: "Two-factor authentication is enabled.", twoFactorDisabledDesc: "Two-factor authentication is not enabled.", settingUp: "Setting up...", addPwTitle: "Add a password to your account", addPwDesc: "You signed up with a social login. Adding a password lets you sign in with email too.", notSet: "Not set", noRecoveryEmail: "No recovery email", currentBadge: "Current", revokeAllOthers: "Revoke all others", revokeBtn: "Revoke", recentActivity: "Recent Activity", noRecentActivity: "No recent activity", srcSecurity: "Security", srcAudit: "Audit", srcAuth: "Auth", skipForNow: "Skip for now", keep2faEnabled: "Keep 2FA enabled", savedCodes: "I've saved my codes", saveCodesWarning: "Save these codes somewhere safe. Each code can only be used once.", setCurrentPw: "Current password", enterCurrentPw: "Enter current password", newPwPh: "Enter new password", confirmPwPh: "Re-enter new password", reenterPw: "Confirm new password", keepCurrentPw: "Keep current password", dontChangeEmail: "Don't change email", sendVerificationCode: "Send verification code", keepRecoveryEmail: "Keep my recovery email", removeEmailBtn: "Remove email", unknownIP: "Unknown IP", loginCount: "{n} login recorded", sessionCount: "{n} session active", removeRecoveryTitle: "Remove recovery email", removeRecoveryDesc: "A verification code will be sent to {email}.", sendCodeBtn: "Send verification code", removeEmailConfirm: "Remove email", pwdMinLength: "Password must be at least 8 characters.",
+    },
   privacy: {
     title: "개인정보", subtitle: "데이터 사용 방식을 관리하세요.",
     dataAnalytics: "데이터 및 분석", analytics: "분석", analyticsDesc: "사용 데이터를 공유하여 Tirbeo 개선에 도움을 주세요.",
@@ -1819,7 +1811,8 @@ const ko: Dict = {
     roleAtCompanyPh: "회사에서의 역할", industry: "업계", industryPh: "예: 기술",
     companySize: "회사 규모", justMe: "나만", website: "웹사이트", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github 사용자명", usernameChecking: "사용 가능 여부 확인 중…", usernameAvailable: "사용할 수 있는 사용자 이름입니다", usernameTaken: "이미 사용 중인 사용자 이름입니다", usernameReserved: "예약된 사용자 이름입니다", usernameInvalid: "영문, 숫자, 하이픈으로 3~30자 입력하세요", twitter: "Twitter / X", twitterPh: "@사용자명", accountInfo: "계정 정보", email: "이메일",
     recoveryEmail: "복구 이메일", memberSince: "가입일", lastActive: "마지막 활동",
-    connectedAccounts: "연결된 계정", noneConnected: "연결된 계정이 없습니다.", verified: "확인됨", unverified: "미확인",
+    connectedAccounts: "연결된 계정", noneConnected: "연결된 계정이 없습니다.",     errorNameRequired: "Name is required", errorSaveFailed: "Failed to save changes", errorInvalidImageType: "Please use a JPEG, PNG, GIF, or WebP image.", errorImageTooLarge: "Image must be under 5MB.", errorUploadUrl: "Upload succeeded but no image URL was returned.", errorNetwork: "Network error. Check your connection and try again.", errorUploadGeneric: "Could not upload photo. Please try again.",
+    verified: "확인됨", unverified: "미확인",
   },
   history: {
     title: "활동 기록", subtitle: "보안 및 계정 이벤트 기록입니다.",
@@ -1864,6 +1857,38 @@ const ko: Dict = {
     prioLow: "낮음", prioLowDesc: "긴급하지 않음", prioNormal: "보통", prioNormalDesc: "표준 응답 시간",
     prioHigh: "높음", prioHighDesc: "곧 주의 필요", prioUrgent: "긴급", prioUrgentDesc: "심각한 문제",
   },
+    oauth: {
+    loading: "Loading…", finishingSignIn: "Finishing sign-in…",
+    signInIncomplete: "Sign-in could not be completed", backToSignIn: "Back to sign in",
+    createAccount: "Create your Tirbeo account", signedIn: "You're signed in",
+    noAccountExists: "No Tirbeo account exists yet — clicking below will create one linked to your {provider} sign-in.",
+    lastStep: "One last step before we take you to your workspace.",
+    profilePhoto: "Profile photo", photoOptional: "Optional — JPEG, PNG, GIF, WebP • Max 5MB",
+    choosePhoto: "Choose profile photo", removePhoto: "Remove photo",
+    name: "Name", namePh: "Your name", usernameLabel: "Username", usernamePh: "Choose a username",
+    usernameAvailable: "Username available", usernameTaken: "Username already taken — try another",
+    usernameReserved: "This username is reserved", usernameTooShort: "Username must be at least 3 characters",
+    usernameInvalidChars: "Only lowercase letters, numbers, hyphens, and underscores allowed",
+    usernameHint: "3–30 characters: letters, numbers, hyphens, underscores",
+    passwordAdded: "Password added — change or remove", addPasswordOptional: "Add a password (optional)",
+    agreeToTerms: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy, including data processing for my account.",
+    createAndContinue: "Create account & continue", continueBtn: "Continue",
+    dashboardNote: "You can manage passwords and connected services anytime from your dashboard settings.",
+    addPwTitle: "Add a password", addPwDesc: "Your email is already verified by {provider} — no code needed. Adding a password lets you sign in with email too.",
+    newPwPh: "New password (min 8 characters)", confirmPh: "Confirm password",
+    skip: "Skip", savePassword: "Save password", consentLabel: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy.",
+    errExpired: "This sign-in link has expired. Please sign in again.",
+    errSession: "Your session could not be verified. Please sign in again.",
+    errNothing: "Nothing to do here. Head back to the sign-in page.",
+    errNameRequired: "Please enter your name.", errUsernameRequired: "Username is required.",
+    errUsernameInvalid: "Username format is invalid — use 3–30 lowercase letters, numbers, hyphens, or underscores.",
+    errUsernameTaken: "This username is already taken — please choose another.",
+    errUsernameReserved: "This username is reserved — please choose another.",
+    errUsernamePending: "Please wait for username validation to complete.",
+    errGeneric: "Something went wrong. Please try again.",
+    errPasswordMin: "Password must be at least 8 characters.", errPasswordMismatch: "Passwords do not match.",
+  },
+
   notifTexts: {
     "Sessions signed out": "세션 로그아웃",
     "Signed in to your account": "계정에 로그인했습니다",
@@ -1911,6 +1936,14 @@ const zh: Dict = {
     sApps: "已连接的应用", sAppsDesc: "Google、GitHub、Discord", sPrivacy: "隐私", sPrivacyDesc: "分析、数据导出",
     sSessions: "会话", sSessionsDesc: "管理活跃会话", sHistory: "历史记录", sHistoryDesc: "活动日志",
     openInbox: "打开收件箱", openTickets: "打开工单", noNotifYet: "暂无通知。", noTicketsYet: "暂无工单。",
+    statActivity: "活动事件", activityTitle: "活动", recentActivity: "最近",
+    allActivity: "所有活动", noRecentActivity: "暂无近期活动",
+    eventsLast7Days: "事件 · 最近7天", catSecurity: "安全", catAccount: "账户", catSupport: "支持",
+    cancelDeletionTitle: "取消删除？", cancelDeletionDesc: "您的账户将立即恢复。7天后可以再次删除。",
+    keepAccount: "保留账户", keepDeletion: "保留删除", "cancelling": "取消中...",
+    yesKeepAccount: "是的，保留我的账户",
+    trendAllClear: "一切正常", trendActive: "活跃", trendNeedsAttention: "需要关注", trendSteady: "稳定",
+    fromLabel: "来自", activityDefault: "活动",
   },
   prefs: {
     title: "偏好设置", subtitle: "个性化您的体验。", general: "常规",
@@ -1937,6 +1970,10 @@ const zh: Dict = {
     enableDigest: "启用摘要", enableDigestDesc: "接收摘要而非实时提醒。",
     frequency: "频率", frequencyDesc: "您希望接收摘要的频率。",
     daily: "每日", weekly: "每周", monthly: "每月",
+    tipsTitle: "Tips & updates", enableTips: "Enable tips", tipsDesc: "Tips to get the most out of Tirbeo. Max 1 per 3 days.", tipsEnabled: "Tips enabled — you’ll get occasional helpful emails + in-app tips", tipsMuted: "Tips muted",
+    autoSaved: "Auto-saved", saving: "Saving…", saved: "Saved",
+    emailDisabledTitle: "Email disabled — only security alerts will arrive", emailDisabledDesc: "Re-enable to get Forms / Support / Product emails.", reEnableEmail: "Re-enable email",
+    unsubscribedAll: "Unsubscribed from all emails", reEnable: "Re-enable",
   },
   search: {
     placeholder: "搜索页面、设置、操作...", pages: "页面", overview: "概览",
@@ -2012,7 +2049,8 @@ const zh: Dict = {
     noActiveSessions: "没有活跃会话。", unknownDevice: "未知设备", loginHistory: "登录历史",
     noLoginHistory: "没有最近的登录。", thStatus: "状态", thDate: "日期", thMethod: "方式",
     thIpDevice: "IP / 设备", success: "成功", failedStart: "失败",
-  },
+      twoFactorEnabledDesc: "Two-factor authentication is enabled.", twoFactorDisabledDesc: "Two-factor authentication is not enabled.", settingUp: "Setting up...", addPwTitle: "Add a password to your account", addPwDesc: "You signed up with a social login. Adding a password lets you sign in with email too.", notSet: "Not set", noRecoveryEmail: "No recovery email", currentBadge: "Current", revokeAllOthers: "Revoke all others", revokeBtn: "Revoke", recentActivity: "Recent Activity", noRecentActivity: "No recent activity", srcSecurity: "Security", srcAudit: "Audit", srcAuth: "Auth", skipForNow: "Skip for now", keep2faEnabled: "Keep 2FA enabled", savedCodes: "I've saved my codes", saveCodesWarning: "Save these codes somewhere safe. Each code can only be used once.", setCurrentPw: "Current password", enterCurrentPw: "Enter current password", newPwPh: "Enter new password", confirmPwPh: "Re-enter new password", reenterPw: "Confirm new password", keepCurrentPw: "Keep current password", dontChangeEmail: "Don't change email", sendVerificationCode: "Send verification code", keepRecoveryEmail: "Keep my recovery email", removeEmailBtn: "Remove email", unknownIP: "Unknown IP", loginCount: "{n} login recorded", sessionCount: "{n} session active", removeRecoveryTitle: "Remove recovery email", removeRecoveryDesc: "A verification code will be sent to {email}.", sendCodeBtn: "Send verification code", removeEmailConfirm: "Remove email", pwdMinLength: "Password must be at least 8 characters.",
+    },
   privacy: {
     title: "隐私", subtitle: "控制您的数据使用方式。",
     dataAnalytics: "数据与分析", analytics: "分析", analyticsDesc: "通过分享使用数据帮助 Tirbeo 改进。",
@@ -2035,7 +2073,8 @@ const zh: Dict = {
     roleAtCompanyPh: "您在公司中的职位", industry: "行业", industryPh: "例如：科技",
     companySize: "公司规模", justMe: "仅我自己", website: "网站", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github 用户名", usernameChecking: "正在检查可用性…", usernameAvailable: "该用户名可用", usernameTaken: "该用户名已被占用", usernameReserved: "该用户名已被保留", usernameInvalid: "请使用 3–30 个字母、数字或连字符", twitter: "Twitter / X", twitterPh: "@用户名", accountInfo: "账户信息", email: "邮箱",
     recoveryEmail: "恢复邮箱", memberSince: "加入日期", lastActive: "最近活跃",
-    connectedAccounts: "已连接的账户", noneConnected: "未连接任何账户。", verified: "已验证", unverified: "未验证",
+    connectedAccounts: "已连接的账户", noneConnected: "未连接任何账户。",     errorNameRequired: "Name is required", errorSaveFailed: "Failed to save changes", errorInvalidImageType: "Please use a JPEG, PNG, GIF, or WebP image.", errorImageTooLarge: "Image must be under 5MB.", errorUploadUrl: "Upload succeeded but no image URL was returned.", errorNetwork: "Network error. Check your connection and try again.", errorUploadGeneric: "Could not upload photo. Please try again.",
+    verified: "已验证", unverified: "未验证",
   },
   history: {
     title: "活动历史", subtitle: "安全和账户事件的记录。",
@@ -2080,6 +2119,38 @@ const zh: Dict = {
     prioLow: "低", prioLowDesc: "不急", prioNormal: "普通", prioNormalDesc: "标准响应时间",
     prioHigh: "高", prioHighDesc: "需要尽快处理", prioUrgent: "紧急", prioUrgentDesc: "严重问题",
   },
+    oauth: {
+    loading: "Loading…", finishingSignIn: "Finishing sign-in…",
+    signInIncomplete: "Sign-in could not be completed", backToSignIn: "Back to sign in",
+    createAccount: "Create your Tirbeo account", signedIn: "You're signed in",
+    noAccountExists: "No Tirbeo account exists yet — clicking below will create one linked to your {provider} sign-in.",
+    lastStep: "One last step before we take you to your workspace.",
+    profilePhoto: "Profile photo", photoOptional: "Optional — JPEG, PNG, GIF, WebP • Max 5MB",
+    choosePhoto: "Choose profile photo", removePhoto: "Remove photo",
+    name: "Name", namePh: "Your name", usernameLabel: "Username", usernamePh: "Choose a username",
+    usernameAvailable: "Username available", usernameTaken: "Username already taken — try another",
+    usernameReserved: "This username is reserved", usernameTooShort: "Username must be at least 3 characters",
+    usernameInvalidChars: "Only lowercase letters, numbers, hyphens, and underscores allowed",
+    usernameHint: "3–30 characters: letters, numbers, hyphens, underscores",
+    passwordAdded: "Password added — change or remove", addPasswordOptional: "Add a password (optional)",
+    agreeToTerms: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy, including data processing for my account.",
+    createAndContinue: "Create account & continue", continueBtn: "Continue",
+    dashboardNote: "You can manage passwords and connected services anytime from your dashboard settings.",
+    addPwTitle: "Add a password", addPwDesc: "Your email is already verified by {provider} — no code needed. Adding a password lets you sign in with email too.",
+    newPwPh: "New password (min 8 characters)", confirmPh: "Confirm password",
+    skip: "Skip", savePassword: "Save password", consentLabel: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy.",
+    errExpired: "This sign-in link has expired. Please sign in again.",
+    errSession: "Your session could not be verified. Please sign in again.",
+    errNothing: "Nothing to do here. Head back to the sign-in page.",
+    errNameRequired: "Please enter your name.", errUsernameRequired: "Username is required.",
+    errUsernameInvalid: "Username format is invalid — use 3–30 lowercase letters, numbers, hyphens, or underscores.",
+    errUsernameTaken: "This username is already taken — please choose another.",
+    errUsernameReserved: "This username is reserved — please choose another.",
+    errUsernamePending: "Please wait for username validation to complete.",
+    errGeneric: "Something went wrong. Please try again.",
+    errPasswordMin: "Password must be at least 8 characters.", errPasswordMismatch: "Passwords do not match.",
+  },
+
   notifTexts: {
     "Sessions signed out": "会话已退出",
     "Signed in to your account": "已登录到您的账户",
@@ -2127,6 +2198,14 @@ const hi: Dict = {
     sApps: "कनेक्टेड ऐप्स", sAppsDesc: "Google, GitHub, Discord", sPrivacy: "गोपनीयता", sPrivacyDesc: "विश्लेषण, डेटा निर्यात",
     sSessions: "सत्र", sSessionsDesc: "सक्रिय सत्र प्रबंधित करें", sHistory: "इतिहास", sHistoryDesc: "गतिविधि लॉग",
     openInbox: "इनबॉक्स खोलें", openTickets: "टिकट खोलें", noNotifYet: "अभी कोई सूचना नहीं है।", noTicketsYet: "अभी कोई टिकट नहीं है।",
+    statActivity: "गतिविधि इवेंट", activityTitle: "गतिविधि", recentActivity: "हाल का",
+    allActivity: "सभी गतिविधि", noRecentActivity: "कोई हाल की गतिविधि नहीं",
+    eventsLast7Days: "इवेंट · पिछले 7 दिन", catSecurity: "सुरक्षा", catAccount: "खाता", catSupport: "सहायता",
+    cancelDeletionTitle: "हटाना रद्द करें?", cancelDeletionDesc: "आपका खाता तुरंत बहाल हो जाएगा। 7 दिन बाद फिर से हटा सकते हैं।",
+    keepAccount: "अपना खाता रखें", keepDeletion: "हटाना जारी रखें", "cancelling": "रद्द हो रहा है...",
+    yesKeepAccount: "हाँ, मेरा खाता रखें",
+    trendAllClear: "सब ठीक है", trendActive: "सक्रिय", trendNeedsAttention: "ध्यान दें", trendSteady: "स्थिर",
+    fromLabel: "से", activityDefault: "गतिविधि",
   },
   prefs: {
     title: "प्राथमिकताएं", subtitle: "अपने अनुभव को अनुकूलित करें।", general: "सामान्य",
@@ -2153,6 +2232,10 @@ const hi: Dict = {
     enableDigest: "डाइजेस्ट सक्षम करें", enableDigestDesc: "रियल-टाइम अलर्ट के बजाय डाइजेस्ट प्राप्त करें।",
     frequency: "आवृत्ति", frequencyDesc: "आप डाइजेस्ट कितनी बार प्राप्त करना चाहते हैं।",
     daily: "दैनिक", weekly: "साप्ताहिक", monthly: "मासिक",
+    tipsTitle: "Tips & updates", enableTips: "Enable tips", tipsDesc: "Tips to get the most out of Tirbeo. Max 1 per 3 days.", tipsEnabled: "Tips enabled — you’ll get occasional helpful emails + in-app tips", tipsMuted: "Tips muted",
+    autoSaved: "Auto-saved", saving: "Saving…", saved: "Saved",
+    emailDisabledTitle: "Email disabled — only security alerts will arrive", emailDisabledDesc: "Re-enable to get Forms / Support / Product emails.", reEnableEmail: "Re-enable email",
+    unsubscribedAll: "Unsubscribed from all emails", reEnable: "Re-enable",
   },
   search: {
     placeholder: "पेज, सेटिंग्स, क्रियाएं खोजें...", pages: "पेज", overview: "अवलोकन",
@@ -2228,7 +2311,8 @@ const hi: Dict = {
     noActiveSessions: "कोई सक्रिय सत्र नहीं।", unknownDevice: "अज्ञात डिवाइस", loginHistory: "लॉगिन इतिहास",
     noLoginHistory: "कोई हालिया लॉगिन नहीं।", thStatus: "स्थिति", thDate: "दिनांक", thMethod: "विधि",
     thIpDevice: "IP / डिवाइस", success: "सफल", failedStart: "विफल",
-  },
+      twoFactorEnabledDesc: "Two-factor authentication is enabled.", twoFactorDisabledDesc: "Two-factor authentication is not enabled.", settingUp: "Setting up...", addPwTitle: "Add a password to your account", addPwDesc: "You signed up with a social login. Adding a password lets you sign in with email too.", notSet: "Not set", noRecoveryEmail: "No recovery email", currentBadge: "Current", revokeAllOthers: "Revoke all others", revokeBtn: "Revoke", recentActivity: "Recent Activity", noRecentActivity: "No recent activity", srcSecurity: "Security", srcAudit: "Audit", srcAuth: "Auth", skipForNow: "Skip for now", keep2faEnabled: "Keep 2FA enabled", savedCodes: "I've saved my codes", saveCodesWarning: "Save these codes somewhere safe. Each code can only be used once.", setCurrentPw: "Current password", enterCurrentPw: "Enter current password", newPwPh: "Enter new password", confirmPwPh: "Re-enter new password", reenterPw: "Confirm new password", keepCurrentPw: "Keep current password", dontChangeEmail: "Don't change email", sendVerificationCode: "Send verification code", keepRecoveryEmail: "Keep my recovery email", removeEmailBtn: "Remove email", unknownIP: "Unknown IP", loginCount: "{n} login recorded", sessionCount: "{n} session active", removeRecoveryTitle: "Remove recovery email", removeRecoveryDesc: "A verification code will be sent to {email}.", sendCodeBtn: "Send verification code", removeEmailConfirm: "Remove email", pwdMinLength: "Password must be at least 8 characters.",
+    },
   privacy: {
     title: "गोपनीयता", subtitle: "नियंत्रित करें कि आपका डेटा कैसे उपयोग होता है।",
     dataAnalytics: "डेटा और विश्लेषण", analytics: "विश्लेषण", analyticsDesc: "उपयोग डेटा साझा करके Tirbeo को बेहतर बनाने में मदद करें।",
@@ -2251,7 +2335,8 @@ const hi: Dict = {
     roleAtCompanyPh: "कंपनी में आपकी भूमिका", industry: "उद्योग", industryPh: "जैसे प्रौद्योगिकी",
     companySize: "कंपनी का आकार", justMe: "सिर्फ मैं", website: "वेबसाइट", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github उपयोगकर्ता नाम", usernameChecking: "उपलब्धता की जाँच हो रही है…", usernameAvailable: "यह उपयोगकर्ता नाम उपलब्ध है", usernameTaken: "यह उपयोगकर्ता नाम पहले से लिया गया है", usernameReserved: "यह उपयोगकर्ता नाम आरक्षित है", usernameInvalid: "3–30 अक्षर, संख्याएँ या हाइफ़न का उपयोग करें", twitter: "Twitter / X", twitterPh: "@उपयोगकर्ता नाम", accountInfo: "खाता जानकारी", email: "ईमेल",
     recoveryEmail: "रिकवरी ईमेल", memberSince: "सदस्य से", lastActive: "अंतिम गतिविधि",
-    connectedAccounts: "कनेक्टेड खाते", noneConnected: "कोई खाता कनेक्ट नहीं है।", verified: "सत्यापित", unverified: "सत्यापित नहीं",
+    connectedAccounts: "कनेक्टेड खाते", noneConnected: "कोई खाता कनेक्ट नहीं है।",     errorNameRequired: "Name is required", errorSaveFailed: "Failed to save changes", errorInvalidImageType: "Please use a JPEG, PNG, GIF, or WebP image.", errorImageTooLarge: "Image must be under 5MB.", errorUploadUrl: "Upload succeeded but no image URL was returned.", errorNetwork: "Network error. Check your connection and try again.", errorUploadGeneric: "Could not upload photo. Please try again.",
+    verified: "सत्यापित", unverified: "सत्यापित नहीं",
   },
   history: {
     title: "गतिविधि इतिहास", subtitle: "सुरक्षा और खाता घटनाओं का रिकॉर्ड।",
@@ -2296,6 +2381,38 @@ const hi: Dict = {
     prioLow: "कम", prioLowDesc: "कोई जल्दी नहीं", prioNormal: "सामान्य", prioNormalDesc: "मानक प्रतिक्रिया समय",
     prioHigh: "उच्च", prioHighDesc: "जल्द ध्यान देने की आवश्यकता", prioUrgent: "तत्काल", prioUrgentDesc: "गंभीर समस्या",
   },
+    oauth: {
+    loading: "Loading…", finishingSignIn: "Finishing sign-in…",
+    signInIncomplete: "Sign-in could not be completed", backToSignIn: "Back to sign in",
+    createAccount: "Create your Tirbeo account", signedIn: "You're signed in",
+    noAccountExists: "No Tirbeo account exists yet — clicking below will create one linked to your {provider} sign-in.",
+    lastStep: "One last step before we take you to your workspace.",
+    profilePhoto: "Profile photo", photoOptional: "Optional — JPEG, PNG, GIF, WebP • Max 5MB",
+    choosePhoto: "Choose profile photo", removePhoto: "Remove photo",
+    name: "Name", namePh: "Your name", usernameLabel: "Username", usernamePh: "Choose a username",
+    usernameAvailable: "Username available", usernameTaken: "Username already taken — try another",
+    usernameReserved: "This username is reserved", usernameTooShort: "Username must be at least 3 characters",
+    usernameInvalidChars: "Only lowercase letters, numbers, hyphens, and underscores allowed",
+    usernameHint: "3–30 characters: letters, numbers, hyphens, underscores",
+    passwordAdded: "Password added — change or remove", addPasswordOptional: "Add a password (optional)",
+    agreeToTerms: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy, including data processing for my account.",
+    createAndContinue: "Create account & continue", continueBtn: "Continue",
+    dashboardNote: "You can manage passwords and connected services anytime from your dashboard settings.",
+    addPwTitle: "Add a password", addPwDesc: "Your email is already verified by {provider} — no code needed. Adding a password lets you sign in with email too.",
+    newPwPh: "New password (min 8 characters)", confirmPh: "Confirm password",
+    skip: "Skip", savePassword: "Save password", consentLabel: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy.",
+    errExpired: "This sign-in link has expired. Please sign in again.",
+    errSession: "Your session could not be verified. Please sign in again.",
+    errNothing: "Nothing to do here. Head back to the sign-in page.",
+    errNameRequired: "Please enter your name.", errUsernameRequired: "Username is required.",
+    errUsernameInvalid: "Username format is invalid — use 3–30 lowercase letters, numbers, hyphens, or underscores.",
+    errUsernameTaken: "This username is already taken — please choose another.",
+    errUsernameReserved: "This username is reserved — please choose another.",
+    errUsernamePending: "Please wait for username validation to complete.",
+    errGeneric: "Something went wrong. Please try again.",
+    errPasswordMin: "Password must be at least 8 characters.", errPasswordMismatch: "Passwords do not match.",
+  },
+
   notifTexts: {
     "Sessions signed out": "सत्र साइन आउट हुए",
     "Signed in to your account": "आपके खाते में साइन इन किया गया",
@@ -2343,6 +2460,14 @@ const ne: Dict = {
     sApps: "जोडिएका एपहरू", sAppsDesc: "Google, GitHub, Discord", sPrivacy: "गोपनीयता", sPrivacyDesc: "विश्लेषण, डेटा निर्यात",
     sSessions: "सत्रहरू", sSessionsDesc: "सक्रिय सत्रहरू व्यवस्थापन गर्नुहोस्", sHistory: "इतिहास", sHistoryDesc: "गतिविधि लग",
     openInbox: "इनबक्स खोल्नुहोस्", openTickets: "टिकटहरू खोल्नुहोस्", noNotifYet: "अहिलेसम्म कुनै सूचना छैन।", noTicketsYet: "अहिलेसम्म कुनै टिकट छैन।",
+    statActivity: "गतिविधि घटनाहरू", activityTitle: "गतिविधि", recentActivity: "हालैको",
+    allActivity: "सबै गतिविधि", noRecentActivity: "हालै कुनै गतिविधि छैन",
+    eventsLast7Days: "घटनाहरू · गत ७ दिन", catSecurity: "सुरक्षा", catAccount: "खाता", catSupport: "सहायता",
+    cancelDeletionTitle: "मेटाउने रद्द गर्ने?", cancelDeletionDesc: "तपाईंको खाता तुरुन्तै पुनर्स्थापित हुनेछ। ७ दिनपछि फेरि मेटाउन सक्नुहुन्छ।",
+    keepAccount: "आफ्नो खाता राख्नुहोस्", keepDeletion: "मेटाउने राख्नुहोस्", "cancelling": "रद्द हुँदैछ...",
+    yesKeepAccount: "हो, मेरो खाता राख्नुहोस्",
+    trendAllClear: "सबै ठीक छ", trendActive: "सक्रिय", trendNeedsAttention: "ध्यान दिनुपर्छ", trendSteady: "स्थिर",
+    fromLabel: "बाट", activityDefault: "गतिविधि",
   },
   prefs: {
     title: "प्राथमिकताहरू", subtitle: "आफ्नो अनुभव अनुकूलित गर्नुहोस्।", general: "सामान्य",
@@ -2369,6 +2494,10 @@ const ne: Dict = {
     enableDigest: "डाइजेस्ट सक्षम गर्नुहोस्", enableDigestDesc: "रियल-टाइम अलर्टको सट्टा डाइजेस्ट प्राप्त गर्नुहोस्।",
     frequency: "आवृत्ति", frequencyDesc: "तपाईं डाइजेस्ट कति पटक प्राप्त गर्न चाहनुहुन्छ।",
     daily: "दैनिक", weekly: "साप्ताहिक", monthly: "मासिक",
+    tipsTitle: "Tips & updates", enableTips: "Enable tips", tipsDesc: "Tips to get the most out of Tirbeo. Max 1 per 3 days.", tipsEnabled: "Tips enabled — you’ll get occasional helpful emails + in-app tips", tipsMuted: "Tips muted",
+    autoSaved: "Auto-saved", saving: "Saving…", saved: "Saved",
+    emailDisabledTitle: "Email disabled — only security alerts will arrive", emailDisabledDesc: "Re-enable to get Forms / Support / Product emails.", reEnableEmail: "Re-enable email",
+    unsubscribedAll: "Unsubscribed from all emails", reEnable: "Re-enable",
   },
   search: {
     placeholder: "पेज, सेटिङहरू, कार्यहरू खोज्नुहोस्...", pages: "पेजहरू", overview: "अवलोकन",
@@ -2444,7 +2573,8 @@ const ne: Dict = {
     noActiveSessions: "कुनै सक्रिय सत्र छैन।", unknownDevice: "अज्ञात यन्त्र", loginHistory: "लगइन इतिहास",
     noLoginHistory: "कुनै हालिया लगइन छैन।", thStatus: "स्थिति", thDate: "मिति", thMethod: "विधि",
     thIpDevice: "IP / यन्त्र", success: "सफल", failedStart: "असफल",
-  },
+      twoFactorEnabledDesc: "Two-factor authentication is enabled.", twoFactorDisabledDesc: "Two-factor authentication is not enabled.", settingUp: "Setting up...", addPwTitle: "Add a password to your account", addPwDesc: "You signed up with a social login. Adding a password lets you sign in with email too.", notSet: "Not set", noRecoveryEmail: "No recovery email", currentBadge: "Current", revokeAllOthers: "Revoke all others", revokeBtn: "Revoke", recentActivity: "Recent Activity", noRecentActivity: "No recent activity", srcSecurity: "Security", srcAudit: "Audit", srcAuth: "Auth", skipForNow: "Skip for now", keep2faEnabled: "Keep 2FA enabled", savedCodes: "I've saved my codes", saveCodesWarning: "Save these codes somewhere safe. Each code can only be used once.", setCurrentPw: "Current password", enterCurrentPw: "Enter current password", newPwPh: "Enter new password", confirmPwPh: "Re-enter new password", reenterPw: "Confirm new password", keepCurrentPw: "Keep current password", dontChangeEmail: "Don't change email", sendVerificationCode: "Send verification code", keepRecoveryEmail: "Keep my recovery email", removeEmailBtn: "Remove email", unknownIP: "Unknown IP", loginCount: "{n} login recorded", sessionCount: "{n} session active", removeRecoveryTitle: "Remove recovery email", removeRecoveryDesc: "A verification code will be sent to {email}.", sendCodeBtn: "Send verification code", removeEmailConfirm: "Remove email", pwdMinLength: "Password must be at least 8 characters.",
+    },
   privacy: {
     title: "गोपनीयता", subtitle: "तपाईंको डेटा कसरी प्रयोग हुन्छ नियन्त्रण गर्नुहोस्।",
     dataAnalytics: "डेटा र विश्लेषण", analytics: "विश्लेषण", analyticsDesc: "प्रयोग डेटा साझा गरेर Tirbeo लाई सुधार्न मद्दत गर्नुहोस्।",
@@ -2467,7 +2597,8 @@ const ne: Dict = {
     roleAtCompanyPh: "कम्पनीमा तपाईंको भूमिका", industry: "उद्योग", industryPh: "जस्तै प्रविधि",
     companySize: "कम्पनीको आकार", justMe: "केवल म", website: "वेबसाइट", websitePh: "https://yoursite.com", linkedin: "LinkedIn", linkedinPh: "linkedin.com/in/username", github: "GitHub", githubPh: "github प्रयोगकर्ता नाम", usernameChecking: "उपलब्धता जाँच हुँदै…", usernameAvailable: "यो प्रयोगकर्ता नाम उपलब्ध छ", usernameTaken: "यो प्रयोगकर्ता नाम पहिले नै प्रयोगमा छ", usernameReserved: "यो प्रयोगकर्ता नाम आरक्षित छ", usernameInvalid: "३–३० अक्षर, अंक वा ड्यास प्रयोग गर्नुहोस्", twitter: "Twitter / X", twitterPh: "@प्रयोगकर्ता नाम", accountInfo: "खाता जानकारी", email: "इमेल",
     recoveryEmail: "रिकभरी इमेल", memberSince: "सदस्य देखि", lastActive: "पछिल्लो गतिविधि",
-    connectedAccounts: "जोडिएका खाताहरू", noneConnected: "कुनै खाता जोडिएको छैन।", verified: "प्रमाणित", unverified: "प्रमाणित नगरिएको",
+    connectedAccounts: "जोडिएका खाताहरू", noneConnected: "कुनै खाता जोडिएको छैन।",     errorNameRequired: "Name is required", errorSaveFailed: "Failed to save changes", errorInvalidImageType: "Please use a JPEG, PNG, GIF, or WebP image.", errorImageTooLarge: "Image must be under 5MB.", errorUploadUrl: "Upload succeeded but no image URL was returned.", errorNetwork: "Network error. Check your connection and try again.", errorUploadGeneric: "Could not upload photo. Please try again.",
+    verified: "प्रमाणित", unverified: "प्रमाणित नगरिएको",
   },
   history: {
     title: "गतिविधि इतिहास", subtitle: "सुरक्षा र खाता घटनाहरूको अभिलेख।",
@@ -2512,6 +2643,38 @@ const ne: Dict = {
     prioLow: "कम", prioLowDesc: "हतार छैन", prioNormal: "सामान्य", prioNormalDesc: "मानक प्रतिक्रिया समय",
     prioHigh: "उच्च", prioHighDesc: "चाँडै ध्यान चाहिन्छ", prioUrgent: "तत्काल", prioUrgentDesc: "गम्भीर समस्या",
   },
+    oauth: {
+    loading: "Loading…", finishingSignIn: "Finishing sign-in…",
+    signInIncomplete: "Sign-in could not be completed", backToSignIn: "Back to sign in",
+    createAccount: "Create your Tirbeo account", signedIn: "You're signed in",
+    noAccountExists: "No Tirbeo account exists yet — clicking below will create one linked to your {provider} sign-in.",
+    lastStep: "One last step before we take you to your workspace.",
+    profilePhoto: "Profile photo", photoOptional: "Optional — JPEG, PNG, GIF, WebP • Max 5MB",
+    choosePhoto: "Choose profile photo", removePhoto: "Remove photo",
+    name: "Name", namePh: "Your name", usernameLabel: "Username", usernamePh: "Choose a username",
+    usernameAvailable: "Username available", usernameTaken: "Username already taken — try another",
+    usernameReserved: "This username is reserved", usernameTooShort: "Username must be at least 3 characters",
+    usernameInvalidChars: "Only lowercase letters, numbers, hyphens, and underscores allowed",
+    usernameHint: "3–30 characters: letters, numbers, hyphens, underscores",
+    passwordAdded: "Password added — change or remove", addPasswordOptional: "Add a password (optional)",
+    agreeToTerms: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy, including data processing for my account.",
+    createAndContinue: "Create account & continue", continueBtn: "Continue",
+    dashboardNote: "You can manage passwords and connected services anytime from your dashboard settings.",
+    addPwTitle: "Add a password", addPwDesc: "Your email is already verified by {provider} — no code needed. Adding a password lets you sign in with email too.",
+    newPwPh: "New password (min 8 characters)", confirmPh: "Confirm password",
+    skip: "Skip", savePassword: "Save password", consentLabel: "I agree to the Tirbeo Terms of Service and acknowledge the Privacy Policy.",
+    errExpired: "This sign-in link has expired. Please sign in again.",
+    errSession: "Your session could not be verified. Please sign in again.",
+    errNothing: "Nothing to do here. Head back to the sign-in page.",
+    errNameRequired: "Please enter your name.", errUsernameRequired: "Username is required.",
+    errUsernameInvalid: "Username format is invalid — use 3–30 lowercase letters, numbers, hyphens, or underscores.",
+    errUsernameTaken: "This username is already taken — please choose another.",
+    errUsernameReserved: "This username is reserved — please choose another.",
+    errUsernamePending: "Please wait for username validation to complete.",
+    errGeneric: "Something went wrong. Please try again.",
+    errPasswordMin: "Password must be at least 8 characters.", errPasswordMismatch: "Passwords do not match.",
+  },
+
   notifTexts: {
     "Sessions signed out": "सत्रहरू साइन आउट भए",
     "Signed in to your account": "तपाईंको खातामा साइन इन गरियो",

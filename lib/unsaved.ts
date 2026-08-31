@@ -24,7 +24,7 @@ export function useUnsavedGuard() {
     const handler = (e: MouseEvent) => {
       if (!dirty) return;
       const target = e.target as HTMLElement | null;
-      const link = target?.closest('a[href], .sidebar-item, .menu-item') as HTMLElement | null;
+      const link = target?.closest('a[href], [role=menuitem]') as HTMLElement | null;
       if (!link) return;
       e.preventDefault();
       e.stopPropagation();

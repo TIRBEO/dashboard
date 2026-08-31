@@ -3,7 +3,7 @@ import type { Dict } from "@/lib/i18n";
 export const es: any = {
   common: {
     loading: "Cargando", saving: "Guardando...", saved: "Guardado", autoSaved: "Cambios guardados automáticamente",
-    viewAll: "Ver todo", new: "Nuevo", close: "Cerrar", cancel: "Cancelar", save: "Guardar", delete: "Eliminar",
+    viewAll: "Ver todo", new: "Nuevo", close: "Cerrar", cancel: "Cancelar", save: "Guardar", delete: "Eliminar", deleting: "Eliminando…",
     markRead: "Marcar como leído", loadMore: "Cargar más", noNotifications: "Sin notificaciones", noTickets: "Sin tickets",
     justNow: "Ahora mismo", agoM: "hace {n} min", agoH: "hace {n} h", yesterday: "Ayer", total: "en total",
     unsavedWarn: "Tienes cambios sin guardar: guárdalos antes de salir de esta página.",
@@ -44,6 +44,7 @@ export const es: any = {
   },
   session: { expired: "Tu sesión ha caducado. Es posible que algunas funciones no funcionen.", signInAgain: "Volver a iniciar sesión" },
   notif: {
+    scheduleTitle: "Schedule & email summaries",
     title: "Notificaciones", subtitle: "Configura cómo y cuándo recibes las notificaciones.", retention: "Las notificaciones se eliminan automáticamente después de 30 días.", empty: "Sin notificaciones", total: "en total",
     channelsTitle: "Canales", channelsDesc: "Elige dónde quieres recibir las notificaciones.",
     email: "Correo", push: "Push",
@@ -68,6 +69,7 @@ export const es: any = {
     months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
   },
   inbox: {
+    when: "When", where: "Where", device: "Device", category: "Category",
     title: "Bandeja de entrada", descUnread: "{unread} sin leer de {total}", descTotal: "{total} mensajes", markAllRead: "Marcar todo como leído", tabAll: "Todas", tabUnread: "Sin leer", tabRead: "Leídas",
     deselect: "Deseleccionar", selectAll: "Seleccionar todo", select: "Seleccionar", read: "Leer",
     searchPlaceholder: "Buscar notificaciones...", noMatching: "Sin notificaciones coincidentes",
@@ -157,6 +159,7 @@ export const es: any = {
     connectedAccounts: "Cuentas conectadas", noneConnected: "No hay cuentas conectadas.", verified: "Verificado", unverified: "No verificado",
   },
   history: {
+    chipMethod: "Method", chipReason: "Reason", via: "via",
     title: "Historial de actividad", subtitle: "Un registro de los eventos de seguridad y cuenta.",
     noActivity: "Sin actividad aún", noActivityDesc: "Las acciones que realices aparecerán aquí.",
     act: {

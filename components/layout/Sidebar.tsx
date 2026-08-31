@@ -117,7 +117,7 @@ export function Sidebar({
       <div className="sb-foot">
         <div className="sb-user">
           <div className="sb-avatar">
-            {user?.photoUrl ? <img src={user.photoUrl} alt="" /> : initialsOf(user?.name ?? user?.email)}
+            {user?.photoUrl ? <img src={user.photoUrl} alt="" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} /> : initialsOf(user?.name ?? user?.email)}
           </div>
             <div className="sb-user-info">
               <div className="sb-user-name">

@@ -8,7 +8,7 @@ import { useThemeToggle } from "@tirbeo/theme";
 import {
   AlertTriangle, Bell, Building, Calendar, ChevronDown,
   Clock, Eye, FileText, Home, Inbox, Info, LifeBuoy, Monitor,
-  Lock, LogOut, Mail, Menu, Moon, Search,
+  Lock, LogOut, Mail, Menu, Moon, Loader2, Search,
   Settings, Sliders, Sun, User, X,
 } from "lucide-react";
 import { MonthCalendar } from "@/components/ui/MonthCalendar";
@@ -26,6 +26,7 @@ import {
 } from "@/lib/notif-shared";
 import { onDirtyChange, setDirtyGlobal } from "@/lib/unsaved";
 import { useI18n, type I18nT, translateNotifText } from "@/lib/i18n";
+import { onNotificationsChanged, notifyNotificationsChanged } from "@/lib/notification-events";
 
 /* ── Tooltip wrapper (viewport-clamped: never overflows screen edges) ── */
 function Tooltip({ label, children }: { label: string; children: React.ReactNode }) {
@@ -60,18 +61,13 @@ function Tooltip({ label, children }: { label: string; children: React.ReactNode
       onMouseLeave={leave}
       onFocus={enter}
       onBlur={leave}
-      style={{ position: "relative", display: "inline-flex" }}
+      className="relative inline-flex"
     >
       {children}
       {show && (
-        <span ref={tipRef} style={{
-          position: "absolute", top: "calc(100% + 7px)", left: "50%",
-          transform: `translateX(calc(-50% + ${shiftX}px))`,
-          padding: "4px 8px", borderRadius: 6, fontSize: 11, fontWeight: 500, whiteSpace: "nowrap",
-          background: "var(--tb-surface-3)", color: "var(--tb-text-primary)", border: "1px solid var(--tb-border)",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.3)", zIndex: 100, pointerEvents: "none",
-          animation: "fadeIn 120ms ease",
-        }}>
+        <span ref={tipRef} className="absolute top-[calc(100%+7px)] left-1/2 z-[100] pointer-events-none px-2 py-1 rounded-md text-[11px] font-medium whitespace-nowrap bg-tb-surface-3 text-tb-text-primary border border-tb-border shadow-lg animate-[fadeIn_120ms_ease]"
+          style={{ transform: `translateX(calc(-50% + ${shiftX}px))` }}
+        >
           {label}
         </span>
       )}
@@ -115,7 +111,7 @@ function SafeAvatarImg({ src, alt, fallback }: { src?: string | null; alt: strin
   const [failed, setFailed] = useState(false);
   useEffect(() => { setFailed(false); }, [src]);
   if (!src || failed) return <>{fallback}</>;
-  return <img src={src} alt={alt} style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={() => setFailed(true)} referrerPolicy="no-referrer" loading="eager" />;
+  return <img src={src} alt={alt} className="w-full h-full object-cover" onError={() => setFailed(true)} referrerPolicy="no-referrer" loading="eager" />;
 }
 
 function translateText(t: I18nT, text?: string, lang?: string) {
@@ -185,7 +181,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     const handler = (e: MouseEvent) => {
       if (!unsavedRef.current) return;
       const target = e.target as HTMLElement | null;
-      const link = target?.closest('a[href], .sidebar-item, .menu-item') as HTMLElement | null;
+      const link = target?.closest('a[href], [role=menuitem]') as HTMLElement | null;
       if (!link) return;
       e.preventDefault();
       e.stopPropagation();
@@ -292,7 +288,29 @@ export function AppShell({ children }: { children: ReactNode }) {
       navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(()=>{});
       if ("caches" in window) caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(()=>{});
     }
-    return () => { alive = false; };
+    // Suppress noisy third-party extension errors (h1-check.js detectStore) — not our code
+    const suppressExtError = (e: ErrorEvent) => {
+      const msg = String(e.message || '');
+      const src = String((e as any).filename || '');
+      if (msg.includes('detectStore') || src.includes('h1-check')) {
+        e.preventDefault();
+        e.stopPropagation();
+        return true;
+      }
+    };
+    const suppressRejection = (e: PromiseRejectionEvent) => {
+      const msg = String((e.reason as any)?.message || e.reason || '');
+      if (msg.includes('detectStore') || msg.includes('h1-check')) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('error', suppressExtError);
+    window.addEventListener('unhandledrejection', suppressRejection);
+    return () => {
+      alive = false;
+      window.removeEventListener('error', suppressExtError);
+      window.removeEventListener('unhandledrejection', suppressRejection);
+    };
   }, []);
 
   // Profile page broadcasts edits (avatar/name) — apply instantly everywhere
@@ -307,8 +325,22 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("tb:user-updated", onUserUpdated);
   }, []);
 
-  // WebSocket disabled for simple dev mode — load once on open only.
-  // If you need realtime later, re-enable here with explicit opt-in.
+  // Sync with inbox: when inbox marks read/deletes, bell updates instantly
+  useEffect(() => {
+    return onNotificationsChanged(() => {
+      void fetchNotifications();
+      void fetchTickets();
+    });
+  }, [fetchNotifications, fetchTickets]);
+
+  // Realtime polling — refresh notifications and ticket counts every 15s
+  useEffect(() => {
+    pollTimer.current = setInterval(() => {
+      void fetchNotifications();
+      void fetchTickets();
+    }, 15_000);
+    return () => { if (pollTimer.current) clearInterval(pollTimer.current); };
+  }, [fetchNotifications, fetchTickets]);
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
@@ -332,26 +364,36 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => obs.disconnect();
   }, [notifOpen, notifHasMore, notifLoading]);
 
-  const badgeCounts = { inbox: unread, notifications: unread, tickets: (Array.isArray(tickets) ? tickets : []).filter((tk) => tk?.status === "open").length };
+  const badgeCounts = { inbox: notifTotal, notifications: unread, tickets: (Array.isArray(tickets) ? tickets : []).filter((tk) => tk?.status === "open").length };
 
   // Admin staff get a visible role badge — hidden entirely for normal users.
   const isAdmin = !!user?.adminRole;
   const roleLabel = (user?.adminRole || "").replace(/_/g, " ").toUpperCase();
   const navSections = personalNav(badgeCounts, t);
 
+  const [markingAllNotifs, setMarkingAllNotifs] = useState(false);
   const markAllRead = async () => {
-    await markAllNotificationsRead().catch(() => {});
-    const updated = notificationsRef.current.map((n) => ({ ...n, read: true }));
-    setNotifications(updated);
-    notificationsRef.current = updated;
-    setUnread(0);
+    if (unread === 0) return;
+    setMarkingAllNotifs(true);
+    try {
+      const prev = [...notificationsRef.current];
+      const prevUnread = unread;
+      const updated = prev.map((n) => ({ ...n, read: true }));
+      setNotifications(updated);
+      notificationsRef.current = updated;
+      setUnread(0);
+      notifyNotificationsChanged();
+      try { await markAllNotificationsRead(); } catch { setNotifications(prev); notificationsRef.current = prev; setUnread(prevUnread); }
+    } finally { setMarkingAllNotifs(false); }
   };
 
   const redirectToAccounts = () => {
     window.location.href = `${process.env.NEXT_PUBLIC_ACCOUNTS_URL || "https://accounts.tirbeo.app"}/login`;
   };
 
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const signOut = async () => {
+    setShowLogoutConfirm(false);
     await logout();
     redirectToAccounts();
   };
@@ -370,8 +412,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   if (authState === "loading") {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: "var(--tb-bg)", color: "var(--tb-text-muted)" }}>
-        <div style={{ width: 28, height: 28, border: "3px solid var(--tb-border)", borderTopColor: "var(--tb-accent)", borderRadius: "50%", animation: "spin .8s linear infinite" }} />
+      <div className="flex items-center justify-center h-screen bg-tb-bg text-tb-text-muted">
+        <div className="w-7 h-7 border-[3px] border-tb-border border-t-tb-blue rounded-full animate-spin" />
       </div>
     );
   }
@@ -380,59 +422,64 @@ export function AppShell({ children }: { children: ReactNode }) {
     return <BlockedScreen status={blockStatus} onRetry={() => { setAuthState("loading"); setBlockStatus(null); }} />;
   }
 
-  return (
-    <div className="dashboard-layout">
-      {mobileOpen && <div className="dashboard-sidebar-backdrop" onClick={() => setMobileOpen(false)} />}
+  const scheduledDeletionAt = (user as any)?.scheduledDeletionAt as string | null;
 
-      {(user as any)?.scheduledDeletionAt && (
+  return (
+    <div className="flex flex-col min-h-screen">
+      {/* Deletion banner — full width above everything */}
+      {scheduledDeletionAt && (
         <DeletionBanner
-          scheduledFor={(user as any).scheduledDeletionAt}
+          scheduledFor={scheduledDeletionAt}
           reason={(user as any).deletionReason}
-          onCancel={async () => { try { await cancelAccountDeletion(); setUser((prev: any) => prev ? ({ ...prev, scheduledDeletionAt: null, deletionReason: null }) : prev); } catch {} }}
+          onCancel={async () => { try { await cancelAccountDeletion(); setUser((prev: any) => prev ? ({ ...prev, scheduledDeletionAt: null, deletionReason: null }) : prev); try { window.dispatchEvent(new CustomEvent("tb:deletion-cancelled")); } catch {} } catch {} }}
         />
       )}
 
+      <div className="flex h-screen overflow-hidden bg-tb-bg flex-1">        {mobileOpen && <div className="fixed inset-0 bg-black/60 z-[45] animate-fade-in" onClick={() => setMobileOpen(false)} />}
+
       {unsavedWarn && (
-        <div className="tb-unsaved-banner" role="alert">
+        <div className="fixed left-1/2 bottom-6 -translate-x-1/2 z-[200] flex items-center gap-2.5 px-[18px] max-w-[min(560px,calc(100vw-32px))] rounded-xl bg-tb-surface-1 border border-tb-red text-tb-text-primary text-[13.5px] font-medium animate-unsaved-in shadow-[0_12px_40px_rgba(0,0,0,0.3)]" role="alert">
           <AlertTriangle size={16} />
           <span>{t("common.unsavedWarn")}</span>
-          <button type="button" onClick={() => setUnsavedWarn(false)} aria-label={t("common.close")} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--tb-text-muted)', padding: 4 }}>
+          <button type="button" onClick={() => setUnsavedWarn(false)} aria-label={t("common.close")} className="bg-transparent border-none cursor-pointer text-tb-text-muted p-1">
             <X size={14} />
           </button>
         </div>
       )}
 
       {/* ═══ SIDEBAR ═══ */}
-      <aside className={`dashboard-sidebar ${mobileOpen ? "open" : ""}`}>
-        <div className="sidebar-brand">
-          <Link href="/overview" className="sidebar-brand-link">
-            <div className="sidebar-brand-mark">
-              <img src="../../logo.png" alt="Tirbeo" style={{ width: 20, height: 20 }} />
+      <aside className={`w-[280px] shrink-0 h-screen relative flex flex-col bg-tb-sidebar border-r border-tb-border-sidebar z-50 backdrop-blur-xl max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:w-[min(300px,85vw)] max-lg:h-screen max-lg:-translate-x-full max-lg:transition-transform max-lg:duration-200 ${mobileOpen ? 'max-lg:translate-x-0' : ''}`}>
+        <div className="flex items-center gap-3 px-4 h-[60px] border-b border-tb-border-sidebar">
+          <Link href="/overview" className="flex items-center gap-2.5 no-underline flex-1 min-h-8">
+            <div className="w-8 h-8 shrink-0 flex items-center justify-center overflow-hidden font-bold text-sm rounded-lg">
+              <img src="../../logo.png" alt="Tirbeo" className="w-5 h-5" />
             </div>
-            <span className="sidebar-brand-name">Tirbeo</span>
+            <span className="text-base font-bold text-tb-text-primary tracking-tight overflow-hidden whitespace-nowrap">Tirbeo</span>
+            {scheduledDeletionAt && <span className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold tracking-widest uppercase border" style={{ background: 'rgba(239,68,68,0.12)', color: 'var(--tb-red)', borderColor: 'rgba(239,68,68,0.18)' }}><span className="w-1 h-1 rounded-full bg-tb-red animate-pulse" />Deleting</span>}
           </Link>
         </div>
+        {scheduledDeletionAt && <div className="mx-2 mb-2 px-2.5 py-2 rounded-xl flex items-center gap-2 text-[11px] font-medium border" style={{ background: 'var(--tb-red-soft)', borderColor: 'rgba(232,93,106,0.2)', color: 'var(--tb-text-secondary)' }}><AlertTriangle size={12} className="text-tb-red flex-shrink-0" /> <span className="truncate">Account scheduled for deletion</span></div>}
 
-        <nav className="sidebar-nav">
+        <nav className="flex-1 overflow-auto p-2.5">
           {navSections.map((section) => (
-            <div key={section.section} className="sidebar-section">
-              <div className="sidebar-label">{section.section}</div>
+            <div key={section.section} className="mb-2.5">
+              <div className="px-3 py-2 text-[11px] font-medium text-tb-text-muted uppercase tracking-widest overflow-hidden font-sans">{section.section}</div>
               {section.items.map((item) => {
                 const active = isActive(item.href);
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`sidebar-item ${active ? "active" : ""}`}
+                    className={`flex items-center gap-2 px-3 py-[7px] rounded-lg text-sm text-tb-text-secondary cursor-pointer transition-all duration-150 no-underline border-none bg-transparent w-full text-left relative min-h-8 my-0.5 font-sans tracking-tight ${active ? 'bg-tb-brand text-tb-brand-text font-semibold shadow-sm' : 'hover:bg-[color-mix(in_srgb,var(--tb-text-primary)_7%,transparent)] hover:text-tb-text-primary'}`}
                     aria-current={active ? "page" : undefined}
                     onClick={() => setMobileOpen(false)}
                     target={(item as any).external ? '_blank' : undefined}
                     rel={(item as any).external ? 'noopener noreferrer' : undefined}
                   >
                     {item.icon}
-                    <span className="sidebar-item-text" style={{ flex: 1 }}>{item.label}</span>
+                    <span className="flex-1 overflow-hidden whitespace-nowrap flex-1">{item.label}</span>
                     {item.badge && item.badge > 0 && (
-                      <span className={`sidebar-item-badge sidebar-badge ${badgePulse && item.href === "/account/inbox" ? "pulse" : ""}`}>
+                      <span className={`transition-all duration-[150ms,200ms] overflow-hidden text-[11px] font-semibold bg-tb-surface-3 text-tb-text-secondary rounded-[10px] px-[7px] py-px min-w-5 text-center ${badgePulse && item.href === '/account/inbox' ? 'animate-badge-pulse' : ''}`}>
                         {item.badge}
                       </span>
                     )}
@@ -443,21 +490,21 @@ export function AppShell({ children }: { children: ReactNode }) {
           ))}
         </nav>
 
-        <div className="sidebar-footer">
-          <div className="sidebar-user-row">
-            <div className="sidebar-user-avatar">
+        <div className="p-3 border-t border-tb-border-sidebar">
+          <div className="flex items-center gap-2.5">
+            <div className="w-[38px] h-[38px] rounded-full bg-tb-surface-3 flex items-center justify-center text-[13px] font-semibold text-tb-text-secondary overflow-hidden shrink-0 border border-tb-border">
               <SafeAvatarImg src={user?.photoUrl} alt="" fallback={<User size={16} style={{ opacity: 0.7 }} />} />
             </div>
-            <div className="sidebar-user-info" style={{ flex: 1, minWidth: 0 }}>
-              <div className="sidebar-user-name" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name ?? t("header.user")}</span>
-                {isAdmin && <span className="role-badge">{roleLabel}</span>}
+            <div className="flex-1 min-w-0 overflow-hidden">
+              <div className="text-sm font-medium text-tb-text-primary overflow-hidden text-ellipsis whitespace-nowrap flex items-center gap-1.5 flex-wrap">
+                <span className="truncate">{user?.name ?? t("header.user")}</span>
+                {isAdmin &&                <span className="inline-flex items-center bg-tb-red text-white text-[9px] font-bold tracking-widest uppercase leading-none py-[3px] px-1.5 rounded-[5px] whitespace-nowrap shrink-0">{roleLabel}</span>}
               </div>
-              <div className="sidebar-user-email">{user?.email}</div>
+              <div className="text-[11px] text-tb-text-muted overflow-hidden text-ellipsis whitespace-nowrap">{user?.email}</div>
             </div>
-            <div className="sidebar-user-actions">
+            <div className="flex gap-1">
               <Tooltip label={t("header.signOut")}>
-                <button type="button" className="header-control" onClick={signOut} aria-label={t("header.signOut")} style={{ width: 28, height: 28 }}>
+                <button type="button" className="flex items-center justify-center w-7 h-7 rounded-lg border border-tb-border bg-tb-surface-2 cursor-pointer text-tb-text-secondary transition-all duration-150 relative hover:text-tb-text-primary hover:border-tb-border-hover active:scale-[0.96]" onClick={() => setShowLogoutConfirm(true)} aria-label={t("header.signOut")}>
                   <LogOut size={15} />
                 </button>
               </Tooltip>
@@ -467,31 +514,31 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       {/* ═══ MAIN ═══ */}
-      <div className="dashboard-main">
-        <header className="dashboard-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <button type="button" className="tb-mobile-menu-btn header-control" onClick={() => setMobileOpen(!mobileOpen)} aria-label={t("header.menu")}>
+      <div className="flex-1 min-w-0 flex flex-col h-screen overflow-y-auto overflow-x-hidden">
+        <header className="h-[60px] flex items-center justify-between gap-5 px-5 bg-tb-bg border-b border-tb-border-sidebar sticky top-0 z-40">
+          <div className="flex items-center gap-2">
+            <button type="button" className="max-lg:inline-flex hidden items-center justify-center w-9 h-9 rounded-lg border border-tb-border bg-tb-surface-2 cursor-pointer text-tb-text-secondary transition-all duration-150 relative hover:text-tb-text-primary hover:border-tb-border-hover active:scale-[0.96]" onClick={() => setMobileOpen(!mobileOpen)} aria-label={t("header.menu")}>
               {mobileOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
             {/* Search trigger */}
-            <button type="button" className="header-search" onClick={() => setSearchOpen(true)} aria-label={t("header.searchPlaceholder")}>
-              <Search size={14} style={{ flexShrink: 0 }} />
-              <span className="tb-search-placeholder">{t("header.searchPlaceholder")}</span>
-              <span className="header-search-kbd">⌘K</span>
+            <button type="button" className="flex items-center gap-2 px-3 h-9 min-w-[200px] max-w-[300px] rounded-lg border border-tb-border bg-tb-surface-2 cursor-pointer transition-all duration-150 text-tb-text-secondary relative text-[13px] hover:border-tb-border-hover max-sm:min-w-0 max-sm:w-9 max-sm:h-9 max-sm:p-0 max-sm:justify-center max-sm:border-transparent max-sm:max-w-none" onClick={() => setSearchOpen(true)} aria-label={t("header.searchPlaceholder")}>
+              <Search size={14} className="shrink-0" />
+              <span className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none max-sm:hidden">{t("header.searchPlaceholder")}</span>
+              <span className="ml-auto px-1.5 py-0.5 rounded border border-tb-border bg-tb-surface-1 text-[10px] leading-relaxed text-tb-text-muted shrink-0 pointer-events-none max-sm:hidden">⌘K</span>
             </button>
           </div>
 
-          <div className="header-right-controls">
+          <div className="flex items-center gap-1.5">
             {/* Notifications */}
             <Tooltip label={t("header.notifications")}>
               <button
                 type="button"
-                className="header-control"
+                className="flex items-center justify-center w-9 h-9 rounded-lg border border-tb-border bg-tb-surface-2 cursor-pointer text-tb-text-secondary transition-all duration-150 relative hover:text-tb-text-primary hover:border-tb-border-hover active:scale-[0.96]"
                 onClick={() => { setNotifOpen(!notifOpen); setUserMenuOpen(false); setCalOpen(false); }}
                 aria-label={t("header.notifications")}
               >
                 <Bell size={16} />
-                {unread > 0 && <span className="header-notif-badge">{unread > 99 ? '99+' : unread}</span>}
+                {unread > 0 && <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-tb-red text-white text-[10px] font-semibold leading-4 text-center border-[1.5px] border-tb-sidebar pointer-events-none">{unread > 99 ? '99+' : unread}</span>}
               </button>
             </Tooltip>
 
@@ -499,7 +546,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Tooltip label={isDark ? t("header.switchToLight") : t("header.switchToDark")}>
               <button
                 type="button"
-                className="header-control tb-theme-btn"
+                className="flex items-center justify-center w-9 h-9 rounded-lg border border-tb-border bg-tb-surface-2 cursor-pointer text-tb-text-secondary transition-all duration-150 relative hover:text-tb-text-primary hover:border-tb-border-hover active:scale-[0.96] max-lg:hidden"
                 onClick={() => toggle()}
                 aria-label={isDark ? t("header.switchToLight") : t("header.switchToDark")}
               >
@@ -517,13 +564,13 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Tooltip label={t("header.calendar")}>
                 <button
                   type="button"
-                  className="tb-date-btn"
+                  className="w-auto px-2 border border-tb-border rounded-lg gap-1.5 flex items-center h-9 text-[13px] text-tb-text-secondary cursor-pointer bg-transparent transition-all duration-150 hover:border-tb-border-hover hover:bg-tb-surface-1 max-lg:hidden"
                   onClick={() => setCalOpen(!calOpen)}
                   aria-label={t("header.calendar")}
                 >
                   <Calendar size={14} />
-                  <span className="tb-date-btn-label">{dateLabel}</span>
-                  <ChevronDown size={12} style={{ color: "var(--tb-text-muted)", transform: calOpen ? "rotate(180deg)" : "rotate(0)", transition: "transform 120ms" }} />
+                  <span className="text-tb-text-muted">{dateLabel}</span>
+                  <ChevronDown size={12} className="text-tb-text-muted transition-transform duration-150" style={{ transform: calOpen ? 'rotate(180deg)' : 'rotate(0)' }} />
                 </button>
               </Tooltip>
               {/* Hover bridge */}
@@ -536,47 +583,47 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Tooltip label={t("header.account")}>
                 <button
                   type="button"
-                  className="header-btn-link"
+                  className="p-0 bg-transparent border-none cursor-pointer rounded-full transition-transform duration-150 inline-flex items-center justify-center w-9 h-9 leading-none hover:scale-105"
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   aria-label={t("header.account")}
                 >
-                  <div className="header-avatar">
+                  <div className="w-9 h-9 rounded-full bg-tb-surface-3 flex items-center justify-center text-xs font-semibold text-tb-text-secondary overflow-hidden border border-tb-border transition-all duration-150 shrink-0 cursor-pointer">
                     <SafeAvatarImg src={user?.photoUrl} alt="" fallback={<User size={16} style={{ opacity: 0.7 }} />} />
                   </div>
                 </button>
               </Tooltip>
               {userMenuOpen && (
                 <>
-                  <div style={{ position: 'fixed', inset: 0, zIndex: 59 }} onClick={() => setUserMenuOpen(false)} />
-                  <div className="header-popover" role="menu">
-                    <div style={{ padding: 12 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 4px 12px', borderBottom: '1px solid var(--tb-border)' }}>
-                        <div className="sidebar-user-avatar" style={{ width: 40, height: 40 }}>
+                  <div className="fixed inset-0 z-[59]" onClick={() => setUserMenuOpen(false)} />
+                  <div className="absolute top-[calc(100%+4px)] right-0 min-w-[220px] bg-tb-surface-1 border border-tb-border rounded-xl z-[60] overflow-hidden shadow-[0_16px_48px_rgba(0,0,0,0.3)] animate-dropdown-in" role="menu">
+                    <div className="p-3">
+                      <div className="flex items-center gap-2.5 px-1 py-2 border-b border-tb-border">
+                        <div className="w-10 h-10 rounded-full bg-tb-surface-3 flex items-center justify-center text-[13px] font-semibold text-tb-text-secondary overflow-hidden shrink-0 border border-tb-border">
                           <SafeAvatarImg src={user?.photoUrl} alt="" fallback={<User size={18} style={{ opacity: 0.7 }} />} />
                         </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--tb-text-primary)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-semibold text-tb-text-primary flex items-center gap-1.5 flex-wrap">
                             {user?.name ?? t("header.user")}
-                            {isAdmin && <span className="role-badge">{roleLabel}</span>}
+                            {isAdmin &&                <span className="inline-flex items-center bg-tb-red text-white text-[9px] font-bold tracking-widest uppercase leading-none py-[3px] px-1.5 rounded-[5px] whitespace-nowrap shrink-0">{roleLabel}</span>}
                           </div>
-                          <div style={{ fontSize: 12, color: 'var(--tb-text-muted)' }}>{user?.email ?? ""}</div>
+                          <div className="text-xs text-tb-text-muted">{user?.email ?? ""}</div>
                         </div>
 
                       </div>
-                      <div style={{ paddingTop: 8 }}>
-                        <button type="button" role="menuitem" className="menu-item" onClick={() => { setUserMenuOpen(false); router.push("/account/profile"); }}>
-                          <User size={15} /> <span style={{ flex: 1 }}>{t("nav.profile")}</span>
+                      <div className="pt-2">
+                        <button type="button" role="menuitem" className="flex items-center gap-2 w-full px-3 py-2 rounded-lg border-none bg-transparent cursor-pointer text-left text-sm text-tb-text-secondary transition-all duration-[120ms] hover:bg-tb-surface-3 hover:text-tb-text-primary active:scale-[0.98]" onClick={() => { setUserMenuOpen(false); router.push("/account/profile"); }}>
+                          <User size={15} /> <span className="flex-1">{t("nav.profile")}</span>
                         </button>
-                        <button type="button" role="menuitem" className="menu-item" onClick={() => { setUserMenuOpen(false); router.push("/account/security"); }}>
-                          <Lock size={15} /> <span style={{ flex: 1 }}>{t("nav.security")}</span>
+                        <button type="button" role="menuitem" className="flex items-center gap-2 w-full px-3 py-2 rounded-lg border-none bg-transparent cursor-pointer text-left text-sm text-tb-text-secondary transition-all duration-[120ms] hover:bg-tb-surface-3 hover:text-tb-text-primary active:scale-[0.98]" onClick={() => { setUserMenuOpen(false); router.push("/account/security"); }}>
+                          <Lock size={15} /> <span className="flex-1">{t("nav.security")}</span>
                         </button>
-                        <div className="menu-divider" />
-                        <button type="button" role="menuitem" className="menu-item" onClick={() => { setUserMenuOpen(false); router.push("/account/preferences"); }}>
-                          <Settings size={15} /> <span style={{ flex: 1 }}>{t("nav.preferences")}</span>
+                        <div className="border-t border-tb-border my-1" />
+                        <button type="button" role="menuitem" className="flex items-center gap-2 w-full px-3 py-2 rounded-lg border-none bg-transparent cursor-pointer text-left text-sm text-tb-text-secondary transition-all duration-[120ms] hover:bg-tb-surface-3 hover:text-tb-text-primary active:scale-[0.98]" onClick={() => { setUserMenuOpen(false); router.push("/account/preferences"); }}>
+                          <Settings size={15} /> <span className="flex-1">{t("nav.preferences")}</span>
                         </button>
-                        <div className="menu-divider" />
-                        <button type="button" role="menuitem" className="menu-item danger" onClick={() => { setUserMenuOpen(false); signOut(); }}>
-                          <LogOut size={15} /> <span style={{ flex: 1 }}>{t("header.signOut")}</span>
+                        <div className="border-t border-tb-border my-1" />
+                        <button type="button" role="menuitem" className="flex items-center gap-2 w-full px-3 py-2 rounded-lg border-none bg-transparent cursor-pointer text-left text-sm text-tb-red transition-all duration-[120ms] hover:bg-tb-red-soft active:scale-[0.98]" onClick={() => { setUserMenuOpen(false); setShowLogoutConfirm(true); }}>
+                          <LogOut size={15} /> <span className="flex-1">{t("header.signOut")}</span>
                         </button>
                       </div>
                     </div>
@@ -590,15 +637,18 @@ export function AppShell({ children }: { children: ReactNode }) {
         {/* ═══ NOTIFICATION SIDEBAR ═══ */}
         {notifOpen && (
           <>
-            <div className="notification-sidebar-backdrop" onClick={() => setNotifOpen(false)} />
-            <div className="notification-sidebar open" role="dialog" aria-label={t("header.notifications")}>
-              <div className="notif-sidebar-header">
-                <span className="notif-sidebar-title">{t("notif.title")}{unread > 0 && <span className="notif-sidebar-count">{unread}</span>}</span>
-                <div className="notif-sidebar-actions">
-                  {unread > 0 && <button type="button" className="btn btn-ghost btn-sm" onClick={markAllRead}>{t("common.markRead")}</button>}
+            <div className="fixed inset-0 bg-black/50 z-[99] animate-fade-in backdrop-blur-sm" onClick={() => setNotifOpen(false)} />
+            <div className="fixed top-0 right-0 w-[380px] h-screen bg-tb-surface-1 border-l border-tb-border z-[100] translate-x-0 transition-transform duration-200 flex flex-col shadow-[-12px_0_40px_rgba(0,0,0,0.2)] max-sm:w-full" role="dialog" aria-label={t("header.notifications")}>
+              <div className="flex items-center justify-between px-5 py-4 border-b border-tb-border">
+                <span className="text-base font-semibold flex items-center gap-2">{t("notif.title")}{unread > 0 && <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-[5px] rounded-[9px] bg-tb-red text-white text-[11px] font-semibold leading-none">{unread}</span>}</span>
+                <div className="flex gap-2">
+                   {unread > 0 && <button type="button" className="inline-flex items-center justify-center gap-2 h-[34px] px-3.5 rounded-[10px] text-[13px] font-medium cursor-pointer transition-all duration-150 border-none bg-transparent text-tb-text-secondary hover:bg-tb-surface-3 hover:text-tb-text-primary disabled:opacity-40 disabled:cursor-not-allowed" onClick={markAllRead} disabled={markingAllNotifs}>
+                      {markingAllNotifs ? <Loader2 size={13} className="animate-spin" /> : null}
+                      {t("common.markRead")}
+                    </button>}
                   <button
                     type="button"
-                    className="btn btn-ghost btn-sm"
+                    className="inline-flex items-center justify-center gap-2 h-[34px] px-3.5 rounded-[10px] text-[13px] font-medium cursor-pointer transition-all duration-150 border-none bg-transparent text-tb-text-secondary hover:bg-tb-surface-3 hover:text-tb-text-primary"
                     onClick={() => { setNotifOpen(false); router.push("/account/inbox"); }}
                   >
                     <Inbox size={14} />
@@ -607,21 +657,21 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </div>
               </div>
 
-              <div className="notif-retention-alert">
+              <div className="flex items-center gap-2 px-4 py-2 text-xs text-tb-text-secondary border-b border-tb-border">
                 <Info size={14} />
                 <span>{t("notif.retention")}</span>
               </div>
 
-              <div style={{ flex: 1, overflow: 'auto' }}>
+              <div className="flex-1 overflow-auto">
                 {notifications.length === 0 ? (
-                  <div className="notif-sidebar-empty">{t("notif.empty")}</div>
+                  <div className="px-10 text-center text-tb-text-muted text-sm">{t("notif.empty")}</div>
                 ) : notifications.map((n) => {
                   const meta = getNotifMeta(n.type, t);
                   const NotifIcon = meta.icon;
                   return (
                     <div
                       key={n.id}
-                      className={`notif-sidebar-item clickable ${n.read ? "read" : "unread"}`}
+                      className={`flex gap-3 px-5 py-3 border-b border-tb-border transition-all duration-[120ms] cursor-pointer hover:bg-tb-surface-2 ${n.read ? '' : ''}`}
                       onClick={() => {
                         if (!n.read) {
                           void markNotificationsRead([n.id]).catch(() => {});
@@ -629,29 +679,37 @@ export function AppShell({ children }: { children: ReactNode }) {
                           notificationsRef.current = updated;
                           setNotifications(updated);
                           setUnread((u) => Math.max(0, u - 1));
+                          notifyNotificationsChanged();
                         }
                         setNotifOpen(false);
                         router.push(n.link || "/account/inbox");
                       }}
                     >
-                      {!n.read && <span className="notif-sidebar-dot unread" />}
-                      <div className="inbox-item-icon" style={{ flexShrink: 0 }}>
+                      {!n.read && <span className="w-[7px] h-[7px] rounded-full shrink-0 mt-1.5 bg-tb-green" />}
+                      <div
+                        className="flex items-center justify-center w-9 h-9 rounded-[10px] flex-shrink-0"
+                        style={{
+                          background: `color-mix(in srgb, ${meta.color} 14%, transparent)`,
+                          color: meta.color,
+                          border: `1px solid color-mix(in srgb, ${meta.color} 28%, transparent)`,
+                        }}
+                      >
                         <NotifIcon size={15} />
                       </div>
-                      <div className="notif-sidebar-body">
-                        <div className={`notif-sidebar-title-text ${n.read ? "read" : "unread"}`}>
+                      <div className="flex-1 min-w-0">
+                        <div className={`text-sm overflow-hidden text-ellipsis whitespace-nowrap ${n.read ? 'font-normal text-tb-text-secondary' : 'font-semibold text-tb-text-primary'}`}>
                           {translateText(t, n.title, lang)}
                         </div>
-                        {n.body && <div className="notif-sidebar-subtitle">{translateText(t, n.body, lang)}</div>}
+                        {n.body && <div className="text-[13px] text-tb-text-muted mt-0.5 overflow-hidden text-ellipsis whitespace-nowrap">{translateText(t, n.body, lang)}</div>}
                       </div>
-                      <span className="notif-sidebar-time" title={notifDate(n.createdAt, lang)}>
+                      <span className="text-xs text-tb-text-muted whitespace-nowrap mt-0.5" title={notifDate(n.createdAt, lang)}>
                         {notifAgo(n.createdAt, t, lang)}
                       </span>
                     </div>
                   );
                 })}
                 {notifHasMore && (
-                  <div ref={loadMoreRef} className="notif-load-more">
+                  <div ref={loadMoreRef} className="px-4 py-3.5 text-center text-[13px] font-medium text-tb-text-muted cursor-pointer border-y border-tb-border transition-all duration-[120ms] hover:bg-tb-surface-1 hover:text-tb-text-primary">
                     {notifLoading ? t("common.loading") : t("common.loadMore")}
                   </div>
                 )}
@@ -659,9 +717,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               {notifTotal > 0 && (
                 <button
                   type="button"
-                  className="notif-sidebar-footer"
+                  className="px-4 py-2 text-[11px] font-semibold text-tb-text-muted text-center border-t border-tb-border cursor-pointer w-full border-x-0 border-b-0 bg-transparent text-inherit font-inherit"
                   onClick={() => { setNotifOpen(false); router.push("/account/inbox"); }}
-                  style={{ cursor: 'pointer', width: '100%', border: 'none', background: 'none', color: 'inherit', font: 'inherit' }}
                 >
                   {notifTotal} {t("notif.total")} · {t("nav.inbox")}
                 </button>
@@ -672,9 +729,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         {/* ═══ SEARCH OVERLAY ═══ */}
         {searchOpen && (
-          <div className="tb-search-overlay" onClick={() => setSearchOpen(false)}>
-            <div className="tb-search-panel" onClick={e => e.stopPropagation()}>
-              <div className="tb-search-input-row">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl" onClick={() => setSearchOpen(false)}>
+            <div className="w-full max-w-[600px] bg-tb-surface-1 border border-tb-border rounded-2xl overflow-hidden animate-dialog-in shadow-[0_24px_80px_rgba(0,0,0,0.35)]" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center gap-3 px-5 py-4 border-b border-tb-border text-tb-text-muted">
                 <Search size={16} />
                 <input
                   type="text"
@@ -707,11 +764,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                     }
                   }}
                 />
-                <span className="tb-search-kbd">ESC</span>
+                <span className="px-[7px] py-0.5 rounded border border-tb-border-strong text-[10px] leading-relaxed text-tb-text-muted shrink-0">ESC</span>
               </div>
-              <div className="tb-search-body">
-                <div className="tb-search-group-wrap">
-                  <div className="tb-search-group">{t("search.pages")}</div>
+              <div className="max-h-[min(52vh,440px)] overflow-y-auto p-2">
+                <div className="mb-2">
+                  <div className="px-3 py-1.5 text-[11px] font-semibold text-tb-text-muted uppercase tracking-wider">{t("search.pages")}</div>
                   {[
                     { title: t("search.overview"), sub: "/overview", href: "/overview" },
                     { title: t("nav.inbox"), sub: "/account/inbox", href: "/account/inbox" },
@@ -725,16 +782,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                     { title: t("search.activityHistory"), sub: "/activity/history", href: "/activity/history" },
                     { title: t("search.supportTickets"), sub: "/support/tickets", href: "/support/tickets" },
                   ].map(item => (
-                    <button key={item.href} className="tb-search-item" onClick={() => { setSearchOpen(false); router.push(item.href); }}>
-                      <div className="tb-search-item-body">
-                        <span className="tb-search-item-title">{item.title}</span>
-                        <span className="tb-search-item-sub">{item.sub}</span>
+                    <button key={item.href} className="flex items-center gap-3 w-full px-3.5 py-2.5 border-none bg-transparent rounded-lg cursor-pointer text-left transition-all duration-[80ms] font-inherit hover:bg-tb-surface-2" onClick={() => { setSearchOpen(false); router.push(item.href); }}>
+                      <div className="flex flex-col">
+                        <span className="text-[13.5px] font-medium text-tb-text-primary">{item.title}</span>
+                        <span className="text-xs text-tb-text-muted mt-px">{item.sub}</span>
                       </div>
                     </button>
                   ))}
                 </div>
               </div>
-              <div className="tb-search-footer">
+              <div className="flex gap-4 px-5 py-2.5 border-t border-tb-border text-[11px] text-tb-text-muted">
                 <span>↑↓ {t("search.navigate")}</span><span>↵ {t("search.open")}</span><span>ESC {t("search.close")}</span>
               </div>
             </div>
@@ -742,10 +799,32 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
 
         {/* Content */}
-        <div className="dashboard-content">
+        <div className="flex-1 p-[24px_28px] max-w-[1400px] w-full mx-auto max-sm:p-4">
           {children}
         </div>
       </div>
+      </div>{/* end dashboard-layout */}
+
+      {/* ═══ Logout Confirmation ═══ */}
+      {showLogoutConfirm && (
+        <>
+          <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-[2px] animate-fade-in" onClick={() => setShowLogoutConfirm(false)} />
+          <div className="fixed z-[201] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[380px] rounded-2xl border border-tb-border bg-tb-surface-1 shadow-[0_24px_80px_rgba(0,0,0,0.35)] animate-scale-in">
+            <div className="p-6 text-center">
+              <div className="w-12 h-12 rounded-2xl bg-tb-surface-2 border border-tb-border flex items-center justify-center mx-auto mb-4">
+                <LogOut size={20} className="text-tb-text-muted" />
+              </div>
+              <h3 className="text-[16px] font-semibold text-tb-text-primary mb-1.5">Sign out?</h3>
+              <p className="text-[13px] text-tb-text-muted leading-relaxed">You'll be redirected to the sign-in page.</p>
+            </div>
+            <div className="flex border-t border-tb-border">
+              <button onClick={() => setShowLogoutConfirm(false)} className="flex-1 px-4 py-3 text-[13px] font-medium text-tb-text-secondary hover:bg-tb-surface-2 transition-colors cursor-pointer border-none bg-transparent rounded-bl-2xl">Cancel</button>
+              <div className="w-px bg-tb-border" />
+              <button onClick={signOut} className="flex-1 px-4 py-3 text-[13px] font-semibold text-tb-red hover:bg-tb-red-soft transition-colors cursor-pointer border-none bg-transparent rounded-br-2xl">Sign out</button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

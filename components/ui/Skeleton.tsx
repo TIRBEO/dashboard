@@ -57,7 +57,7 @@ export function SkeletonPage() {
         <Skeleton width={160} height={18} style={{ marginBottom: 4 }} />
         <Skeleton width={280} height={12} style={{ marginBottom: 20 }} />
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 0", borderBottom: i < 3 ? "1px solid var(--tb-border)" : "none" }}>
+          <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 0", borderBottom: i < 3 ? "1px solid tb-border" : "none" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <Skeleton width={15} height={15} borderRadius={4} />
               <div>
@@ -72,7 +72,7 @@ export function SkeletonPage() {
       <div className="dashboard-card">
         <Skeleton width={160} height={18} style={{ marginBottom: 16 }} />
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 0", borderBottom: i < 2 ? "1px solid var(--tb-border)" : "none" }}>
+          <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 0", borderBottom: i < 2 ? "1px solid tb-border" : "none" }}>
             <div>
               <Skeleton width={100} height={13} style={{ marginBottom: 4 }} />
               <Skeleton width={180} height={10} />
@@ -89,14 +89,14 @@ export function SkeletonTable({ rows = 4, cols = 5 }: { rows?: number; cols?: nu
   return (
     <div className="dashboard-card" style={{ padding: 0, overflow: "hidden" }}>
       {/* Header */}
-      <div style={{ display: "flex", gap: 16, padding: "10px 16px", borderBottom: "1px solid var(--tb-border)", background: "var(--tb-surface-1)" }}>
+      <div style={{ display: "flex", gap: 16, padding: "10px 16px", borderBottom: "1px solid tb-border", background: "var(--tb-surface-1)" }}>
         {Array.from({ length: cols }).map((_, i) => (
           <Skeleton key={i} width={i === 0 ? 60 : `${60 + Math.random() * 80}px`} height={10} />
         ))}
       </div>
       {/* Rows */}
       {Array.from({ length: rows }).map((_, r) => (
-        <div key={r} style={{ display: "flex", gap: 16, padding: "12px 16px", borderBottom: r < rows - 1 ? "1px solid var(--tb-border)" : "none", alignItems: "center" }}>
+        <div key={r} style={{ display: "flex", gap: 16, padding: "12px 16px", borderBottom: r < rows - 1 ? "1px solid tb-border" : "none", alignItems: "center" }}>
           {Array.from({ length: cols }).map((_, c) => (
             <Skeleton key={c} width={c === 0 ? 60 : `${40 + Math.random() * 100}px`} height={c === 0 ? 10 : 13} />
           ))}
@@ -110,7 +110,7 @@ export function SkeletonNotifList({ rows = 5 }: { rows?: number }) {
   return (
     <div className="dashboard-card" style={{ padding: 0, overflow: "hidden" }}>
       {Array.from({ length: rows }).map((_, r) => (
-        <div key={r} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: r < rows - 1 ? "1px solid var(--tb-border)" : "none" }}>
+        <div key={r} style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 16px", borderBottom: r < rows - 1 ? "1px solid tb-border" : "none" }}>
           <Skeleton width={6} height={6} borderRadius="50%" />
           <Skeleton width={32} height={32} borderRadius={8} />
           <div style={{ flex: 1 }}>

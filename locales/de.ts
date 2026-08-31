@@ -3,7 +3,7 @@ import type { Dict } from "@/lib/i18n";
 export const de: any = {
   common: {
     loading: "Laden", saving: "Speichern...", saved: "Gespeichert", autoSaved: "Automatisch gespeichert",
-    viewAll: "Alle ansehen", new: "Neu", close: "Schließen", cancel: "Abbrechen", save: "Speichern", delete: "Löschen",
+    viewAll: "Alle ansehen", new: "Neu", close: "Schließen", cancel: "Abbrechen", save: "Speichern", delete: "Löschen", deleting: "Löschen…",
     markRead: "Als gelesen markieren", loadMore: "Mehr laden", noNotifications: "Keine Benachrichtigungen", noTickets: "Keine Tickets",
     justNow: "Gerade eben", agoM: "vor {n} Min.", agoH: "vor {n} Std.", yesterday: "Gestern", total: "gesamt",
     unsavedWarn: "Sie haben ungespeicherte Änderungen – speichern Sie sie, bevor Sie diese Seite verlassen.",
@@ -44,6 +44,7 @@ export const de: any = {
   },
   session: { expired: "Ihre Sitzung ist abgelaufen. Einige Funktionen funktionieren möglicherweise nicht.", signInAgain: "Erneut anmelden" },
   notif: {
+    scheduleTitle: "Schedule & email summaries",
     title: "Benachrichtigungen", subtitle: "Konfigurieren Sie, wie und wann Sie Benachrichtigungen erhalten.", retention: "Benachrichtigungen werden nach 30 Tagen automatisch gelöscht.", empty: "Keine Benachrichtigungen", total: "gesamt",
     channelsTitle: "Kanäle", channelsDesc: "Wählen Sie, wo Sie Benachrichtigungen erhalten möchten.",
     email: "E-Mail", push: "Push",
@@ -68,6 +69,7 @@ export const de: any = {
     months: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
   },
   inbox: {
+    when: "When", where: "Where", device: "Device", category: "Category",
     title: "Posteingang", descUnread: "{unread} ungelesen von {total}", descTotal: "{total} Nachrichten", markAllRead: "Alle als gelesen markieren", tabAll: "Alle", tabUnread: "Ungelesen", tabRead: "Gelesen",
     deselect: "Auswahl aufheben", selectAll: "Alle auswählen", select: "Auswählen", read: "Lesen",
     searchPlaceholder: "Benachrichtigungen durchsuchen...", noMatching: "Keine passenden Benachrichtigungen",
@@ -158,6 +160,7 @@ export const de: any = {
     connectedAccounts: "Verbundene Konten", noneConnected: "Keine Konten verbunden.", verified: "Verifiziert", unverified: "Nicht verifiziert",
   },
   history: {
+    chipMethod: "Method", chipReason: "Reason", via: "via",
     title: "Aktivitätsverlauf", subtitle: "Ein Protokoll von Sicherheits- und Kontovorgängen.",
     noActivity: "Noch keine Aktivität", noActivityDesc: "Ihre Aktionen werden hier angezeigt.",
     act: {

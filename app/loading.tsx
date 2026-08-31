@@ -2,35 +2,10 @@
 
 export default function RootLoading() {
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-        background: "var(--tb-bg)",
-        color: "var(--tb-text-muted)",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 16,
-        }}
-      >
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            border: "3px solid var(--tb-border)",
-            borderTopColor: "var(--tb-accent, var(--tb-text-primary))",
-            borderRadius: "50%",
-            animation: "spin 0.8s linear infinite",
-          }}
-        />
-        <span style={{ fontSize: 13, fontWeight: 500 }}>Loading...</span>
+    <div className="flex items-center justify-center h-screen bg-tb-bg text-tb-text-muted">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-8 h-8 border-[3px] border-tb-border border-t-tb-accent rounded-full animate-spin" />
+        <span className="text-[13px] font-medium">Loading...</span>
       </div>
     </div>
   );

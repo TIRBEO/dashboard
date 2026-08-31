@@ -3,7 +3,7 @@ import type { Dict } from "@/lib/i18n";
 export const hi: any = {
   common: {
     loading: "लोड हो रहा है", saving: "सेव हो रहा है...", saved: "सेव हो गया", autoSaved: "परिवर्तन स्वतः सेव हो गए",
-    viewAll: "सब देखें", new: "नया", close: "बंद करें", cancel: "रद्द करें", save: "सेव करें", delete: "हटाएं",
+    viewAll: "सब देखें", new: "नया", close: "बंद करें", cancel: "रद्द करें", save: "सेव करें", delete: "हटाएं", deleting: "हटा रहे हैं…",
     markRead: "पढ़ा हुआ चिह्नित करें", loadMore: "और लोड करें", noNotifications: "कोई सूचना नहीं", noTickets: "कोई टिकट नहीं",
     justNow: "अभी", agoM: "{n} मिनट पहले", agoH: "{n} घंटे पहले", yesterday: "कल", total: "कुल",
     unsavedWarn: "आपके पास असहेज किए गए बदलाव हैं — इस पृष्ठ से बाहर जाने से पहले सेव करें।",
@@ -44,6 +44,7 @@ export const hi: any = {
   },
   session: { expired: "आपका सत्र समाप्त हो गया है। कुछ सुविधाएं काम नहीं कर सकती हैं।", signInAgain: "फिर से साइन इन करें" },
   notif: {
+    scheduleTitle: "Schedule & email summaries",
     title: "सूचनाएं", subtitle: "सूचनाएं कैसे और कब प्राप्त करें, यह कॉन्फ़िगर करें।", retention: "30 दिनों के बाद सूचनाएं स्वतः हटा दी जाती हैं।", empty: "कोई सूचना नहीं", total: "कुल",
     channelsTitle: "चैनल", channelsDesc: "चुनें कि आप सूचनाएं कहां प्राप्त करना चाहते हैं।",
     email: "ईमेल", push: "पुश",
@@ -68,6 +69,7 @@ export const hi: any = {
     months: ["जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"],
   },
   inbox: {
+    when: "When", where: "Where", device: "Device", category: "Category",
     title: "इनबॉक्स", descUnread: "{total} में से {unread} अपठित", descTotal: "{total} संदेश", markAllRead: "सभी पढ़ा हुआ चिह्नित करें", tabAll: "सभी", tabUnread: "न पढ़े गए", tabRead: "पढ़े गए",
     deselect: "चयन हटाएं", selectAll: "सभी चुनें", select: "चुनें", read: "पढ़ा हुआ",
     searchPlaceholder: "सूचनाएं खोजें...", noMatching: "कोई मेल खाती सूचना नहीं",
@@ -157,6 +159,7 @@ export const hi: any = {
     connectedAccounts: "कनेक्टेड खाते", noneConnected: "कोई खाता कनेक्ट नहीं है।", verified: "सत्यापित", unverified: "सत्यापित नहीं",
   },
   history: {
+    chipMethod: "Method", chipReason: "Reason", via: "via",
     title: "गतिविधि इतिहास", subtitle: "सुरक्षा और खाता घटनाओं का रिकॉर्ड।",
     noActivity: "अभी कोई गतिविधि नहीं", noActivityDesc: "आपके द्वारा की गई क्रियाएं यहां दिखाई देंगी।",
     act: {

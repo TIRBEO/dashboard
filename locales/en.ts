@@ -77,7 +77,7 @@ export const en: any = {
     inboxEmptyDesc: "Notifications from Tirbeo will appear here.", loadMore: "Load more", back: "Back", open: "Open",
     noContent: "No content", viewDetails: "View details", selectMessage: "Select a message",
     selectMessageDesc: "Choose a message from the list to read it here.",
-    typeSecurity: "Security", typeForms: "Forms", typeProduct: "Product", typeSupport: "Support", typeLogin: "Login", typeNotification: "Notification", delete: "Delete",
+    typeSecurity: "Security", typeForms: "Forms", typeProduct: "Product", typeSupport: "Support", typeLogin: "Login", typeNotification: "Notification", delete: "Delete", deleting: "Deleting…",
     when: "When", where: "Where", device: "Device", category: "Category",
   },
   sessions: {

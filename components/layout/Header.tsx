@@ -128,14 +128,14 @@ export function Header({
 
         <div className="hdr-right">
           <Tip label={t("header.notifications")}>
-            <button type="button" className="flex items-center justify-center w-9 h-9 rounded-lg border border-[var(--tb-border)] text-[var(--tb-text-muted)] transition hover:bg-[var(--tb-surface-1)] hover:border-[var(--tb-border-hover)] hover:text-[var(--tb-text-primary)]" onClick={onToggleNotif} aria-label={t("header.notifications")}>
+            <button type="button" className="flex items-center justify-center w-9 h-9 rounded-lg border border-tb-border text-tb-text-muted transition hover:bg-tb-surface-1 hover:border-tb-border-hover hover:text-tb-text-primary" onClick={onToggleNotif} aria-label={t("header.notifications")}>
               <Bell size={16} />
               {unread > 0 && <span className="hdr-badge">{unread > 99 ? "99+" : unread}</span>}
             </button>
           </Tip>
 
           <Tip label={isDark ? t("header.switchToLight") : t("header.switchToDark")}>
-            <button type="button" className="flex items-center justify-center w-9 h-9 rounded-lg border border-[var(--tb-border)] text-[var(--tb-text-muted)] transition hover:bg-[var(--tb-surface-1)] hover:border-[var(--tb-border-hover)] hover:text-[var(--tb-text-primary)]" onClick={() => toggle()} aria-label={isDark ? t("header.switchToLight") : t("header.switchToDark")}>
+            <button type="button" className="flex items-center justify-center w-9 h-9 rounded-lg border border-tb-border text-tb-text-muted transition hover:bg-tb-surface-1 hover:border-tb-border-hover hover:text-tb-text-primary" onClick={() => toggle()} aria-label={isDark ? t("header.switchToLight") : t("header.switchToDark")}>
               {isDark ? <Sun size={15} /> : <Moon size={15} />}
             </button>
           </Tip>
@@ -144,7 +144,7 @@ export function Header({
             <button type="button" className="hdr-date" onClick={() => setCalOpen(!calOpen)} aria-label={t("header.calendar")}>
               <Calendar size={13} />
               <span>{dateLabel}</span>
-              <ChevronDown size={11} style={{ transform: calOpen ? "rotate(180deg)" : "rotate(0)", transition: "transform 120ms" }} />
+              <ChevronDown size={11} className="transition-transform duration-150" style={{ transform: calOpen ? 'rotate(180deg)' : 'rotate(0)' }} />
             </button>
             {calOpen && <div className="calendar-hover-bridge" />}
             {calOpen && <MonthCalendar onClose={() => setCalOpen(false)} />}
@@ -153,7 +153,7 @@ export function Header({
           <div ref={userMenuRef} className="hdr-user-wrap">
             <button type="button" className="hdr-avatar-btn" onClick={() => setUserMenuOpen(!userMenuOpen)} aria-label={t("header.account")}>
               <div className="hdr-avatar">
-                {user?.photoUrl ? <img src={user.photoUrl} alt="" /> : initialsOf(user?.name ?? user?.email)}
+                {user?.photoUrl ? <img src={user.photoUrl} alt="" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} /> : initialsOf(user?.name ?? user?.email)}
               </div>
             </button>
             {userMenuOpen && (
@@ -161,8 +161,8 @@ export function Header({
                 <div className="hdr-menu-backdrop" onClick={() => setUserMenuOpen(false)} />
                 <div className="hdr-popover" role="menu">
                   <div className="hdr-popover-head">
-                    <div className="sb-avatar" style={{ width: 38, height: 38 }}>
-                      {user?.photoUrl ? <img src={user.photoUrl} alt="" /> : initialsOf(user?.name ?? user?.email)}
+                    <div className="sb-avatar w-[38px] h-[38px]">
+                      {user?.photoUrl ? <img src={user.photoUrl} alt="" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} /> : initialsOf(user?.name ?? user?.email)}
                     </div>
                     <div className="hdr-popover-info">
                       <div className="hdr-popover-name">

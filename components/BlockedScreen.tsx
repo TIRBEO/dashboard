@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ShieldOff, Clock, Mail, RefreshCw } from 'lucide-react';
+import { ShieldOff, Clock, Mail, RefreshCw, AlertTriangle, Shield, X } from 'lucide-react';
 
 export type BlockStatus = {
   banned?: boolean;
@@ -28,43 +28,43 @@ function useCountdown(until?: string | null) {
   return d > 0 ? `${d}d ${h}h ${m}m` : h > 0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`;
 }
 
+/* ═══ Blocked Screen ═══ */
 export function BlockedScreen({ status, onRetry }: { status: BlockStatus; onRetry?: () => void }) {
   const countdown = useCountdown(status.until);
   const suspended = status.suspended && !status.banned;
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-      <div className="dashboard-card" style={{ maxWidth: 520, width: '100%', textAlign: 'center', padding: 40 }}>
-        <div style={{ width: 56, height: 56, borderRadius: 16, background: 'var(--tb-red-soft, rgba(220,38,38,.12))', color: 'var(--tb-red)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-          <ShieldOff size={26} />
+    <div className="min-h-screen flex items-center justify-center p-6 bg-tb-bg">
+      <div className="dashboard-card max-w-[480px] w-full text-center p-10">
+        <div className="w-12 h-12 rounded-xl bg-tb-red-soft text-tb-red flex items-center justify-center mx-auto mb-4">
+          <ShieldOff size={24} />
         </div>
-        <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8 }}>
+        <h1 className="text-xl font-semibold mb-2 text-tb-text-primary">
           {status.banned ? 'Account banned' : 'Account suspended'}
         </h1>
         {status.reason && (
-          <p style={{ fontSize: 14.5, lineHeight: '24px', color: 'var(--tb-text-secondary)', marginBottom: 6 }}>
+          <p className="text-sm leading-[22px] text-tb-text-secondary mb-1.5">
             <strong>Reason:</strong> {status.reason}
           </p>
         )}
         {suspended && status.until && (
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '7px 14px', borderRadius: 999, background: 'var(--tb-surface-3)', fontSize: 13, fontWeight: 600, marginBottom: 18 }}>
-            <Clock size={13} /> Restores in {countdown === 'restored' ? 'a moment — try signing in again' : countdown}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-tb-surface-2 border border-tb-border text-xs font-medium mb-4 text-tb-text-secondary">
+            <Clock size={12} /> Restores in {countdown === 'restored' ? 'a moment — try signing in again' : countdown}
           </div>
         )}
-        <p style={{ fontSize: 13.5, lineHeight: '23px', color: 'var(--tb-text-muted)', margin: suspended ? '10px 0 0' : '12px 0 0' }}>
+        <p className="text-[13px] leading-5 text-tb-text-muted mt-2">
           {status.banned
             ? 'This ban is permanent. While banned you cannot sign in, access your data, or use any Tirbeo service.'
             : 'While suspended you cannot sign in or use Tirbeo services. Your data is untouched and everything returns to normal when the suspension ends.'}
         </p>
-
-        <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
+        <div className="mt-5 flex flex-col gap-2 items-center">
           {onRetry && (
-            <button className="btn btn-primary btn-sm" onClick={onRetry} style={{ gap: 7 }}>
+            <button className="btn btn-primary btn-sm" onClick={onRetry}>
               <RefreshCw size={13} /> I&apos;ve signed in again — retry
             </button>
           )}
-          <a href="mailto:support@tirbeo.app" style={{ fontSize: 13, color: 'var(--tb-blue)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <Mail size={13} /> Contact support@tirbeo.app
+          <a href="mailto:support@tirbeo.app" className="text-xs text-tb-text-muted no-underline inline-flex items-center gap-1.5">
+            <Mail size={12} /> Contact support@tirbeo.app
           </a>
         </div>
       </div>
@@ -72,9 +72,9 @@ export function BlockedScreen({ status, onRetry }: { status: BlockStatus; onRetr
   );
 }
 
+/* ═══ Deletion Banner — Simple one-liner ═══ */
 export function DeletionBanner({
   scheduledFor,
-  reason,
   onCancel,
 }: {
   scheduledFor: string;
@@ -88,28 +88,18 @@ export function DeletionBanner({
   if (done || countdown === 'restored') return null;
 
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
-      padding: '12px 18px', borderRadius: 12,
-      border: '1px solid var(--tb-red)', background: 'var(--tb-red-soft, rgba(220,38,38,.08))',
-      marginBottom: 20,
-    }}>
-      <div style={{ flex: 1, minWidth: 240 }}>
-        <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--tb-red)' }}>
-          Your account will be permanently deleted on {new Date(scheduledFor).toLocaleString()}
-        </div>
-        <div style={{ fontSize: 12.5, color: 'var(--tb-text-secondary)', marginTop: 2 }}>
-          {countdown ? `Time remaining: ${countdown}. ` : ''}
-          {reason ? `Reason given: ${reason}. ` : ''}
-          Cancel anytime before then to keep your account.
-        </div>
-      </div>
+    <div className="w-full flex items-center justify-center gap-3 px-4 h-10 bg-tb-surface-2 border-b border-tb-border">
+      <AlertTriangle size={13} className="flex-shrink-0 text-tb-red" />
+      <span className="text-[13px] text-tb-text-secondary">
+        Your account is scheduled for deletion in <span className="font-semibold text-tb-red font-mono">{countdown}</span>
+      </span>
       <button
-        className="btn btn-secondary btn-sm"
         disabled={busy}
-        onClick={async () => { setBusy(true); try { await onCancel(); setDone(true); } finally { setBusy(false); } }}
+        onClick={async () => { setBusy(true); try { await onCancel(); setDone(true); try { window.dispatchEvent(new CustomEvent("tb:deletion-cancelled")); } catch {} } finally { setBusy(false); } }}
+        className="inline-flex items-center gap-1.5 px-3 h-7 rounded-md text-[12px] font-medium shrink-0 transition-all duration-150 active:scale-[0.96] disabled:opacity-40 bg-tb-surface-3 text-tb-text-primary border border-tb-border"
       >
-        Cancel deletion
+        {busy ? <span className="w-3 h-3 animate-spin rounded-full border-2 border-current border-t-transparent" /> : <Shield size={12} />}
+        Cancel
       </button>
     </div>
   );

@@ -3,7 +3,7 @@ import type { Dict } from "@/lib/i18n";
 export const fr: any = {
   common: {
     loading: "Chargement", saving: "Enregistrement...", saved: "Enregistré", autoSaved: "Modifications auto-enregistrées",
-    viewAll: "Tout voir", new: "Nouveau", close: "Fermer", cancel: "Annuler", save: "Enregistrer", delete: "Supprimer",
+    viewAll: "Tout voir", new: "Nouveau", close: "Fermer", cancel: "Annuler", save: "Enregistrer", delete: "Supprimer", deleting: "Suppression…",
     markRead: "Marquer comme lu", loadMore: "Charger plus", noNotifications: "Aucune notification", noTickets: "Aucun ticket",
     justNow: "À l'instant", agoM: "il y a {n} min", agoH: "il y a {n} h", yesterday: "Hier", total: "au total",
     unsavedWarn: "Vous avez des modifications non enregistrées — enregistrez-les avant de quitter cette page.",
@@ -44,6 +44,7 @@ export const fr: any = {
   },
   session: { expired: "Votre session a expiré. Certaines fonctionnalités peuvent ne pas fonctionner.", signInAgain: "Se reconnecter" },
   notif: {
+    scheduleTitle: "Schedule & email summaries",
     title: "Notifications", subtitle: "Configurez comment et quand vous recevez les notifications.", retention: "Les notifications sont supprimées automatiquement après 30 jours.", empty: "Aucune notification", total: "au total",
     channelsTitle: "Canaux", channelsDesc: "Choisissez où recevoir les notifications.",
     email: "E-mail", push: "Push",
@@ -68,6 +69,7 @@ export const fr: any = {
     months: ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"],
   },
   inbox: {
+    when: "When", where: "Where", device: "Device", category: "Category",
     title: "Boîte de réception", descUnread: "{unread} non lus sur {total}", descTotal: "{total} messages", markAllRead: "Tout marquer comme lu", tabAll: "Toutes", tabUnread: "Non lues", tabRead: "Lues",
     deselect: "Désélectionner", selectAll: "Tout sélectionner", select: "Sélectionner", read: "Lire",
     searchPlaceholder: "Rechercher des notifications...", noMatching: "Aucune notification correspondante",
@@ -157,6 +159,7 @@ export const fr: any = {
     connectedAccounts: "Comptes connectés", noneConnected: "Aucun compte connecté.", verified: "Vérifié", unverified: "Non vérifié",
   },
   history: {
+    chipMethod: "Method", chipReason: "Reason", via: "via",
     title: "Historique d'activité", subtitle: "Un journal des événements de sécurité et de compte.",
     noActivity: "Aucune activité pour le moment", noActivityDesc: "Les actions que vous effectuez apparaîtront ici.",
     act: {
