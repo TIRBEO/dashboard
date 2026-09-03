@@ -29,7 +29,7 @@ async function closeSearch(page: import("@playwright/test").Page) {
 
 test.describe("Search Overlay", () => {
   test.beforeEach(async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1500);
   });
@@ -173,7 +173,7 @@ test.describe("Search Overlay", () => {
     // First item is Overview — press Enter
     await page.keyboard.press("Enter");
 
-    // Should navigate to /overview (already there, but overlay should close)
+    // Should navigate to /home (already there, but overlay should close)
     await expect(page.locator(".tb-search-overlay")).not.toBeVisible({ timeout: 3000 });
   });
 
@@ -355,7 +355,7 @@ test.describe("Search Overlay", () => {
 
     for (const { search, expected } of pages) {
       // Go back to overview first
-      await page.goto("/overview", { waitUntil: "networkidle" });
+      await page.goto("/home", { waitUntil: "networkidle" });
       await page.waitForTimeout(500);
 
       // Open search

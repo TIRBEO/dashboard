@@ -1,11 +1,25 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { api, getCurrentUser } from "@/lib/api";
 import { setDirtyGlobal } from "@/lib/unsaved";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useI18n } from "@/lib/i18n";
 import { SUPPORTED_LANGS } from "@/lib/locales";
-import { Check, Loader2, Settings, Globe, Clock, CalendarDays, Hourglass } from "lucide-react";
+import {
+  Check,
+  Loader2,
+  Settings,
+  Globe,
+  Clock,
+  CalendarDays,
+  Hourglass,
+  ChevronDown,
+  Languages,
+  MapPin,
+  Calendar,
+  Timer,
+} from "lucide-react";
 
 function PrefsSkeleton() {
   return (
@@ -14,15 +28,35 @@ function PrefsSkeleton() {
         <Skeleton width={180} height={24} className="mb-1.5" />
         <Skeleton width={280} height={14} />
       </div>
-      <div className="rounded-2xl border border-tb-border bg-tb-surface-1">
-        <Skeleton width={100} height={18} className="mx-6 mt-5 mb-4" />
+
+      <div className="rounded-2xl border border-tb-border bg-tb-surface-1 overflow-hidden">
+        <div className="px-6 py-5 border-b border-tb-border">
+          <Skeleton width={110} height={18} />
+          <Skeleton width={260} height={12} className="mt-2" />
+        </div>
+
         {[0, 1, 2, 3].map((i) => (
           <div
             key={i}
-            className={`flex items-center justify-between py-3 px-6 ${i < 3 ? 'border-b border-tb-border' : ''}`}
+            className={`
+              flex items-center justify-between
+              gap-4 px-6 py-5
+              ${i < 3 ? "border-b border-tb-border" : ""}
+            `}
           >
-            <Skeleton width={90} height={13} />
-            <Skeleton width={280} height={38} borderRadius={10} />
+            <div className="flex items-center gap-3">
+              <Skeleton width={36} height={36} borderRadius={10} />
+              <div>
+                <Skeleton width={100} height={13} className="mb-1.5" />
+                <Skeleton width={180} height={11} />
+              </div>
+            </div>
+
+            <Skeleton
+              width={190}
+              height={38}
+              borderRadius={9}
+            />
           </div>
         ))}
       </div>
@@ -44,8 +78,20 @@ const TIMEZONE_OPTIONS = [
   { value: "Asia/Kolkata", labelKey: "prefs.kolkata" },
 ];
 
+type PreferenceField = {
+  key: string;
+  label: string;
+  description: string;
+  icon: React.ReactNode;
+  options: {
+    value: string;
+    label: string;
+  }[];
+};
+
 export default function PreferencesPage() {
   const { t, setLang } = useI18n();
+
   const [user, setUser] = useState<any>(null);
   const [form, setForm] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -56,137 +102,495 @@ export default function PreferencesPage() {
     getCurrentUser()
       .then((u) => {
         setUser(u);
+
         setForm({
           language: u.language || "en",
           timezone: u.timezone || "UTC",
-          dateFormat: u.dateFormat || "MM/DD/YYYY",
-          timeFormat: u.timeFormat || "12h",
+          dateFormat:
+            u.dateFormat || "MM/DD/YYYY",
+          timeFormat:
+            u.timeFormat || "12h",
         });
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  const save = async (key?: string, value?: string) => {
-    if (key && value) {
-      setForm((prev) => ({ ...prev, [key]: value }));
+  const save = async (
+    key?: string,
+    value?: string
+  ) => {
+    if (key && value !== undefined) {
+      setForm((prev) => ({
+        ...prev,
+        [key]: value,
+      }));
+
       setDirtyGlobal(true);
     }
+
     setSaving(true);
     setSaved(false);
-    const data = key ? { [key]: value } : form;
+
+    const data = key
+      ? { [key]: value }
+      : form;
+
     try {
-      await api.patch("/api/users/me", data);
+      await api.patch(
+        "/api/users/me",
+        data
+      );
+
       setSaved(true);
       setDirtyGlobal(false);
-      setTimeout(() => setSaved(false), 2000);
-    } catch {}
-    setSaving(false);
+
+      window.setTimeout(() => {
+        setSaved(false);
+      }, 2000);
+    } catch {
+      // Keep UI state intact if saving fails.
+    } finally {
+      setSaving(false);
+    }
   };
 
-  if (loading) return <PrefsSkeleton />;
+  if (loading) {
+    return <PrefsSkeleton />;
+  }
 
-  const fields = [
+  const fields: PreferenceField[] = [
     {
       key: "language",
       label: t("prefs.language"),
-      icon: <Globe size={14} />,
-      type: "select" as const,
-      options: SUPPORTED_LANGS.map((l) => ({ value: l.code, label: l.label })),
-      onChange: (v: string) => {
-        setLang(v);
-        save("language", v);
-      },
+      description:
+        "Choose the language used throughout your account.",
+      icon: <Languages size={16} />,
+      options: SUPPORTED_LANGS.map(
+        (language) => ({
+          value: language.code,
+          label: language.label,
+        })
+      ),
     },
     {
       key: "timezone",
       label: t("prefs.timezone"),
-      icon: <Clock size={14} />,
-      type: "select" as const,
-      options: TIMEZONE_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey as any) })),
-      onChange: (v: string) => save("timezone", v),
+      description:
+        "Used when displaying dates, times, and activity.",
+      icon: <MapPin size={16} />,
+      options: TIMEZONE_OPTIONS.map(
+        (timezone) => ({
+          value: timezone.value,
+          label: t(
+            timezone.labelKey as any
+          ),
+        })
+      ),
     },
     {
       key: "dateFormat",
       label: t("prefs.dateFormat"),
-      icon: <CalendarDays size={14} />,
-      type: "select" as const,
+      description:
+        "Choose how calendar dates are displayed.",
+      icon: <Calendar size={16} />,
       options: [
-        { value: "MM/DD/YYYY", label: "MM/DD/YYYY" },
-        { value: "DD/MM/YYYY", label: "DD/MM/YYYY" },
-        { value: "YYYY-MM-DD", label: "YYYY-MM-DD" },
+        {
+          value: "MM/DD/YYYY",
+          label: "MM/DD/YYYY",
+        },
+        {
+          value: "DD/MM/YYYY",
+          label: "DD/MM/YYYY",
+        },
+        {
+          value: "YYYY-MM-DD",
+          label: "YYYY-MM-DD",
+        },
       ],
-      onChange: (v: string) => save("dateFormat", v),
     },
     {
       key: "timeFormat",
       label: t("prefs.timeFormat"),
-      icon: <Hourglass size={14} />,
-      type: "select" as const,
+      description:
+        "Choose between 12-hour and 24-hour time.",
+      icon: <Timer size={16} />,
       options: [
-        { value: "12h", label: t("prefs.h12") },
-        { value: "24h", label: t("prefs.h24") },
+        {
+          value: "12h",
+          label: t("prefs.h12"),
+        },
+        {
+          value: "24h",
+          label: t("prefs.h24"),
+        },
       ],
-      onChange: (v: string) => save("timeFormat", v),
     },
   ];
 
   return (
-    <div className="flex flex-col gap-6 max-w-[1200px] mx-auto">
-      {/* ── Page Header ── */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+    <div className="flex flex-col gap-6 max-w-[1200px] mx-auto pb-8">
+
+      {/* =========================================================
+          HEADER
+      ========================================================= */}
+      <div className="flex items-start justify-between gap-5 flex-wrap">
         <div className="min-w-0">
-          <h1 className="text-[24px] font-semibold text-tb-text-primary tracking-tight flex items-center gap-2.5">
-            <Settings size={22} className="text-tb-text-muted" />
-            {t("prefs.title")}
-          </h1>
-          <p className="text-sm text-tb-text-muted mt-1">{t("prefs.subtitle")}</p>
-        </div>
-        <span
-          className={`inline-flex items-center gap-1.5 text-[13px] font-medium px-3 py-1 rounded-lg transition-all duration-200 ${saved ? 'bg-tb-green-soft text-tb-green border border-tb-green' : 'bg-tb-surface-2 text-tb-text-muted border border-tb-border'}`}
-        >
-           {saving ? <Loader2 size={12} className="animate-spin" /> : saved && <Check size={12} />}
-          {saving ? t("common.saving") : saved ? t("common.saved") : t("common.autoSaved")}
-        </span>
-      </div>
-
-      {/* ═══ General Settings Card ═══ */}
-      <div className="rounded-2xl border border-tb-border bg-tb-surface-1 overflow-hidden">
-        <div className="px-6 py-5 border-b border-tb-border">
-          <h3 className="text-[16px] font-semibold text-tb-text-primary flex items-center gap-2.5">
-            <Settings size={15} className="text-tb-text-muted" />
-            {t("prefs.general")}
-          </h3>
-        </div>
-        <div>
-          {fields.map((f, i) => (
+          <div className="flex items-center gap-2.5">
             <div
-              key={f.key}
-              className={`flex items-center justify-between gap-4 px-6 py-4 transition-all duration-100 hover:bg-tb-surface-2 ${i < fields.length - 1 ? 'border-b border-tb-border' : ''}`}
+              className="
+                w-9 h-9
+                rounded-xl
+                border border-tb-border
+                bg-tb-surface-2
+                flex items-center justify-center
+                text-tb-text-secondary
+              "
             >
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-tb-surface-3 text-tb-text-muted"
-                >
-                  {f.icon}
-                </div>
-                <span className="text-[15px] font-medium text-tb-text-primary">{f.label}</span>
-              </div>
-              <select
-                className="h-9 rounded-lg px-3 text-sm border border-tb-border bg-tb-surface-2 text-tb-text-primary outline-none transition-all duration-150 hover:border-tb-border-strong focus:border-tb-border-strong focus:shadow-[0_0_0_2px_var(--tb-border)] cursor-pointer min-w-[180px]"
-                value={form[f.key] || ""}
-                onChange={(e) => f.onChange(e.target.value)}
-              >
-                {f.options.map((o) => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
-                ))}
-              </select>
+              <Settings size={17} />
             </div>
-          ))}
+
+            <div>
+              <h1 className="
+                text-[24px]
+                font-semibold
+                tracking-tight
+                text-tb-text-primary
+                leading-tight
+              ">
+                {t("prefs.title")}
+              </h1>
+
+              <p className="
+                text-[13.5px]
+                text-tb-text-muted
+                mt-1
+              ">
+                {t("prefs.subtitle")}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Save State */}
+        <div
+          className={`
+            inline-flex
+            items-center
+            gap-1.5
+            h-8
+            px-3
+            rounded-lg
+            text-[12px]
+            font-medium
+            border
+            transition-all
+            duration-200
+            ${
+              saving
+                ? `
+                  bg-tb-surface-2
+                  border-tb-border
+                  text-tb-text-muted
+                `
+                : saved
+                ? `
+                  bg-tb-green-soft
+                  border-tb-green
+                  text-tb-green
+                `
+                : `
+                  bg-tb-surface-2
+                  border-tb-border
+                  text-tb-text-muted
+                `
+            }
+          `}
+        >
+          {saving ? (
+            <>
+              <Loader2
+                size={12}
+                className="animate-spin"
+              />
+              {t("common.saving")}
+            </>
+          ) : saved ? (
+            <>
+              <Check size={12} />
+              {t("common.saved")}
+            </>
+          ) : (
+            <>
+              <Check size={12} />
+              {t("common.autoSaved")}
+            </>
+          )}
         </div>
       </div>
 
-      {/* Note: Email preferences live in /account/notifications (single source of truth) */}
+      {/* =========================================================
+          GENERAL PREFERENCES
+      ========================================================= */}
+      <section
+        className="
+          rounded-2xl
+          border border-tb-border
+          bg-tb-surface-1
+          overflow-hidden
+        "
+      >
+        {/* Section Header */}
+        <div
+          className="
+            px-6
+            py-5
+            border-b border-tb-border
+            bg-tb-surface-1
+          "
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="
+                w-9 h-9
+                rounded-xl
+                bg-tb-surface-3
+                border border-tb-border
+                flex items-center justify-center
+                text-tb-text-muted
+              "
+            >
+              <Settings size={16} />
+            </div>
+
+            <div>
+              <h2 className="
+                text-[15px]
+                font-semibold
+                text-tb-text-primary
+              ">
+                {t("prefs.general")}
+              </h2>
+
+              <p className="
+                text-[12px]
+                text-tb-text-muted
+                mt-0.5
+              ">
+                Customize how your account displays
+                information.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Preference Rows */}
+        <div>
+          {fields.map((field, index) => {
+            const currentValue =
+              form[field.key] || "";
+
+            return (
+              <div
+                key={field.key}
+                className={`
+                  group
+                  flex
+                  items-center
+                  justify-between
+                  gap-8
+                  px-6
+                  py-5
+                  transition-colors
+                  duration-150
+                  hover:bg-tb-surface-2
+                  ${
+                    index <
+                    fields.length - 1
+                      ? "border-b border-tb-border"
+                      : ""
+                  }
+                `}
+              >
+                {/* Left */}
+                <div
+                  className="
+                    flex
+                    items-center
+                    gap-3.5
+                    min-w-0
+                  "
+                >
+                  <div
+                    className="
+                      w-9 h-9
+                      rounded-xl
+                      shrink-0
+                      flex
+                      items-center
+                      justify-center
+                      bg-tb-surface-3
+                      border border-tb-border
+                      text-tb-text-muted
+                      transition-all
+                      duration-150
+                      group-hover:text-tb-text-secondary
+                    "
+                  >
+                    {field.icon}
+                  </div>
+
+                  <div className="min-w-0">
+                    <div className="
+                      text-[14px]
+                      font-medium
+                      text-tb-text-primary
+                    ">
+                      {field.label}
+                    </div>
+
+                    <div className="
+                      text-[12px]
+                      text-tb-text-muted
+                      mt-0.5
+                      leading-[1.45]
+                    ">
+                      {field.description}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Select */}
+                <div className="
+                  relative
+                  shrink-0
+                  w-[210px]
+                ">
+                  <select
+                    value={currentValue}
+                    onChange={(e) => {
+                      const value =
+                        e.target.value;
+
+                      if (
+                        field.key ===
+                        "language"
+                      ) {
+                        setLang(value);
+                      }
+
+                      void save(
+                        field.key,
+                        value
+                      );
+                    }}
+                    className="
+                      appearance-none
+                      w-full
+                      h-10
+                      rounded-xl
+                      pl-3.5
+                      pr-9
+                      text-[13px]
+                      font-medium
+                      border
+                      border-tb-border
+                      bg-tb-surface-2
+                      text-tb-text-primary
+                      outline-none
+                      cursor-pointer
+                      transition-all
+                      duration-150
+                      hover:border-tb-border-strong
+                      hover:bg-tb-surface-3
+                      focus:border-tb-border-strong
+                      focus:ring-2
+                      focus:ring-tb-border
+                    "
+                  >
+                    {field.options.map(
+                      (option) => (
+                        <option
+                          key={option.value}
+                          value={option.value}
+                        >
+                          {option.label}
+                        </option>
+                      )
+                    )}
+                  </select>
+
+                  <ChevronDown
+                    size={14}
+                    className="
+                      pointer-events-none
+                      absolute
+                      right-3
+                      top-1/2
+                      -translate-y-1/2
+                      text-tb-text-muted
+                    "
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* =========================================================
+          INFORMATION FOOTER
+      ========================================================= */}
+      <div
+        className="
+          rounded-xl
+          border border-tb-border
+          bg-tb-surface-2
+          px-5
+          py-4
+          flex
+          items-start
+          gap-3
+        "
+      >
+        <div
+          className="
+            w-8 h-8
+            rounded-lg
+            shrink-0
+            bg-tb-surface-3
+            border border-tb-border
+            flex items-center justify-center
+            text-tb-text-muted
+          "
+        >
+          <Clock size={14} />
+        </div>
+
+        <div>
+          <p className="
+            text-[13px]
+            font-medium
+            text-tb-text-primary
+          ">
+            {t("prefs.timezone")}
+          </p>
+
+          <p className="
+            text-[12px]
+            text-tb-text-muted
+            mt-0.5
+            leading-relaxed
+          ">
+            Your timezone and formatting preferences
+            are automatically applied across your
+            account.
+          </p>
+        </div>
+      </div>
+
+      {/* Email preferences intentionally remain
+          under /account/notifications */}
     </div>
   );
 }

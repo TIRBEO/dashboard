@@ -27,13 +27,13 @@ async function waitForDashboard(page: import("@playwright/test").Page) {
 }
 
 test.describe("Authentication Flow", () => {
-  test("redirects to /overview when accessing root", async ({ page }) => {
+  test("redirects to /home when accessing root", async ({ page }) => {
     await gotoAuthenticated(page, "/");
-    await expect(page).toHaveURL(/\/overview/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/home/, { timeout: 15000 });
   });
 
   test("loads overview page without crashing", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await waitForDashboard(page);
     
     // The page should not show the error boundary
@@ -41,7 +41,7 @@ test.describe("Authentication Flow", () => {
   });
 
   test("shows overview content after loading", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await waitForDashboard(page);
     
     // Page should have rendered some content (cards, buttons, etc.)
@@ -49,7 +49,7 @@ test.describe("Authentication Flow", () => {
   });
 
   test("sidebar navigation works for all main sections", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await waitForDashboard(page);
 
     // Navigate to profile
@@ -69,10 +69,10 @@ test.describe("Authentication Flow", () => {
     }
 
     // Navigate back to overview
-    const overviewLink = page.locator('a[href*="/overview"]').first();
+    const overviewLink = page.locator('a[href*="/home"]').first();
     if (await overviewLink.isVisible()) {
       await overviewLink.click();
-      await expect(page).toHaveURL(/\/overview/, { timeout: 10000 });
+      await expect(page).toHaveURL(/\/home/, { timeout: 10000 });
     }
   });
 
@@ -105,7 +105,7 @@ test.describe("Authentication Flow", () => {
       return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({}) });
     });
 
-    await page.goto("/overview", { waitUntil: "networkidle" });
+    await page.goto("/home", { waitUntil: "networkidle" });
     await page.waitForTimeout(3000);
 
     // Should show blocked/banned screen or error
@@ -123,7 +123,7 @@ test.describe("Authentication Flow", () => {
       });
     });
 
-    await page.goto("/overview", { waitUntil: "networkidle" });
+    await page.goto("/home", { waitUntil: "networkidle" });
     await page.waitForTimeout(3000);
 
     // Should still render the page body

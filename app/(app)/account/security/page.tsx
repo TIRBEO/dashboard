@@ -5,6 +5,7 @@ import {
   AlertCircle,
   Check,
   Copy,
+  Download,
   History,
   Key,
   Lock,
@@ -14,11 +15,13 @@ import {
   Globe,
   Clock,
   Fingerprint,
+  Trash2,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useI18n } from "@/lib/i18n";
 import { Dialog, DialogHeader, DialogBody, DialogFooter, BtnCancel, BtnDanger, BtnPrimary, InfoCard, WarningBlock, ConfirmInput } from "@/components/ui/Dialog";
 import TirbeoQRCode from "@/components/TirbeoQRCode";
+import { PasskeyManager } from "@/components/security/PasskeyManager";
 
 /* ═══ Card ═══ */
 function GlassCard({ children, style, className = "" }: { children: React.ReactNode; style?: React.CSSProperties; className?: string }) {
@@ -166,6 +169,14 @@ export default function SecurityPage() {
   const [activity, setActivity] = useState<any[]>([]);
   const [loginHistory, setLoginHistory] = useState<any[]>([]);
 
+  // Danger Zone
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const [exportLoading, setExportLoading] = useState(false);
+
   useEffect(() => {
     getCurrentUser()
       .then((u) => { setUser(u); setTotpEnabled(!!u.totpEnabled); setSecEmail(u.recoveryEmail || u.secondaryEmail || ""); setSecVerified(!!(u.recoveryEmailVerified || u.secondaryEmailVerified)); setHasPassword(!!u.hasPassword); })
@@ -192,6 +203,44 @@ export default function SecurityPage() {
   // ── Sessions ──
   const revokeSession = async (id: string) => { try { await api.request(`/api/security/sessions?sessionId=${encodeURIComponent(id)}`, { method: "DELETE" }); setSessions((p) => p.filter((s) => s.id !== id)); } catch {} };
   const revokeAllSessions = async () => { try { await api.request("/api/security/sessions/revoke-all", { method: "DELETE" }); setSessions((p) => p.filter((s) => s.isCurrent)); } catch {} };
+
+  // ── Danger Zone ──
+  const handleExportData = async () => {
+    setExportLoading(true);
+    try {
+      const res = await fetch('/api/account/export', { credentials: 'include' });
+      if (!res.ok) throw new Error('Export failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tirbeo-data-export.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {}
+    setExportLoading(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmation !== 'DELETE MY ACCOUNT') {
+      setDeleteError('Please type "DELETE MY ACCOUNT" to confirm');
+      return;
+    }
+    setDeleteLoading(true);
+    setDeleteError('');
+    try {
+      await api.post('/api/security/delete-account', {
+        password: deleteConfirmation,
+        reason: deleteReason || 'user_requested',
+      });
+      window.location.href = '/';
+    } catch (e: any) {
+      setDeleteError(e.message || 'Failed to delete account');
+    }
+    setDeleteLoading(false);
+  };
 
   const parseUA = (ua: string) => {
     let b = "Unknown", o = "Unknown";
@@ -447,6 +496,45 @@ export default function SecurityPage() {
       </GlassCard>
 
       {/* ═══════════════════════════════════════════════════════════════════════
+           Passkeys
+         ═══════════════════════════════════════════════════════════════════════ */}
+      <GlassCard>
+        <div className="p-4">
+          <PasskeyManager userEmail={user?.email || ""} />
+        </div>
+      </GlassCard>
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+           Danger Zone
+         ═══════════════════════════════════════════════════════════════════════ */}
+      <GlassCard className="border-[var(--tb-red)]/30">
+        <div className="p-4">
+          <h3 className="text-[15px] font-semibold text-tb-red mb-3">Danger Zone</h3>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={handleExportData}
+              disabled={exportLoading}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl border border-tb-border text-tb-text-primary hover:bg-tb-surface-2 transition disabled:opacity-50"
+            >
+              {exportLoading ? (
+                <span className="inline-block w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-[spin_0.6s_linear_infinite]" />
+              ) : (
+                <Download size={16} />
+              )}
+              Export my data
+            </button>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl border border-tb-red text-tb-red hover:bg-tb-red-soft/10 transition"
+            >
+              <Trash2 size={16} />
+              Delete my account
+            </button>
+          </div>
+        </div>
+      </GlassCard>
+
+      {/* ═══════════════════════════════════════════════════════════════════════
            DIALOGS
          ═══════════════════════════════════════════════════════════════════════ */}
 
@@ -550,6 +638,40 @@ export default function SecurityPage() {
         <DialogFooter>
           <BtnCancel onClick={() => { setShowRemoveEmail(false); setRemoveOtp(""); setRemoveOtpSent(false); setRemoveError(""); }}>{t("security.keepRecoveryEmail")}</BtnCancel>
           <BtnDanger onClick={removeEmail} disabled={!removeOtpSent || removeOtpLoading || removeOtp.length < 4} loading={removeOtpLoading}>{t("security.removeEmailBtn")}</BtnDanger>
+        </DialogFooter>
+      </Dialog>
+
+      {/* Delete Account */}
+      <Dialog open={showDeleteModal} onClose={() => { setShowDeleteModal(false); setDeleteConfirmation(""); setDeleteReason(""); setDeleteError(""); }}>
+        <DialogHeader title="Delete Account" description="This action will permanently delete your account and all associated data after 30 days." onClose={() => { setShowDeleteModal(false); setDeleteConfirmation(""); setDeleteReason(""); setDeleteError(""); }} />
+        <DialogBody>
+          <WarningBlock>
+            This will schedule your account for permanent deletion in 30 days. During this period, your data will be hidden but you can contact support to cancel.
+          </WarningBlock>
+          <ConfirmInput
+            label='Type "DELETE MY ACCOUNT" to confirm'
+            value={deleteConfirmation}
+            onChange={setDeleteConfirmation}
+            placeholder='DELETE MY ACCOUNT'
+            icon={<AlertCircle size={13} />}
+          />
+          <div className="mt-3">
+            <label className="block text-xs font-medium text-tb-text-muted mb-1.5">Reason (optional)</label>
+            <input
+              type="text"
+              value={deleteReason}
+              onChange={(e) => setDeleteReason(e.target.value)}
+              placeholder="Help us improve (optional)"
+              className="w-full h-10 rounded-lg px-3 text-sm border border-tb-border bg-tb-surface-2 text-tb-text-primary outline-none"
+            />
+          </div>
+          {deleteError && <p className="text-[13px] text-tb-red mt-1">{deleteError}</p>}
+        </DialogBody>
+        <DialogFooter>
+          <BtnCancel onClick={() => { setShowDeleteModal(false); setDeleteConfirmation(""); setDeleteReason(""); setDeleteError(""); }}>Cancel</BtnCancel>
+          <BtnDanger onClick={handleDeleteAccount} loading={deleteLoading} disabled={deleteConfirmation !== 'DELETE MY ACCOUNT'}>
+            Delete my account
+          </BtnDanger>
         </DialogFooter>
       </Dialog>
 

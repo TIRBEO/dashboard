@@ -161,7 +161,7 @@ export const MOCK_NOTIFICATIONS = {
       title: "Welcome to Tirbeo!",
       body: "Your account has been created successfully.",
       read: true,
-      link: "/overview",
+      link: "/home",
       type: "welcome",
       icon: "🎉",
       metadata: {},
@@ -534,7 +534,7 @@ export async function mockAllApis(page: Page) {
 /**
  * Navigate to a page with mock APIs and authenticated state.
  */
-export async function gotoAuthenticated(page: Page, path: string = "/overview") {
+export async function gotoAuthenticated(page: Page, path: string = "/home") {
   // Set auth token and theme before navigation
   await page.addInitScript(() => {
     localStorage.setItem("auth_token", "mock-jwt-token-for-testing");

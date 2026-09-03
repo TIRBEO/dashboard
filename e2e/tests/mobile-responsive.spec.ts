@@ -19,7 +19,7 @@ test.use({ viewport: { width: 412, height: 915 } });
 
 test.describe("Mobile Responsive Layout", () => {
   test.beforeEach(async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1500);
   });
@@ -83,7 +83,7 @@ test.describe("Mobile Responsive Layout", () => {
     await expect(page.locator(".dashboard-sidebar")).toHaveClass(/open/, { timeout: 3000 });
 
     // Should show nav links
-    await expect(page.locator('.dashboard-sidebar a[href="/overview"]').first()).toBeVisible();
+    await expect(page.locator('.dashboard-sidebar a[href="/home"]').first()).toBeVisible();
     await expect(page.locator('.dashboard-sidebar a[href="/account/profile"]').first()).toBeVisible();
     await expect(page.locator('.dashboard-sidebar a[href="/account/security"]').first()).toBeVisible();
   });
@@ -251,7 +251,7 @@ test.describe("Mobile Responsive Layout", () => {
       { href: "/account/preferences", text: /preferences|settings/i },
       { href: "/account/inbox", text: /inbox|notification/i },
       { href: "/account/sessions", text: /session/i },
-      { href: "/overview", text: /overview|welcome|good/i },
+      { href: "/home", text: /overview|welcome|good/i },
     ];
 
     for (const { href } of pages) {

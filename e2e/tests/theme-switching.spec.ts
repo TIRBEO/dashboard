@@ -36,7 +36,7 @@ test.describe("Theme Switching", () => {
   // ── Default State ──
 
   test("default theme is dark", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
@@ -45,7 +45,7 @@ test.describe("Theme Switching", () => {
   });
 
   test("html element has data-theme attribute", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
 
     const hasAttr = await page.evaluate(() => document.documentElement.hasAttribute("data-theme"));
@@ -55,7 +55,7 @@ test.describe("Theme Switching", () => {
   // ── Toggle Button ──
 
   test("theme toggle button exists in header", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
@@ -64,7 +64,7 @@ test.describe("Theme Switching", () => {
   });
 
   test("dark mode shows Sun icon (switch to light)", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
@@ -74,7 +74,7 @@ test.describe("Theme Switching", () => {
   });
 
   test("clicking toggle switches to light theme", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
@@ -90,7 +90,7 @@ test.describe("Theme Switching", () => {
   });
 
   test("clicking toggle twice returns to dark", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
@@ -106,7 +106,7 @@ test.describe("Theme Switching", () => {
   });
 
   test("light mode shows Moon icon (switch to dark)", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
@@ -121,7 +121,7 @@ test.describe("Theme Switching", () => {
   // ── CSS Variables Change ──
 
   test("dark theme has dark background color", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
@@ -131,7 +131,7 @@ test.describe("Theme Switching", () => {
   });
 
   test("toggling theme changes CSS variables", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
@@ -148,7 +148,7 @@ test.describe("Theme Switching", () => {
   });
 
   test("toggling theme changes text color", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
@@ -162,7 +162,7 @@ test.describe("Theme Switching", () => {
   });
 
   test("toggling theme changes border color", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
@@ -178,7 +178,7 @@ test.describe("Theme Switching", () => {
   // ── Persistence ──
 
   test("theme persists after page navigation", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
@@ -207,7 +207,7 @@ test.describe("Theme Switching", () => {
   });
 
   test("theme persists in localStorage after toggle", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
@@ -228,7 +228,7 @@ test.describe("Theme Switching", () => {
   });
 
   test("theme persists in localStorage", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
@@ -244,7 +244,7 @@ test.describe("Theme Switching", () => {
   // ── Works on All Pages ──
 
   const pages = [
-    { path: "/overview", name: "Overview" },
+    { path: "/home", name: "Overview" },
     { path: "/account/profile", name: "Profile" },
     { path: "/account/security", name: "Security" },
     { path: "/account/preferences", name: "Preferences" },
@@ -283,7 +283,7 @@ test.describe("Theme Switching", () => {
   // ── Visual Verification ──
 
   test("dark theme: body has dark background", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
@@ -293,7 +293,7 @@ test.describe("Theme Switching", () => {
   });
 
   test("light theme: body has light background", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
@@ -307,7 +307,7 @@ test.describe("Theme Switching", () => {
   });
 
   test("theme toggle button has correct hover state", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(1000);
 
@@ -329,7 +329,7 @@ test.describe("Theme Switching", () => {
     });
 
     await mockAllApis(page);
-    await page.goto("/overview", { waitUntil: "networkidle" });
+    await page.goto("/home", { waitUntil: "networkidle" });
     await page.waitForTimeout(1500);
 
     expect(await getTheme(page)).toBe("light");

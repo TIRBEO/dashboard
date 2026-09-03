@@ -81,7 +81,7 @@ interface NavSection { section: string; items: NavItem[] }
 function personalNav(badgeCounts: Record<string, number>, t: I18nT): NavSection[] {
   return [
     { section: t("nav.workspace"), items: [
-      { label: t("nav.getStarted"), href: "/overview", icon: <Home size={16} /> },
+      { label: t("nav.getStarted"), href: "/home", icon: <Home size={16} /> },
       { label: t("nav.inbox"), href: "/account/inbox", icon: <Mail size={16} />, badge: badgeCounts.inbox },
       { label: "Forms", href: process.env.NEXT_PUBLIC_FORMS_URL || "https://forms.tirbeo.app", icon: <FileText size={16} />, external: true },
     ]},
@@ -447,151 +447,144 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       )}
 
-      {/* ═══ SIDEBAR ═══ */}
-      <aside className={`w-[280px] shrink-0 h-screen relative flex flex-col bg-tb-sidebar border-r border-tb-border-sidebar z-50 backdrop-blur-xl max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:w-[min(300px,85vw)] max-lg:h-screen max-lg:-translate-x-full max-lg:transition-transform max-lg:duration-200 ${mobileOpen ? 'max-lg:translate-x-0' : ''}`}>
-        <div className="flex items-center gap-3 px-4 h-[60px] border-b border-tb-border-sidebar">
-          <Link href="/overview" className="flex items-center gap-2.5 no-underline flex-1 min-h-8">
-            <div className="w-8 h-8 shrink-0 flex items-center justify-center overflow-hidden font-bold text-sm rounded-lg">
+      {/* ═══ SIDEBAR — Material Design 3 ═══ */}
+      <aside className={`w-[280px] shrink-0 h-screen relative flex flex-col bg-tb-sidebar z-50 max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:w-[min(300px,85vw)] max-lg:h-screen max-lg:-translate-x-full max-lg:transition-transform max-lg:duration-300 max-lg:shadow-[8px_0_24px_rgba(0,0,0,0.3)] ${mobileOpen ? 'max-lg:translate-x-0' : ''}`}>
+
+        {/* Brand */}
+        <div className="px-5 h-[64px] flex items-center">
+          <Link href="/home" className="flex items-center gap-3 no-underline">
+            <div className="w-9 h-9 shrink-0 flex items-center justify-center rounded-xl bg-tb-brand text-tb-brand-text">
               <img src="../../logo.png" alt="Tirbeo" className="w-5 h-5" />
             </div>
-            <span className="text-base font-bold text-tb-text-primary tracking-tight overflow-hidden whitespace-nowrap">Tirbeo</span>
-            {scheduledDeletionAt && <span className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold tracking-widest uppercase border" style={{ background: 'rgba(239,68,68,0.12)', color: 'var(--tb-red)', borderColor: 'rgba(239,68,68,0.18)' }}><span className="w-1 h-1 rounded-full bg-tb-red animate-pulse" />Deleting</span>}
+            <span className="text-[15px] font-semibold text-tb-text-primary tracking-[-0.01em]">Tirbeo</span>
+            {scheduledDeletionAt && <span className="ml-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase bg-tb-red-soft text-tb-red border border-tb-red/20"><span className="w-1 h-1 rounded-full bg-tb-red animate-pulse" />Del</span>}
           </Link>
         </div>
-        {scheduledDeletionAt && <div className="mx-2 mb-2 px-2.5 py-2 rounded-xl flex items-center gap-2 text-[11px] font-medium border" style={{ background: 'var(--tb-red-soft)', borderColor: 'rgba(232,93,106,0.2)', color: 'var(--tb-text-secondary)' }}><AlertTriangle size={12} className="text-tb-red flex-shrink-0" /> <span className="truncate">Account scheduled for deletion</span></div>}
 
-        <nav className="flex-1 overflow-auto p-2.5">
-          {navSections.map((section) => (
-            <div key={section.section} className="mb-2.5">
-              <div className="px-3 py-2 text-[11px] font-medium text-tb-text-muted uppercase tracking-widest overflow-hidden font-sans">{section.section}</div>
-              {section.items.map((item) => {
-                const active = isActive(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center gap-2 px-3 py-[7px] rounded-lg text-sm text-tb-text-secondary cursor-pointer transition-all duration-150 no-underline border-none bg-transparent w-full text-left relative min-h-8 my-0.5 font-sans tracking-tight ${active ? 'bg-tb-brand text-tb-brand-text font-semibold shadow-sm' : 'hover:bg-[color-mix(in_srgb,var(--tb-text-primary)_7%,transparent)] hover:text-tb-text-primary'}`}
-                    aria-current={active ? "page" : undefined}
-                    onClick={() => setMobileOpen(false)}
-                    target={(item as any).external ? '_blank' : undefined}
-                    rel={(item as any).external ? 'noopener noreferrer' : undefined}
-                  >
-                    {item.icon}
-                    <span className="flex-1 overflow-hidden whitespace-nowrap flex-1">{item.label}</span>
-                    {item.badge && item.badge > 0 && (
-                      <span className={`transition-all duration-[150ms,200ms] overflow-hidden text-[11px] font-semibold bg-tb-surface-3 text-tb-text-secondary rounded-[10px] px-[7px] py-px min-w-5 text-center ${badgePulse && item.href === '/account/inbox' ? 'animate-badge-pulse' : ''}`}>
-                        {item.badge}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
+        {/* Deletion warning */}
+        {scheduledDeletionAt && (
+          <div className="mx-3 mb-2 px-3 py-2.5 rounded-2xl flex items-center gap-2.5 text-[12px] font-medium bg-tb-red-soft border border-tb-red/15">
+            <AlertTriangle size={14} className="text-tb-red shrink-0" />
+            <span className="truncate text-tb-text-secondary">Account scheduled for deletion</span>
+          </div>
+        )}
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-auto px-3 py-2">
+          {navSections.map((section, sIdx) => (
+            <div key={section.section} className={sIdx > 0 ? 'mt-4' : ''}>
+              <div className="px-3 mb-1 text-[11px] font-semibold text-tb-text-muted tracking-[0.06em] uppercase">{section.section}</div>
+              <div className="flex flex-col gap-0.5">
+                {section.items.map((item) => {
+                  const active = isActive(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[13px] font-medium cursor-pointer transition-all duration-200 no-underline border-none w-full text-left relative ${
+                        active
+                          ? 'bg-tb-brand/12 text-tb-brand'
+                          : 'text-tb-text-secondary hover:bg-[color-mix(in_srgb,var(--tb-text-primary)_6%,transparent)] hover:text-tb-text-primary'
+                      }`}
+                      aria-current={active ? "page" : undefined}
+                      onClick={() => setMobileOpen(false)}
+                      target={(item as any).external ? '_blank' : undefined}
+                      rel={(item as any).external ? 'noopener noreferrer' : undefined}
+                    >
+                      <span className={`shrink-0 ${active ? 'text-tb-brand' : 'text-tb-text-muted'}`}>{item.icon}</span>
+                      <span className="flex-1 overflow-hidden whitespace-nowrap">{item.label}</span>
+                      {item.badge && item.badge > 0 && (
+                        <span className={`transition-all duration-[150ms,200ms] overflow-hidden text-[11px] font-semibold rounded-full px-2 py-0.5 min-w-5 text-center ${
+                          active
+                            ? 'bg-tb-brand text-tb-brand-text'
+                            : 'bg-tb-surface-3 text-tb-text-muted'
+                        } ${badgePulse && item.href === '/account/inbox' ? 'animate-badge-pulse' : ''}`}>
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           ))}
         </nav>
 
-        <div className="p-3 border-t border-tb-border-sidebar">
-          <div className="flex items-center gap-2.5">
-            <div className="w-[38px] h-[38px] rounded-full bg-tb-surface-3 flex items-center justify-center text-[13px] font-semibold text-tb-text-secondary overflow-hidden shrink-0 border border-tb-border">
+        {/* User section */}
+        <div className="px-3 pb-3 pt-2">
+          <div className="flex items-center gap-3 px-2 py-2.5 rounded-2xl hover:bg-[color-mix(in_srgb,var(--tb-text-primary)_5%,transparent)] transition-colors duration-150 cursor-pointer">
+            <div className="w-9 h-9 rounded-full bg-tb-surface-3 flex items-center justify-center text-[13px] font-semibold text-tb-text-secondary overflow-hidden shrink-0">
               <SafeAvatarImg src={user?.photoUrl} alt="" fallback={<User size={16} style={{ opacity: 0.7 }} />} />
             </div>
-            <div className="flex-1 min-w-0 overflow-hidden">
-              <div className="text-sm font-medium text-tb-text-primary overflow-hidden text-ellipsis whitespace-nowrap flex items-center gap-1.5 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <div className="text-[13px] font-medium text-tb-text-primary truncate flex items-center gap-1.5">
                 <span className="truncate">{user?.name ?? t("header.user")}</span>
-                {isAdmin &&                <span className="inline-flex items-center bg-tb-red text-white text-[9px] font-bold tracking-widest uppercase leading-none py-[3px] px-1.5 rounded-[5px] whitespace-nowrap shrink-0">{roleLabel}</span>}
+                {isAdmin && <span className="inline-flex items-center bg-tb-red text-white text-[8px] font-bold tracking-wider uppercase leading-none py-0.5 px-1 rounded shrink-0">{roleLabel}</span>}
               </div>
-              <div className="text-[11px] text-tb-text-muted overflow-hidden text-ellipsis whitespace-nowrap">{user?.email}</div>
+              <div className="text-[11px] text-tb-text-muted truncate">{user?.email}</div>
             </div>
-            <div className="flex gap-1">
-              <Tooltip label={t("header.signOut")}>
-                <button type="button" className="flex items-center justify-center w-7 h-7 rounded-lg border border-tb-border bg-tb-surface-2 cursor-pointer text-tb-text-secondary transition-all duration-150 relative hover:text-tb-text-primary hover:border-tb-border-hover active:scale-[0.96]" onClick={() => setShowLogoutConfirm(true)} aria-label={t("header.signOut")}>
-                  <LogOut size={15} />
-                </button>
-              </Tooltip>
-            </div>
+            <Tooltip label={t("header.signOut")}>
+              <button type="button" className="flex items-center justify-center w-8 h-8 rounded-xl text-tb-text-muted hover:bg-tb-surface-3 hover:text-tb-text-primary transition-all duration-150 active:scale-95" onClick={() => setShowLogoutConfirm(true)} aria-label={t("header.signOut")}>
+                <LogOut size={15} />
+              </button>
+            </Tooltip>
           </div>
         </div>
       </aside>
 
       {/* ═══ MAIN ═══ */}
       <div className="flex-1 min-w-0 flex flex-col h-screen overflow-y-auto overflow-x-hidden">
-        <header className="h-[60px] flex items-center justify-between gap-5 px-5 bg-tb-bg border-b border-tb-border-sidebar sticky top-0 z-40">
-          <div className="flex items-center gap-2">
-            <button type="button" className="max-lg:inline-flex hidden items-center justify-center w-9 h-9 rounded-lg border border-tb-border bg-tb-surface-2 cursor-pointer text-tb-text-secondary transition-all duration-150 relative hover:text-tb-text-primary hover:border-tb-border-hover active:scale-[0.96]" onClick={() => setMobileOpen(!mobileOpen)} aria-label={t("header.menu")}>
-              {mobileOpen ? <X size={18} /> : <Menu size={18} />}
-            </button>
-            {/* Search trigger */}
-            <button type="button" className="flex items-center gap-2 px-3 h-9 min-w-[200px] max-w-[300px] rounded-lg border border-tb-border bg-tb-surface-2 cursor-pointer transition-all duration-150 text-tb-text-secondary relative text-[13px] hover:border-tb-border-hover max-sm:min-w-0 max-sm:w-9 max-sm:h-9 max-sm:p-0 max-sm:justify-center max-sm:border-transparent max-sm:max-w-none" onClick={() => setSearchOpen(true)} aria-label={t("header.searchPlaceholder")}>
-              <Search size={14} className="shrink-0" />
-              <span className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap pointer-events-none max-sm:hidden">{t("header.searchPlaceholder")}</span>
-              <span className="ml-auto px-1.5 py-0.5 rounded border border-tb-border bg-tb-surface-1 text-[10px] leading-relaxed text-tb-text-muted shrink-0 pointer-events-none max-sm:hidden">⌘K</span>
-            </button>
-          </div>
+        {/* ═══ Floating mobile menu button ═══ */}
+        <button
+          type="button"
+          className="fixed top-4 left-4 z-50 lg:hidden flex items-center justify-center w-10 h-10 rounded-full border-none bg-tb-surface-1/80 backdrop-blur-md cursor-pointer text-tb-text-secondary transition-all duration-200 shadow-[0_2px_12px_rgba(0,0,0,0.15)] hover:bg-tb-surface-2 hover:text-tb-text-primary active:scale-95"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label={t("header.menu")}
+        >
+          {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+        </button>
 
-          <div className="flex items-center gap-1.5">
-            {/* Notifications */}
-            <Tooltip label={t("header.notifications")}>
-              <button
-                type="button"
-                className="flex items-center justify-center w-9 h-9 rounded-lg border border-tb-border bg-tb-surface-2 cursor-pointer text-tb-text-secondary transition-all duration-150 relative hover:text-tb-text-primary hover:border-tb-border-hover active:scale-[0.96]"
-                onClick={() => { setNotifOpen(!notifOpen); setUserMenuOpen(false); setCalOpen(false); }}
-                aria-label={t("header.notifications")}
-              >
-                <Bell size={16} />
-                {unread > 0 && <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-tb-red text-white text-[10px] font-semibold leading-4 text-center border-[1.5px] border-tb-sidebar pointer-events-none">{unread > 99 ? '99+' : unread}</span>}
-              </button>
-            </Tooltip>
-
-            {/* Theme toggle */}
-            <Tooltip label={isDark ? t("header.switchToLight") : t("header.switchToDark")}>
-              <button
-                type="button"
-                className="flex items-center justify-center w-9 h-9 rounded-lg border border-tb-border bg-tb-surface-2 cursor-pointer text-tb-text-secondary transition-all duration-150 relative hover:text-tb-text-primary hover:border-tb-border-hover active:scale-[0.96] max-lg:hidden"
-                onClick={() => toggle()}
-                aria-label={isDark ? t("header.switchToLight") : t("header.switchToDark")}
-              >
-                {isDark ? <Sun size={16} /> : <Moon size={16} />}
-              </button>
-            </Tooltip>
-
-            {/* Date picker — hover on desktop, click on mobile */}
-            <div
-              ref={calRef}
-              className="relative"
-              onMouseEnter={calEnter}
-              onMouseLeave={calLeave}
+        {/* ═══ Floating top-right icons ═══ */}
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-1.5">
+          {/* Notifications */}
+          <Tooltip label={t("header.notifications")}>
+            <button
+              type="button"
+              className="flex items-center justify-center w-10 h-10 rounded-full border-none bg-tb-surface-1/80 backdrop-blur-md cursor-pointer text-tb-text-secondary transition-all duration-200 relative shadow-[0_2px_12px_rgba(0,0,0,0.15)] hover:bg-tb-surface-2 hover:text-tb-text-primary hover:shadow-[0_4px_20px_rgba(0,0,0,0.2)] active:scale-95"
+              onClick={() => { setNotifOpen(!notifOpen); setUserMenuOpen(false); }}
+              aria-label={t("header.notifications")}
             >
-              <Tooltip label={t("header.calendar")}>
-                <button
-                  type="button"
-                  className="w-auto px-2 border border-tb-border rounded-lg gap-1.5 flex items-center h-9 text-[13px] text-tb-text-secondary cursor-pointer bg-transparent transition-all duration-150 hover:border-tb-border-hover hover:bg-tb-surface-1 max-lg:hidden"
-                  onClick={() => setCalOpen(!calOpen)}
-                  aria-label={t("header.calendar")}
-                >
-                  <Calendar size={14} />
-                  <span className="text-tb-text-muted">{dateLabel}</span>
-                  <ChevronDown size={12} className="text-tb-text-muted transition-transform duration-150" style={{ transform: calOpen ? 'rotate(180deg)' : 'rotate(0)' }} />
-                </button>
-              </Tooltip>
-              {/* Hover bridge */}
-              {calOpen && <div className="calendar-hover-bridge" />}
-              {calOpen && <MonthCalendar onClose={() => setCalOpen(false)} />}
-            </div>
+              <Bell size={18} />
+              {unread > 0 && <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-tb-red text-white text-[10px] font-semibold leading-[18px] text-center pointer-events-none">{unread > 99 ? '99+' : unread}</span>}
+            </button>
+          </Tooltip>
 
-            {/* User menu */}
-            <div ref={userMenuRef} className="relative">
-              <Tooltip label={t("header.account")}>
-                <button
-                  type="button"
-                  className="p-0 bg-transparent border-none cursor-pointer rounded-full transition-transform duration-150 inline-flex items-center justify-center w-9 h-9 leading-none hover:scale-105"
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  aria-label={t("header.account")}
-                >
-                  <div className="w-9 h-9 rounded-full bg-tb-surface-3 flex items-center justify-center text-xs font-semibold text-tb-text-secondary overflow-hidden border border-tb-border transition-all duration-150 shrink-0 cursor-pointer">
-                    <SafeAvatarImg src={user?.photoUrl} alt="" fallback={<User size={16} style={{ opacity: 0.7 }} />} />
-                  </div>
-                </button>
-              </Tooltip>
+          {/* Theme toggle */}
+          <Tooltip label={isDark ? t("header.switchToLight") : t("header.switchToDark")}>
+            <button
+              type="button"
+              className="flex items-center justify-center w-10 h-10 rounded-full border-none bg-tb-surface-1/80 backdrop-blur-md cursor-pointer text-tb-text-secondary transition-all duration-200 relative shadow-[0_2px_12px_rgba(0,0,0,0.15)] hover:bg-tb-surface-2 hover:text-tb-text-primary hover:shadow-[0_4px_20px_rgba(0,0,0,0.2)] active:scale-95"
+              onClick={() => toggle()}
+              aria-label={isDark ? t("header.switchToLight") : t("header.switchToDark")}
+            >
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+          </Tooltip>
+
+          {/* Profile avatar */}
+          <div ref={userMenuRef} className="relative">
+            <Tooltip label={t("header.account")}>
+              <button
+                type="button"
+                className="p-0 bg-transparent border-none cursor-pointer rounded-full transition-transform duration-200 inline-flex items-center justify-center w-10 h-10 leading-none hover:scale-105 shadow-[0_2px_12px_rgba(0,0,0,0.15)]"
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                aria-label={t("header.account")}
+              >
+                <div className="w-10 h-10 rounded-full bg-tb-surface-3 flex items-center justify-center text-xs font-semibold text-tb-text-secondary overflow-hidden border-2 border-tb-border transition-all duration-200 shrink-0 cursor-pointer">
+                  <SafeAvatarImg src={user?.photoUrl} alt="" fallback={<User size={18} style={{ opacity: 0.7 }} />} />
+                </div>
+              </button>
+            </Tooltip>
               {userMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-[59]" onClick={() => setUserMenuOpen(false)} />
@@ -632,7 +625,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               )}
             </div>
           </div>
-        </header>
 
         {/* ═══ NOTIFICATION SIDEBAR ═══ */}
         {notifOpen && (
@@ -753,7 +745,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                         [t("nav.tickets"), "/support/tickets"],
                         [t("nav.history"), "/activity/history"],
                         [t("nav.connectedApps"), "/account/apps"],
-                        [t("search.overview"), "/overview"],
+                        [t("search.overview"), "/home"],
                         [t("search.notificationsSettings"), "/account/notifications"],
                         [t("search.activityHistory"), "/activity/history"],
                         [t("search.supportTickets"), "/support/tickets"],
@@ -770,7 +762,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <div className="mb-2">
                   <div className="px-3 py-1.5 text-[11px] font-semibold text-tb-text-muted uppercase tracking-wider">{t("search.pages")}</div>
                   {[
-                    { title: t("search.overview"), sub: "/overview", href: "/overview" },
+                    { title: t("search.overview"), sub: "/home", href: "/home" },
                     { title: t("nav.inbox"), sub: "/account/inbox", href: "/account/inbox" },
                     { title: t("nav.profile"), sub: "/account/profile", href: "/account/profile" },
                     { title: t("nav.preferences"), sub: "/account/preferences", href: "/account/preferences" },
@@ -799,11 +791,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
 
         {/* Content */}
-        <div className="flex-1 p-[24px_28px] max-w-[1400px] w-full mx-auto max-sm:p-4">
+        <div className="flex-1 p-[72px_28px_24px_28px] max-w-[1400px] w-full mx-auto max-sm:p-[72px_16px_16px_16px]">
           {children}
         </div>
       </div>
-      </div>{/* end dashboard-layout */}
+      </div>
 
       {/* ═══ Logout Confirmation ═══ */}
       {showLogoutConfirm && (

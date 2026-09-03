@@ -40,7 +40,7 @@ test.describe("Visual Regression — Desktop (Dark Theme)", () => {
   });
 
   test("overview page", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await waitForStable(page);
     await expect(page).toHaveScreenshot("overview-dark.png", {
       fullPage: false,
@@ -49,7 +49,7 @@ test.describe("Visual Regression — Desktop (Dark Theme)", () => {
   });
 
   test("overview page — full page", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await waitForStable(page);
     await expect(page).toHaveScreenshot("overview-dark-full.png", {
       fullPage: true,
@@ -184,7 +184,7 @@ test.describe("Visual Regression — Desktop (Light Theme)", () => {
   });
 
   test("overview page — light theme", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await waitForStable(page);
     await expect(page).toHaveScreenshot("overview-light.png", {
       fullPage: false,
@@ -238,7 +238,7 @@ test.describe("Visual Regression — UI Components", () => {
   });
 
   test("search overlay — empty state", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await waitForStable(page);
     await page.keyboard.press("Control+k");
     // Search overlay is a fixed full-screen div with z-[100]
@@ -249,7 +249,7 @@ test.describe("Visual Regression — UI Components", () => {
   });
 
   test("search overlay — filtered results", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await waitForStable(page);
     await page.keyboard.press("Control+k");
     await expect(page.locator("[class*='z-\\[100\\]']").first()).toBeVisible({ timeout: 5000 });
@@ -262,7 +262,7 @@ test.describe("Visual Regression — UI Components", () => {
   });
 
   test("search overlay — no results", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await waitForStable(page);
     await page.keyboard.press("Control+k");
     await expect(page.locator("[class*='z-\\[100\\]']").first()).toBeVisible({ timeout: 5000 });
@@ -274,7 +274,7 @@ test.describe("Visual Regression — UI Components", () => {
   });
 
   test("notification panel — with notifications", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await waitForStable(page);
     // Open notification panel by clicking the bell button in the header
     const bellBtn = page.locator("[aria-label]").filter({ hasText: /notification|bell/i }).first();
@@ -295,7 +295,7 @@ test.describe("Visual Regression — UI Components", () => {
   });
 
   test("sidebar — desktop", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await waitForStable(page);
     await expect(sidebar(page)).toHaveScreenshot("sidebar-desktop-dark.png");
   });
@@ -332,7 +332,7 @@ test.describe("Visual Regression — UI Components", () => {
     await page.route("**/api/**", (route) => {
       return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({}) });
     });
-    await page.goto("/overview", { waitUntil: "networkidle" });
+    await page.goto("/home", { waitUntil: "networkidle" });
     await page.waitForTimeout(3000);
     await expect(page).toHaveScreenshot("blocked-screen-dark.png", {
       fullPage: false,
@@ -351,7 +351,7 @@ test.describe("Visual Regression — Mobile", () => {
   });
 
   test("overview — mobile", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await waitForStable(page);
     await expect(page).toHaveScreenshot("overview-mobile-dark.png", {
       fullPage: false,
@@ -359,7 +359,7 @@ test.describe("Visual Regression — Mobile", () => {
   });
 
   test("mobile sidebar — open", async ({ page }) => {
-    await gotoAuthenticated(page, "/overview");
+    await gotoAuthenticated(page, "/home");
     await waitForStable(page);
     // Click the hamburger menu button (aria-label for menu toggle)
     const menuBtn = page.getByRole("button", { name: /menu|navigation/i });

@@ -10,7 +10,7 @@ const PROVIDER_LABELS: Record<string, string> = { google: "Google", github: "Git
 
 function sanitizeTarget(raw: string | null): string {
   const fallback = process.env.NEXT_PUBLIC_DASHBOARD_URL || (typeof window !== "undefined" ? window.location.origin : "");
-  if (!raw) return "/overview";
+  if (!raw) return "/home";
   try {
     const u = new URL(raw);
     const isLocal = u.hostname === "localhost" || u.hostname === "127.0.0.1";

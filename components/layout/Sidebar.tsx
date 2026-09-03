@@ -16,7 +16,7 @@ export function buildNavSections(
     {
       section: t("nav.workspace"),
       items: [
-        { label: t("nav.getStarted"), href: "/overview", icon: <Home size={16} /> },
+        { label: t("nav.getStarted"), href: "/home", icon: <Home size={16} /> },
         { label: t("nav.inbox"), href: "/account/inbox", icon: <Mail size={16} />, badge: badgeCounts.inbox },
         { label: "Forms", href: process.env.NEXT_PUBLIC_FORMS_URL || "https://forms.tirbeo.app", icon: <FileText size={16} />, external: true },
       ],
@@ -76,7 +76,7 @@ export function Sidebar({
     return (
     <aside className={`sb ${mobileOpen ? "open" : ""}`}>
       <div className="sb-head">
-        <Link href="/overview" className="sb-brand" onClick={onCloseMobile}>
+        <Link href="/home" className="sb-brand" onClick={onCloseMobile}>
             <img src="/logo.png" alt="Tirbeo" className="sb-logo-img" />
           <span className="sb-name">Tirbeo</span>
         </Link>

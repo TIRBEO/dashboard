@@ -4,10 +4,9 @@ import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useThemeToggle } from "@tirbeo/theme";
 import {
-  Bell, Calendar, ChevronDown, LogOut, Menu, Moon,
-  Search, Settings, Sun, User, X,
+  Bell, LogOut, Menu, Moon,
+  Settings, Sun, User, X,
 } from "lucide-react";
-import { MonthCalendar } from "@/components/ui/MonthCalendar";
 import type { Profile } from "@/lib/types";
 import type { I18nT } from "@/lib/i18n";
 import { initialsOf } from "@/components/layout/Sidebar";
@@ -50,16 +49,10 @@ export function Header({
   const router = useRouter();
   const { isDark, toggle } = useThemeToggle();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [calOpen, setCalOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const calRef = useRef<HTMLDivElement>(null);
-  const calTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isAdmin = !!user?.adminRole;
   const roleLabel = (user?.adminRole || "").replace(/_/g, " ").toUpperCase();
-  const now = new Date();
-  const dateLabel = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(now);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -70,164 +63,84 @@ export function Header({
   }, []);
 
   useEffect(() => {
-    if (!calOpen && !userMenuOpen) return;
+    if (!userMenuOpen) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { setCalOpen(false); setUserMenuOpen(false); }
+      if (e.key === "Escape") setUserMenuOpen(false);
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [calOpen, userMenuOpen]);
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") { e.preventDefault(); setSearchOpen(p => !p); }
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, []);
-
-  const calEnter = () => { if (calTimer.current) clearTimeout(calTimer.current); setCalOpen(true); };
-  const calLeave = () => { calTimer.current = setTimeout(() => setCalOpen(false), 250); };
-
-  const [q, setQ] = useState("");
-  const searchPages: Array<[string, string, string]> = [
-    [t("nav.profile"), "/account/profile", "profile user account"],
-    [t("nav.preferences"), "/account/preferences", "preferences settings language"],
-    [t("nav.notifications"), "/account/notifications", "notifications email push"],
-    [t("nav.security"), "/account/security", "security 2fa password passkey"],
-    [t("nav.privacy"), "/account/privacy", "privacy data consent"],
-    [t("nav.sessions"), "/account/sessions", "sessions devices"],
-    [t("nav.inbox"), "/account/inbox", "inbox mail notifications"],
-    [t("nav.tickets"), "/support/tickets", "tickets support help"],
-    [t("nav.history"), "/activity/history", "history activity timeline"],
-    [t("nav.connectedApps"), "/account/apps", "apps connected oauth"],
-    [t("search.overview"), "/overview", "overview dashboard home"],
-  ];
-  const filteredPages = (() => {
-    const toks = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    if (toks.length === 0) return searchPages;
-    return searchPages.filter(([title, href, kw]) => {
-      const hay = `${title} ${href} ${kw}`.toLowerCase();
-      return toks.every(tok => hay.includes(tok));
-    });
-  })();
+  }, [userMenuOpen]);
 
   return (
     <>
-      <header className="hdr">
-        <div className="hdr-left">
-          <button type="button" className="hdr-mobile-btn" onClick={onToggleMobile} aria-label={t("header.menu")}>
-            {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+      {/* Floating mobile menu button */}
+      <button type="button" className="fixed top-4 left-4 z-50 lg:hidden flex items-center justify-center w-10 h-10 rounded-full border-none bg-tb-surface-1/80 backdrop-blur-md cursor-pointer text-tb-text-secondary transition-all duration-200 shadow-[0_2px_12px_rgba(0,0,0,0.15)] hover:bg-tb-surface-2 hover:text-tb-text-primary active:scale-95" onClick={onToggleMobile} aria-label={t("header.menu")}>
+        {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+      </button>
+
+      {/* Floating top-right icons */}
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-1.5">
+        {/* Notification bell */}
+        <Tip label={t("header.notifications")}>
+          <button type="button" className="flex items-center justify-center w-10 h-10 rounded-full border-none bg-tb-surface-1/80 backdrop-blur-md cursor-pointer text-tb-text-secondary transition-all duration-200 relative shadow-[0_2px_12px_rgba(0,0,0,0.15)] hover:bg-tb-surface-2 hover:text-tb-text-primary active:scale-95" onClick={onToggleNotif} aria-label={t("header.notifications")}>
+            <Bell size={18} />
+            {unread > 0 && <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-tb-red text-white text-[10px] font-semibold leading-[18px] text-center pointer-events-none">{unread > 99 ? "99+" : unread}</span>}
           </button>
-          <button type="button" className="hdr-search" onClick={() => setSearchOpen(true)} aria-label={t("header.searchPlaceholder")}>
-            <Search size={14} />
-            <span className="hdr-search-text">{t("header.searchPlaceholder")}</span>
-            <kbd className="hdr-kbd">&#8984;K</kbd>
+        </Tip>
+
+        {/* Theme toggle */}
+        <Tip label={isDark ? t("header.switchToLight") : t("header.switchToDark")}>
+          <button type="button" className="flex items-center justify-center w-10 h-10 rounded-full border-none bg-tb-surface-1/80 backdrop-blur-md cursor-pointer text-tb-text-secondary transition-all duration-200 relative shadow-[0_2px_12px_rgba(0,0,0,0.15)] hover:bg-tb-surface-2 hover:text-tb-text-primary active:scale-95" onClick={() => toggle()} aria-label={isDark ? t("header.switchToLight") : t("header.switchToDark")}>
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
-        </div>
+        </Tip>
 
-        <div className="hdr-right">
-          <Tip label={t("header.notifications")}>
-            <button type="button" className="flex items-center justify-center w-9 h-9 rounded-lg border border-tb-border text-tb-text-muted transition hover:bg-tb-surface-1 hover:border-tb-border-hover hover:text-tb-text-primary" onClick={onToggleNotif} aria-label={t("header.notifications")}>
-              <Bell size={16} />
-              {unread > 0 && <span className="hdr-badge">{unread > 99 ? "99+" : unread}</span>}
-            </button>
-          </Tip>
-
-          <Tip label={isDark ? t("header.switchToLight") : t("header.switchToDark")}>
-            <button type="button" className="flex items-center justify-center w-9 h-9 rounded-lg border border-tb-border text-tb-text-muted transition hover:bg-tb-surface-1 hover:border-tb-border-hover hover:text-tb-text-primary" onClick={() => toggle()} aria-label={isDark ? t("header.switchToLight") : t("header.switchToDark")}>
-              {isDark ? <Sun size={15} /> : <Moon size={15} />}
-            </button>
-          </Tip>
-
-          <div ref={calRef} className="hdr-cal-wrap" onMouseEnter={calEnter} onMouseLeave={calLeave}>
-            <button type="button" className="hdr-date" onClick={() => setCalOpen(!calOpen)} aria-label={t("header.calendar")}>
-              <Calendar size={13} />
-              <span>{dateLabel}</span>
-              <ChevronDown size={11} className="transition-transform duration-150" style={{ transform: calOpen ? 'rotate(180deg)' : 'rotate(0)' }} />
-            </button>
-            {calOpen && <div className="calendar-hover-bridge" />}
-            {calOpen && <MonthCalendar onClose={() => setCalOpen(false)} />}
-          </div>
-
-          <div ref={userMenuRef} className="hdr-user-wrap">
-            <button type="button" className="hdr-avatar-btn" onClick={() => setUserMenuOpen(!userMenuOpen)} aria-label={t("header.account")}>
-              <div className="hdr-avatar">
-                {user?.photoUrl ? <img src={user.photoUrl} alt="" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} /> : initialsOf(user?.name ?? user?.email)}
+        {/* Profile avatar */}
+        <div ref={userMenuRef} className="relative">
+          <Tip label={t("header.account")}>
+            <button type="button" className="p-0 bg-transparent border-none cursor-pointer rounded-full transition-transform duration-200 inline-flex items-center justify-center w-10 h-10 leading-none hover:scale-105 shadow-[0_2px_12px_rgba(0,0,0,0.15)]" onClick={() => setUserMenuOpen(!userMenuOpen)} aria-label={t("header.account")}>
+              <div className="w-10 h-10 rounded-full bg-tb-surface-3 flex items-center justify-center text-xs font-semibold text-tb-text-secondary overflow-hidden border-2 border-tb-border transition-all duration-200 shrink-0 cursor-pointer">
+                {user?.photoUrl ? <img src={user.photoUrl} alt="" referrerPolicy="no-referrer" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} /> : initialsOf(user?.name ?? user?.email)}
               </div>
             </button>
-            {userMenuOpen && (
-              <>
-                <div className="hdr-menu-backdrop" onClick={() => setUserMenuOpen(false)} />
-                <div className="hdr-popover" role="menu">
-                  <div className="hdr-popover-head">
-                    <div className="sb-avatar w-[38px] h-[38px]">
-                      {user?.photoUrl ? <img src={user.photoUrl} alt="" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} /> : initialsOf(user?.name ?? user?.email)}
-                    </div>
-                    <div className="hdr-popover-info">
-                      <div className="hdr-popover-name">
-                        {user?.name ?? t("header.user")}
-                        {isAdmin && <span className="sb-role">{roleLabel}</span>}
-                      </div>
-                      <div className="hdr-popover-email">{user?.email ?? ""}</div>
-                    </div>
+          </Tip>
+          {userMenuOpen && (
+            <>
+              <div className="hdr-menu-backdrop" onClick={() => setUserMenuOpen(false)} />
+              <div className="hdr-popover" role="menu">
+                <div className="hdr-popover-head">
+                  <div className="sb-avatar w-[38px] h-[38px]">
+                    {user?.photoUrl ? <img src={user.photoUrl} alt="" referrerPolicy="no-referrer" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} /> : initialsOf(user?.name ?? user?.email)}
                   </div>
-                  <div className="hdr-popover-body">
-                    <button type="button" role="menuitem" className="hdr-menu-item" onClick={() => { setUserMenuOpen(false); router.push("/account/profile"); }}>
-                      <User size={14} /><span>{t("nav.profile")}</span>
-                    </button>
-                    <button type="button" role="menuitem" className="hdr-menu-item" onClick={() => { setUserMenuOpen(false); router.push("/account/security"); }}>
-                      <Settings size={14} /><span>{t("nav.security")}</span>
-                    </button>
-                    <div className="hdr-menu-div" />
-                    <button type="button" role="menuitem" className="hdr-menu-item" onClick={() => { setUserMenuOpen(false); router.push("/account/preferences"); }}>
-                      <Settings size={14} /><span>{t("nav.preferences")}</span>
-                    </button>
-                    <div className="hdr-menu-div" />
-                    <button type="button" role="menuitem" className="hdr-menu-item danger" onClick={() => { setUserMenuOpen(false); onSignOut(); }}>
-                      <LogOut size={14} /><span>{t("header.signOut")}</span>
-                    </button>
+                  <div className="hdr-popover-info">
+                    <div className="hdr-popover-name">
+                      {user?.name ?? t("header.user")}
+                      {isAdmin && <span className="sb-role">{roleLabel}</span>}
+                    </div>
+                    <div className="hdr-popover-email">{user?.email ?? ""}</div>
                   </div>
                 </div>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {searchOpen && (
-        <div className="tb-search-overlay" onClick={() => { setSearchOpen(false); setQ(""); }}>
-          <div className="tb-search-panel" onClick={e => e.stopPropagation()}>
-            <div className="tb-search-input-row">
-              <Search size={16} />
-              <input type="text" placeholder={t("search.placeholder") || "Search pages, settings…"} autoFocus value={q} onChange={e => setQ(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === "Escape") { setSearchOpen(false); setQ(""); }
-                  if (e.key === "Enter" && filteredPages[0]) { setSearchOpen(false); setQ(""); router.push(filteredPages[0][1]); }
-                }} />
-              <span className="tb-search-kbd">ESC</span>
-            </div>
-            <div className="tb-search-body">
-              <div className="tb-search-group-wrap">
-                <div className="tb-search-group">{t("search.pages")} · {filteredPages.length}</div>
-                {filteredPages.length === 0 ? (
-                  <div className="tb-search-empty">No results — try “security”, “inbox”, or “tickets”</div>
-                ) : filteredPages.map(([title, href]) => (
-                  <button key={href} className="tb-search-item" onClick={() => { setSearchOpen(false); setQ(""); router.push(href); }}>
-                    <div className="tb-search-item-body">
-                      <span className="tb-search-item-title">{title}</span>
-                      <span className="tb-search-item-sub">{href}</span>
-                    </div>
+                <div className="hdr-popover-body">
+                  <button type="button" role="menuitem" className="hdr-menu-item" onClick={() => { setUserMenuOpen(false); router.push("/account/profile"); }}>
+                    <User size={14} /><span>{t("nav.profile")}</span>
                   </button>
-                ))}
+                  <button type="button" role="menuitem" className="hdr-menu-item" onClick={() => { setUserMenuOpen(false); router.push("/account/security"); }}>
+                    <Settings size={14} /><span>{t("nav.security")}</span>
+                  </button>
+                  <div className="hdr-menu-div" />
+                  <button type="button" role="menuitem" className="hdr-menu-item" onClick={() => { setUserMenuOpen(false); router.push("/account/preferences"); }}>
+                    <Settings size={14} /><span>{t("nav.preferences")}</span>
+                  </button>
+                  <div className="hdr-menu-div" />
+                  <button type="button" role="menuitem" className="hdr-menu-item danger" onClick={() => { setUserMenuOpen(false); onSignOut(); }}>
+                    <LogOut size={14} /><span>{t("header.signOut")}</span>
+                  </button>
+                </div>
               </div>
-            </div>
-            <div className="tb-search-footer">
-              <span>&uarr;&darr; {t("search.navigate")}</span><span>&#8629; {t("search.open")}</span><span>ESC {t("search.close")}</span>
-            </div>
-          </div>
+            </>
+          )}
         </div>
-      )}
+      </div>
     </>
   );
 }
